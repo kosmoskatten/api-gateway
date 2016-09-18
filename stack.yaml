@@ -1,0 +1,13 @@
+# For more information, see: https://github.com/commercialhaskell/stack/blob/release/doc/yaml_configuration.md
+
+resolver: lts-7.0
+packages:
+    - '.'
+
+# Packages to be pulled from upstream that are not in the resolver (e.g., acme-missiles-0.3)
+extra-deps: [hats-0.1.0.0]
+
+# Override default flag values for local packages and extra-deps
+flags: {}
+
+extra-package-dbs: []

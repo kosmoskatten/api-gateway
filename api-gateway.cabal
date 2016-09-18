@@ -1,0 +1,31 @@
+name:                api-gateway
+version:             0.1.0.0
+-- synopsis:
+-- description:
+license:             MIT
+license-file:        LICENSE
+author:              Patrik Sandahl
+maintainer:          patrik.sandahl@ericsson.com
+-- copyright:
+category:            Web
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+executable api-gateway
+  main-is:             Main.hs
+  -- other-modules:
+  -- other-extensions:
+  build-depends:       base >=4.9 && <4.10
+                     , aeson
+                     , hats
+                     , optparse-applicative
+                     , servant-server
+                     , servant-swagger
+                     , text
+                     , wai
+                     , wai-extra
+                     , warp
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  ghc-options:         -Wall -threaded
