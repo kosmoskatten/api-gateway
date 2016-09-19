@@ -3,12 +3,16 @@ module Main
     ) where
 
 import Control.Monad (when)
+import Data.Default.Class (Default (def))
+import Network.Wai
 import Network.Wai.Handler.Warp (run)
+import Network.Wai.Middleware.RequestLogger
 import Options.Applicative
 import System.Exit (exitSuccess)
+import System.Log.FastLogger (defaultBufSize, newFileLoggerSet)
 import Text.Printf (printf)
 
-import Api (CsimAPI, app)
+import Api (app)
 
 -- | Command line options.
 data Options = Options
@@ -48,8 +52,12 @@ main = do
         printf "CSIM API Gateway version %s\n" version
         exitSuccess
 
-    -- Start Warp and make it serve the application.
-    run (apiPort opts) app
+    -- Create the logger from 'Options'.
+    logger <- mkLogger (logType opts) (logDest opts)
+
+    -- Start Warp and make it serve the application. Run a request logger
+    -- as 'Middleware'.
+    run (apiPort opts) $ logger app
 
 version :: String
 version = "0.1.0.0"
@@ -106,3 +114,20 @@ optParser =
                 <> short 'v'
                 <> help "Display program version"
                 )
+
+-- | Setup the logger with format and destination
+mkLogger :: LogType -> Maybe FilePath -> IO Middleware
+mkLogger ApacheLog Nothing =
+    mkRequestLogger $ def {outputFormat = Apache FromSocket}
+
+mkLogger ApacheLog (Just filePath) = do
+    loggerSet <- newFileLoggerSet defaultBufSize filePath
+    mkRequestLogger $ def { outputFormat = Apache FromSocket
+                          , destination  = Logger loggerSet
+                          }
+
+mkLogger DevLog Nothing = mkRequestLogger def
+
+mkLogger DevLog (Just filePath) = do
+    loggerSet <- newFileLoggerSet defaultBufSize filePath
+    mkRequestLogger $ def {destination = Logger loggerSet}
