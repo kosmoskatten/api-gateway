@@ -5,6 +5,7 @@ module Main
 
 import Control.Monad (when)
 import Data.Default.Class (Default (def))
+import Network.Nats (withNats, defaultSettings)
 import Network.Wai
 import Network.Wai.Handler.Warp (run)
 import Network.Wai.Middleware.RequestLogger
@@ -45,8 +46,8 @@ data LogType = DevLog | ApacheLog
 
 main :: IO ()
 main = do
+    -- Capture the command line options.
     opts <- getOptions
-    print opts
 
     -- Check if the user wants to display the version. If so, display version
     -- and then terminate.
@@ -54,14 +55,19 @@ main = do
         printf "CSIM API Gateway version %s\n" version
         exitSuccess
 
-    -- Create the logger from 'Options'.
-    logger <- mkLogger (logType opts) (logDest opts)
+    -- Connect to the specified NATS server.
+    withNats defaultSettings [natsUri opts] $ \nats' -> do
 
-    let self = Self { staticDir = Main.staticDir opts }
+        -- Create the logger from 'Options'.
+        logger <- mkLogger (logType opts) (logDest opts)
 
-    -- Start Warp and make it serve the application. Run a request logger
-    -- as 'Middleware'.
-    run (apiPort opts) $ logger (app self)
+        let self = Self { staticDir = Main.staticDir opts
+                        , nats      = nats'
+                        }
+
+        -- Start Warp and make it serve the application. Run a
+        -- request logger as 'Middleware'.
+        run (apiPort opts) $ logger (app self)
 
 version :: String
 version = "0.1.0.0"

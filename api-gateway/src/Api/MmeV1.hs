@@ -4,6 +4,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE TypeOperators     #-}
+
 module Api.MmeV1
     ( NameRef (..)
     , UrlRef (..)
@@ -21,10 +22,13 @@ module Api.MmeV1
     , getIpConfig
     ) where
 
+import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Text (Text)
 import GHC.Generics (Generic)
+import Network.Nats
 import Servant
+import System.Timeout (timeout)
 
 import Types (Self (..))
 
@@ -39,8 +43,22 @@ data UrlRef = UrlRef
 -- | API for listing all registered Mmes.
 type ListMmes = "api" :> "v1" :> "mme" :> Get '[JSON] [UrlRef]
 
+-- | Request the app.v1.mme service to list all its pco names. If the
+-- request is timing out, a 504 (Gateway Timeout) is returned. If the
+-- requested payload not can be decoded, a 502 (Bad Gateway) is returned.
+-- If everything is ok, 200 Ok is retured with a list of 'UrlRef'.
 listMmes :: Self -> Handler [UrlRef]
-listMmes _ = undefined
+listMmes Self {..} = do
+    mTmo <- liftIO $ timeout 5000000 $ request nats "app.v1.mme.listPcos" ""
+    maybe (throwError err504)
+          (\msg -> maybe (throwError err502)
+                         (return . map toUrlRef)
+                         (jsonPayload msg)
+          ) mTmo
+    where
+        toUrlRef :: Text -> UrlRef
+        toUrlRef mmeName =
+            UrlRef { url = "/api/v1/mme/" `mappend` mmeName }
 
 type CreateMme = "api" :> "v1" :> "mme"
                        :> ReqBody '[JSON] NameRef
