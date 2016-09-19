@@ -12,6 +12,9 @@ data Options = Options
     , apiPort        :: !Int
       -- ^ The network port on which the API Gateway shall listen.
 
+    , rootDir        :: !FilePath
+      -- ^ The root directory for static files.
+
     , logDest        :: !(Maybe FilePath)
       -- ^ A specified log destination (otherwise stdout).
 
@@ -22,6 +25,9 @@ data Options = Options
       -- ^ Display version?
     } deriving Show
 
+-- | Description of the format for the log output. Either it is ApacheLog
+-- style, or it is a more detailed, but less runtime efficient, format
+-- feasible for development.
 data LogType = DevLog | ApacheLog
     deriving Show
 
@@ -49,13 +55,22 @@ optParser =
                 (  long "nats"
                 <> short 'n'
                 <> metavar "<NATS URI>"
-                <> help "NATS URI for connecting to NATS server"
+                <> value "nats://localhost:4222"
+                <> help "NATS URI for connecting to NATS server (default: nats://localhost:4222)"
                 )
             <*> option auto
                 (  long "port"
                 <> short 'p'
                 <> metavar "<PORT>"
-                <> help "Network port on which API Gateway listen"
+                <> value 8000
+                <> help "Network port on which API Gateway listen (default: 8000)"
+                )
+            <*> strOption
+                (  long "root"
+                <> short 'r'
+                <> metavar "<DIRECTORY>"
+                <> value "."
+                <> help "Root directory where to find static files (default: .)"                
                 )
             <*> (optional $ strOption
                     (  long "logdest"
