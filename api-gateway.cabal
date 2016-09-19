@@ -14,7 +14,7 @@ cabal-version:       >=1.10
 
 executable api-gateway
   main-is:             Main.hs
-  -- other-modules:
+  other-modules:       Api
   -- other-extensions:
   build-depends:       base >=4.9 && <4.10
                      , aeson

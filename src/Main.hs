@@ -2,7 +2,13 @@ module Main
     ( main
     ) where
 
+import Control.Monad (when)
+import Network.Wai.Handler.Warp (run)
 import Options.Applicative
+import System.Exit (exitSuccess)
+import Text.Printf (printf)
+
+import Api (CsimAPI, app)
 
 -- | Command line options.
 data Options = Options
@@ -32,7 +38,18 @@ data LogType = DevLog | ApacheLog
     deriving Show
 
 main :: IO ()
-main = print =<< getOptions
+main = do
+    opts <- getOptions
+    print opts
+
+    -- Check if the user wants to display the version. If so, display version
+    -- and then terminate.
+    when (displayVersion opts) $ do
+        printf "CSIM API Gateway version %s\n" version
+        exitSuccess
+
+    -- Start Warp and make it serve the application.
+    run (apiPort opts) app
 
 version :: String
 version = "0.1.0.0"
@@ -70,7 +87,7 @@ optParser =
                 <> short 'r'
                 <> metavar "<DIRECTORY>"
                 <> value "."
-                <> help "Root directory where to find static files (default: .)"                
+                <> help "Root directory where to find static files (default: .)"
                 )
             <*> (optional $ strOption
                     (  long "logdest"
