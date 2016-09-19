@@ -2,9 +2,9 @@
 
 resolver: lts-7.0
 packages:
-    - '.'
+    - 'api-gateway'
 
-# Packages to be pulled from upstream that are not in the resolver (e.g., acme-missiles-0.3)
+# Dependency from Hackage. NATS client for Haskell.
 extra-deps: [hats-0.1.0.0]
 
 # Override default flag values for local packages and extra-deps
