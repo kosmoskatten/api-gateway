@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE TypeOperators     #-}
 
 -- | Entry module where the 'CsimAPI' is defined.
@@ -10,16 +11,26 @@ module Api
 
 import Servant
 
+import Types (Self (..))
+
 -- | Csim API type ...
 type CsimAPI =
     "foo" :> Get '[JSON] [Int]
+    :<|> StaticAPI
 
--- | The application handling the 'CsimAPI'. 
-app :: Application
-app = serve apiProxy apiRouter
+-- | API type for the static file serving service.
+type StaticAPI = Raw
+
+-- | The application handling the 'CsimAPI'.
+app :: Self -> Application
+app = serve apiProxy . apiRouter
 
 apiProxy :: Proxy CsimAPI
 apiProxy = Proxy
 
-apiRouter :: Server CsimAPI
-apiRouter = return [1]
+-- | Handlers for all routes. The routes must be in the same order as
+-- in the 'CsimAPI'.
+apiRouter :: Self -> Server CsimAPI
+apiRouter Self {..} =
+         return [1]
+    :<|> serveDirectory staticDir

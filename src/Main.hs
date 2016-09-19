@@ -13,6 +13,7 @@ import System.Log.FastLogger (defaultBufSize, newFileLoggerSet)
 import Text.Printf (printf)
 
 import Api (app)
+import Types (Self (..))
 
 -- | Command line options.
 data Options = Options
@@ -55,9 +56,11 @@ main = do
     -- Create the logger from 'Options'.
     logger <- mkLogger (logType opts) (logDest opts)
 
+    let self = Self { staticDir = rootDir opts }
+
     -- Start Warp and make it serve the application. Run a request logger
     -- as 'Middleware'.
-    run (apiPort opts) $ logger app
+    run (apiPort opts) $ logger (app self)
 
 version :: String
 version = "0.1.0.0"
