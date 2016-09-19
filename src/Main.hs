@@ -1,3 +1,4 @@
+{-# LANGUAGE DuplicateRecordFields #-}
 module Main
     ( main
     ) where
@@ -23,7 +24,7 @@ data Options = Options
     , apiPort        :: !Int
       -- ^ The network port on which the API Gateway shall listen.
 
-    , rootDir        :: !FilePath
+    , staticDir      :: !FilePath
       -- ^ The root directory for static files.
 
     , logDest        :: !(Maybe FilePath)
@@ -56,7 +57,7 @@ main = do
     -- Create the logger from 'Options'.
     logger <- mkLogger (logType opts) (logDest opts)
 
-    let self = Self { staticDir = rootDir opts }
+    let self = Self { staticDir = Main.staticDir opts }
 
     -- Start Warp and make it serve the application. Run a request logger
     -- as 'Middleware'.
