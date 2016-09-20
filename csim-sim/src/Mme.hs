@@ -1,6 +1,7 @@
-{-# LANGUAGE DeriveAnyClass    #-}
-{-# LANGUAGE DeriveGeneric     #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveAnyClass        #-}
+{-# LANGUAGE DeriveGeneric         #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE OverloadedStrings     #-}
 module Main
     ( main
     ) where
@@ -22,6 +23,11 @@ import Options (Options (..), getOptions)
 
 data Status = Status
     { status :: !Int
+    } deriving (Generic, Show, FromJSON, ToJSON)
+
+data IpConfig = IpConfig
+    { status :: !Int
+    , config :: !(Maybe [Text])
     } deriving (Generic, Show, FromJSON, ToJSON)
 
 -- | Map from a mme name to a list of IP addresses (all represented as 'Text').
@@ -52,6 +58,10 @@ main = do
         -- Subscribe to the listPcos topic.
         void $ subscribeAsync nats "app.v1.mme.listPcos"
                               Nothing (listPcos nats self)
+
+        -- Subscribe to the getIpConfig topic.
+        void $ subscribeAsync nats "app.v1.mme.*.getIpConfig"
+                              Nothing (getIpConfig nats self)
 
         -- Make the main thread staying alive.
         stayAlive
@@ -117,16 +127,31 @@ deletePco nats self msg =
 listPcos :: Nats -> Self -> Msg -> IO ()
 listPcos nats self msg =
     case replyTo msg of
-
-        -- Get all mme names, and return them in a list.
         Just reply ->
             publishJson nats reply Nothing =<< listPcos'
 
-        -- No reply topic supplied.
         Nothing    -> return ()
     where
         listPcos' :: IO [Text]
         listPcos' = HashMap.keys <$> readTVarIO (mmeMap self)
+
+-- | Get the IP config for the given MME.
+getIpConfig :: Nats -> Self -> Msg -> IO ()
+getIpConfig nats self msg =
+    case replyTo msg of
+        Just reply -> do
+            let [_, _, _, name, _] = splitTopic $ topic msg
+                name'              = cs name
+            publishJson nats reply Nothing =<< getIpConfig' name'
+
+        Nothing -> return ()
+    where
+        getIpConfig' :: Text -> IO IpConfig
+        getIpConfig' name = do
+            maybeConfig <- HashMap.lookup name <$> readTVarIO (mmeMap self)
+            case maybeConfig of
+                Just c  -> return $ IpConfig { status = 200, config = Just c }
+                Nothing -> return $ IpConfig { status = 404, config = Nothing }
 
 -- | Generate a new pseudo IP address.
 ipAddress :: Int -> Text

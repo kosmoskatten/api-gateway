@@ -1,9 +1,10 @@
-{-# LANGUAGE DataKinds         #-}
-{-# LANGUAGE DeriveAnyClass    #-}
-{-# LANGUAGE DeriveGeneric     #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards   #-}
-{-# LANGUAGE TypeOperators     #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE DeriveAnyClass        #-}
+{-# LANGUAGE DeriveGeneric         #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE RecordWildCards       #-}
+{-# LANGUAGE TypeOperators         #-}
 
 module Api.MmeV1
     ( NameRef (..)
@@ -23,6 +24,7 @@ module Api.MmeV1
     ) where
 
 import Data.Aeson (FromJSON, ToJSON)
+import Data.Maybe (fromJust)
 import Data.String.Conversions (cs)
 import Data.Text (Text)
 import GHC.Generics (Generic)
@@ -42,6 +44,11 @@ data UrlRef = UrlRef
 
 data Status = Status
     { status :: !Int
+    } deriving (Generic, Show, FromJSON, ToJSON)
+
+data IpConfig = IpConfig
+    { status :: !Int
+    , config :: !(Maybe [Text])
     } deriving (Generic, Show, FromJSON, ToJSON)
 
 -- | API for listing all registered Mmes.
@@ -92,11 +99,22 @@ deleteMme Self {..} name = do
                 404 -> throwError err404
                 _   -> throwError err502
 
-type GetIpConfig = "api" :> "v1" :> "mme" :> Capture "name" Text
+type GetIpConfig = "api" :> "v1" :> "mme" :> Capture "name" Text :> "ip_config"
                          :> Get '[JSON] [Text]
 
+-- | Request the app.v1.mme.<name>.getIpConfig to send its IP config.
 getIpConfig :: Self -> Text -> Handler [Text]
-getIpConfig = undefined
+getIpConfig Self {..} name = do
+    let topic' = "app.v1.mme." `mappend` (cs name) `mappend` ".getIpConfig"
+    tmoRequest tmo (request nats topic' "") $ \msg ->
+        maybe (throwError err502) handleStatus (jsonPayload msg)
+    where
+        handleStatus :: IpConfig -> Handler [Text]
+        handleStatus IpConfig {..} =
+            case status of
+                200 -> return $ fromJust config
+                404 -> throwError err404
+                _   -> throwError err502
 
 toUrlRef :: Text -> UrlRef
 toUrlRef mmeName =
