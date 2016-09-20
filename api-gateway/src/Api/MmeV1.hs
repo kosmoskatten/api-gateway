@@ -22,14 +22,13 @@ module Api.MmeV1
     , getIpConfig
     ) where
 
-import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Text (Text)
 import GHC.Generics (Generic)
 import Network.Nats
 import Servant
-import System.Timeout (timeout)
 
+import Api.Common (tmoRequest)
 import Types (Self (..))
 
 data NameRef = NameRef
@@ -48,13 +47,9 @@ type ListMmes = "api" :> "v1" :> "mme" :> Get '[JSON] [UrlRef]
 -- requested payload not can be decoded, a 502 (Bad Gateway) is returned.
 -- If everything is ok, 200 Ok is retured with a list of 'UrlRef'.
 listMmes :: Self -> Handler [UrlRef]
-listMmes Self {..} = do
-    mTmo <- liftIO $ timeout 5000000 $ request nats "app.v1.mme.listPcos" ""
-    maybe (throwError err504)
-          (\msg -> maybe (throwError err502)
-                         (return . map toUrlRef)
-                         (jsonPayload msg)
-          ) mTmo
+listMmes Self {..} =
+    tmoRequest tmo (request nats "app.v1.mme.listPcos" "") $ \msg ->
+        maybe (throwError err502) (return . map toUrlRef) (jsonPayload msg)
     where
         toUrlRef :: Text -> UrlRef
         toUrlRef mmeName =

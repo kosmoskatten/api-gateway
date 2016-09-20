@@ -15,7 +15,7 @@ import System.Log.FastLogger (defaultBufSize, newFileLoggerSet)
 import Text.Printf (printf)
 
 import Api (app)
-import Types (Self (..))
+import Types (Self (..), TmoSec (..))
 
 -- | Command line options.
 data Options = Options
@@ -27,6 +27,10 @@ data Options = Options
 
     , staticDir      :: !FilePath
       -- ^ The root directory for static files.
+
+    , timeout        :: !Int
+      -- ^ A timeout value in seconds how long the API Gateway shall wait
+      -- until a component answer a request.
 
     , logDest        :: !(Maybe FilePath)
       -- ^ A specified log destination (otherwise stdout).
@@ -63,6 +67,7 @@ main = do
 
         let self = Self { staticDir = Main.staticDir opts
                         , nats      = nats'
+                        , tmo       = TmoSec $ timeout opts
                         }
 
         -- Start Warp and make it serve the application. Run a
@@ -106,6 +111,13 @@ optParser =
                 <> metavar "<DIRECTORY>"
                 <> value "."
                 <> help "Root directory where to find static files (default: .)"
+                )
+            <*> option auto
+                (  long "timeout"
+                <> short 't'
+                <> metavar "<SECONDS>"
+                <> value 5
+                <> help "Timeout duration for requests (default: 5)"
                 )
             <*> (optional $ strOption
                     (  long "logdest"
