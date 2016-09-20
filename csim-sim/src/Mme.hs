@@ -20,7 +20,7 @@ import qualified Data.Text as Text
 import Common (stayAlive, splitTopic)
 import Options (Options (..), getOptions)
 
-data CreateStatus = CreateStatus
+data Status = Status
     { status :: !Int
     } deriving (Generic, Show, FromJSON, ToJSON)
 
@@ -45,6 +45,10 @@ main = do
         void $ subscribeAsync nats "app.v1.mme.createPco.*"
                               Nothing (createPco nats self)
 
+        -- Subscribe to tje deletePco topic.
+        void $ subscribeAsync nats "app.v1.mme.deletePco.*"
+                              Nothing (deletePco nats self)
+
         -- Subscribe to the listPcos topic.
         void $ subscribeAsync nats "app.v1.mme.listPcos"
                               Nothing (listPcos nats self)
@@ -64,12 +68,12 @@ createPco nats self msg =
 
         Nothing    -> return ()
     where
-        createPco' :: Text -> IO CreateStatus
+        createPco' :: Text -> IO Status
         createPco' name = do
             inserted <- atomically $ maybeInsertMme name
             if inserted
-                then return $ CreateStatus { status = 201 }
-                else return $ CreateStatus { status = 409 }
+                then return $ Status { status = 201 }
+                else return $ Status { status = 409 }
 
         maybeInsertMme :: Text -> STM Bool
         maybeInsertMme name = do
@@ -82,6 +86,32 @@ createPco nats self msg =
                     writeTVar (mmeMap self) $
                         HashMap.insert name [ipAddress ip] mmes
                     return True
+
+deletePco :: Nats -> Self -> Msg -> IO ()
+deletePco nats self msg =
+    case replyTo msg of
+        Just reply -> do
+            let [_, _, _, _, name] = splitTopic $ topic msg
+                name'              = cs name
+            publishJson nats reply Nothing =<< deletePco' name'
+
+        Nothing    -> return ()
+    where
+        deletePco' :: Text -> IO Status
+        deletePco' name = do
+            deleted <- atomically $ maybeDeleteMme name
+            if deleted
+                then return $ Status { status = 200 }
+                else return $ Status { status = 404 }
+
+        maybeDeleteMme :: Text -> STM Bool
+        maybeDeleteMme name = do
+            mmes <- readTVar $ mmeMap self
+            case HashMap.lookup name mmes of
+                Just _  -> do
+                    modifyTVar (mmeMap self) $ HashMap.delete name
+                    return True
+                Nothing -> return False
 
 -- | List all MME pcos.
 listPcos :: Nats -> Self -> Msg -> IO ()

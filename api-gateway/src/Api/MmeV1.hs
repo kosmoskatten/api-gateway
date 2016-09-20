@@ -40,7 +40,7 @@ data UrlRef = UrlRef
     { url :: !Text
     } deriving (Generic, Show, FromJSON, ToJSON)
 
-data CreateStatus = CreateStatus
+data Status = Status
     { status :: !Int
     } deriving (Generic, Show, FromJSON, ToJSON)
 
@@ -68,8 +68,8 @@ createMme Self {..} NameRef {..} = do
     tmoRequest tmo (request nats topic' "") $ \msg ->
         maybe (throwError err502) handleStatus (jsonPayload msg)
     where
-        handleStatus :: CreateStatus -> Handler UrlRef
-        handleStatus CreateStatus {..} =
+        handleStatus :: Status -> Handler UrlRef
+        handleStatus Status {..} =
             case status of
                 201 -> return $ toUrlRef name
                 409 -> throwError err409
@@ -78,8 +78,19 @@ createMme Self {..} NameRef {..} = do
 type DeleteMme = "api" :> "v1" :> "mme" :> Capture "name" Text
                        :> DeleteNoContent '[JSON] NoContent
 
+-- | Request the app.v1.mme.deletePco to delete the pco with the given name.
 deleteMme :: Self -> Text -> Handler NoContent
-deleteMme = undefined
+deleteMme Self {..} name = do
+    let topic' = "app.v1.mme.deletePco." `mappend` (cs name)
+    tmoRequest tmo (request nats topic' "") $ \msg ->
+        maybe (throwError err502) handleStatus (jsonPayload msg)
+    where
+        handleStatus :: Status -> Handler NoContent
+        handleStatus Status {..} =
+            case status of
+                200 -> return NoContent
+                404 -> throwError err404
+                _   -> throwError err502
 
 type GetIpConfig = "api" :> "v1" :> "mme" :> Capture "name" Text
                          :> Get '[JSON] [Text]
