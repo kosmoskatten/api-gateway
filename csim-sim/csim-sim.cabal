@@ -14,12 +14,16 @@ cabal-version:       >=1.10
 
 executable mme-sim
   main-is:             Mme.hs
-  -- other-modules:
+  other-modules:       Common
+                       Options
   -- other-extensions:
   build-depends:       base >=4.9 && <4.10
                      , aeson
+                     , bytestring
                      , hats
+                     , optparse-applicative
                      , stm
+                     , string-conversions
                      , text
                      , unordered-containers
   hs-source-dirs:      src
