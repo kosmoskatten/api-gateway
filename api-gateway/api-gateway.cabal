@@ -27,6 +27,7 @@ executable api-gateway
                      , optparse-applicative
                      , servant-server
                      , servant-swagger
+                     , string-conversions
                      , text
                      , wai
                      , wai-extra
