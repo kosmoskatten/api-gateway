@@ -3,8 +3,7 @@
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE TypeOperators     #-}
 
--- | Entry module where the 'CsimAPI' and it's API serving Application
--- 'csimAPI' is defined.
+-- | Entry module where the main APIs, 'CsimAPI' and 'API', are defined.
 module Api
     ( app
     , prettySwagger
@@ -20,12 +19,13 @@ import Servant.Swagger
 import Api.MmeV1 (MmeV1API, mmeV1Service)
 import Types (Self (..))
 
--- | The top level, combined, API.
+-- | The top level and combined API.
 type API = CsimAPI :<|> SwaggerAPI :<|> StaticAPI
 
--- | The CSIM API, combined by the various sub APIs.
+-- | The CSIM API, combined by the various sub APIs for CSIM.
 type CsimAPI = MmeV1API
 
+-- | API type for serving the Swagger file for 'CsimAPI'.
 type SwaggerAPI = "api" :> "swagger.json" :> Get '[JSON] Swagger
 
 -- | API type for the static file serving service.
@@ -33,9 +33,9 @@ type StaticAPI = Raw
 
 -- | The application handling the 'API'.
 app :: Self -> Application
-app = serve apiProxy . apiServer
+app = serve apiProxy . apiService
 
--- | A prettified Swagger output for Csim's API.
+-- | A prettified Swagger output 'CsimAPI'.
 prettySwagger :: ByteString
 prettySwagger = encodePretty csimSwagger
 
@@ -45,18 +45,23 @@ apiProxy = Proxy
 csimProxy :: Proxy CsimAPI
 csimProxy = Proxy
 
--- | Handlers for all routes. The routes must be in the same order as
--- in the 'CsimAPI'.
-apiServer :: Self -> Server API
-apiServer self@Self {..}
-    -- Service for Mme (V1).
-    = mmeV1Service self
+-- | Service to provide the 'CsimAPI'.
+csimService :: Self -> Server CsimAPI
+csimService self = mmeV1Service self
 
+-- | Service to provide the full 'API'.
+apiService :: Self -> Server API
+apiService self@Self {..}
+      -- CSIM.
+    = csimService self
+
+      -- Swagger.
  :<|> return csimSwagger
 
-    -- Handler for static file serving.
+    -- Static files.
  :<|> serveDirectory staticDir
 
+-- | Generate Swagger for 'CsimAPI'.
 csimSwagger :: Swagger
 csimSwagger = toSwagger csimProxy
     & info.title .~ "CSIM API"

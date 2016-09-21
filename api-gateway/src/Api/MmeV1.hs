@@ -6,6 +6,7 @@
 {-# LANGUAGE RecordWildCards       #-}
 {-# LANGUAGE TypeOperators         #-}
 
+-- | Module implementing version 1 of the MME REST interface.
 module Api.MmeV1
     ( MmeV1API
     , mmeV1Service
@@ -24,36 +25,49 @@ import Servant
 import Api.Common (tmoRequest)
 import Types (Self (..))
 
+-- | The type specifying the interface's endpoints.
 type MmeV1API
+      -- List all registered MMEs.
     = "api" :> "v1" :> "mme" :> Get '[JSON] [UrlRef]
+
+      -- Create a new MME with the given name.
  :<|> "api" :> "v1" :> "mme" :> ReqBody '[JSON] NameRef
                              :> PostCreated '[JSON] UrlRef
+
+      -- Delete the referenced MME.
  :<|> "api" :> "v1" :> "mme" :> Capture "name" Text
                              :> DeleteNoContent '[JSON] NoContent
+
+      -- Get the IP config for the referenced MME.
  :<|> "api" :> "v1" :> "mme" :> Capture "name" Text :> "ip_config"
                              :> Get '[JSON] [Text]
 
+-- | JSON object with one member, the name of the MME to be created.
 data NameRef = NameRef
     { name :: !Text
     } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
 
 instance ToSchema NameRef
 
+-- | JSON object with one member, the url to a MME resource.
 data UrlRef = UrlRef
     { url :: !Text
     } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
 
 instance ToSchema UrlRef
 
+-- | Status indicator from the MME component.
 data Status = Status
     { status :: !Int
     } deriving (Generic, Show, FromJSON, ToJSON)
 
+-- Status indicator, with payload, from the MME component.
 data IpConfig = IpConfig
     { status :: !Int
     , config :: !(Maybe [Text])
     } deriving (Generic, Show, FromJSON, ToJSON)
 
+-- | The service implementing the 'MmeV1API'.
 mmeV1Service :: Self -> Server MmeV1API
 mmeV1Service self
     = listMmes self
