@@ -7,20 +7,8 @@
 {-# LANGUAGE TypeOperators         #-}
 
 module Api.MmeV1
-    ( NameRef (..)
-    , UrlRef (..)
-
-    , ListMmes
-    , listMmes
-
-    , CreateMme
-    , createMme
-
-    , DeleteMme
-    , deleteMme
-
-    , GetIpConfig
-    , getIpConfig
+    ( MmeV1API
+    , mmeV1Service
     ) where
 
 import Data.Aeson (FromJSON, ToJSON)
@@ -35,6 +23,15 @@ import Servant
 
 import Api.Common (tmoRequest)
 import Types (Self (..))
+
+type MmeV1API
+    = "api" :> "v1" :> "mme" :> Get '[JSON] [UrlRef]
+ :<|> "api" :> "v1" :> "mme" :> ReqBody '[JSON] NameRef
+                             :> PostCreated '[JSON] UrlRef
+ :<|> "api" :> "v1" :> "mme" :> Capture "name" Text
+                             :> DeleteNoContent '[JSON] NoContent
+ :<|> "api" :> "v1" :> "mme" :> Capture "name" Text :> "ip_config"
+                             :> Get '[JSON] [Text]
 
 data NameRef = NameRef
     { name :: !Text
@@ -57,8 +54,12 @@ data IpConfig = IpConfig
     , config :: !(Maybe [Text])
     } deriving (Generic, Show, FromJSON, ToJSON)
 
--- | API for listing all registered Mmes.
-type ListMmes = "api" :> "v1" :> "mme" :> Get '[JSON] [UrlRef]
+mmeV1Service :: Self -> Server MmeV1API
+mmeV1Service self
+    = listMmes self
+ :<|> createMme self
+ :<|> deleteMme self
+ :<|> getIpConfig self
 
 -- | Request the app.v1.mme service to list all its pco names. If the
 -- request is timing out, a 504 (Gateway Timeout) is returned. If the
@@ -68,10 +69,6 @@ listMmes :: Self -> Handler [UrlRef]
 listMmes Self {..} =
     tmoRequest tmo (request nats "app.v1.mme.listPcos" "") $ \msg ->
         maybe (throwError err502) (return . map toUrlRef) (jsonPayload msg)
-
-type CreateMme = "api" :> "v1" :> "mme"
-                       :> ReqBody '[JSON] NameRef
-                       :> PostCreated '[JSON] UrlRef
 
 -- | Request the app.v1.mme.createPco service to create a new pco with
 -- the given name.
@@ -88,9 +85,6 @@ createMme Self {..} NameRef {..} = do
                 409 -> throwError err409
                 _   -> throwError err502
 
-type DeleteMme = "api" :> "v1" :> "mme" :> Capture "name" Text
-                       :> DeleteNoContent '[JSON] NoContent
-
 -- | Request the app.v1.mme.deletePco to delete the pco with the given name.
 deleteMme :: Self -> Text -> Handler NoContent
 deleteMme Self {..} name = do
@@ -104,9 +98,6 @@ deleteMme Self {..} name = do
                 200 -> return NoContent
                 404 -> throwError err404
                 _   -> throwError err502
-
-type GetIpConfig = "api" :> "v1" :> "mme" :> Capture "name" Text :> "ip_config"
-                         :> Get '[JSON] [Text]
 
 -- | Request the app.v1.mme.<name>.getIpConfig to send its IP config.
 getIpConfig :: Self -> Text -> Handler [Text]

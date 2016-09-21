@@ -16,7 +16,7 @@ import Text.Printf (printf)
 
 import qualified Data.ByteString.Lazy.Char8 as LBS
 
-import Api (api, prettySwagger)
+import Api (app, prettySwagger)
 import Types (Self (..), TmoSec (..))
 
 -- | Command line options.
@@ -83,7 +83,7 @@ main = do
 
         -- Start Warp and make it serve the application. Run a
         -- request logger as 'Middleware'.
-        run (apiPort opts) $ logger (api self)
+        run (apiPort opts) $ logger (app self)
 
 -- | Current version of the CSIM API Gateway.
 version :: String

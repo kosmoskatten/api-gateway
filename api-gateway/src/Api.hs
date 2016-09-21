@@ -6,7 +6,7 @@
 -- | Entry module where the 'CsimAPI' and it's API serving Application
 -- 'csimAPI' is defined.
 module Api
-    ( api
+    ( app
     , prettySwagger
     ) where
 
@@ -17,48 +17,46 @@ import Data.Swagger
 import Servant
 import Servant.Swagger
 
+import Api.MmeV1 (MmeV1API, mmeV1Service)
 import Types (Self (..))
 
-import qualified Api.MmeV1 as MmeV1
+-- | The top level, combined, API.
+type API = CsimAPI :<|> SwaggerAPI :<|> StaticAPI
 
--- | Csim API type ...
-type CsimAPI =
-    -- Endpoints for Mme (V1).
-         MmeV1.ListMmes
-    :<|> MmeV1.CreateMme
-    :<|> MmeV1.DeleteMme
-    :<|> MmeV1.GetIpConfig
+-- | The CSIM API, combined by the various sub APIs.
+type CsimAPI = MmeV1API
 
-    -- Endpoint to serve static files.
-    :<|> StaticAPI
+type SwaggerAPI = "api" :> "swagger.json" :> Get '[JSON] Swagger
 
 -- | API type for the static file serving service.
 type StaticAPI = Raw
 
--- | The application handling the 'CsimAPI'.
-api :: Self -> Application
-api = serve apiProxy . apiRouter
+-- | The application handling the 'API'.
+app :: Self -> Application
+app = serve apiProxy . apiServer
 
 -- | A prettified Swagger output for Csim's API.
 prettySwagger :: ByteString
 prettySwagger = encodePretty csimSwagger
 
-apiProxy :: Proxy CsimAPI
+apiProxy :: Proxy API
 apiProxy = Proxy
+
+csimProxy :: Proxy CsimAPI
+csimProxy = Proxy
 
 -- | Handlers for all routes. The routes must be in the same order as
 -- in the 'CsimAPI'.
-apiRouter :: Self -> Server CsimAPI
-apiRouter self@Self {..} =
-    -- Handlers for Mme (V1).
-         MmeV1.listMmes self
-    :<|> MmeV1.createMme self
-    :<|> MmeV1.deleteMme self
-    :<|> MmeV1.getIpConfig self
+apiServer :: Self -> Server API
+apiServer self@Self {..}
+    -- Service for Mme (V1).
+    = mmeV1Service self
+
+ :<|> return csimSwagger
 
     -- Handler for static file serving.
-    :<|> serveDirectory staticDir
+ :<|> serveDirectory staticDir
 
 csimSwagger :: Swagger
-csimSwagger = toSwagger apiProxy
+csimSwagger = toSwagger csimProxy
     & info.title .~ "CSIM API"
