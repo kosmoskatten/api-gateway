@@ -21,13 +21,17 @@ executable api-gateway
   -- other-extensions:
   build-depends:       base >=4.9 && <4.10
                      , aeson
+                     , aeson-pretty
+                     , bytestring
                      , data-default-class
                      , fast-logger
                      , hats
+                     , lens
                      , optparse-applicative
                      , servant-server
                      , servant-swagger
                      , string-conversions
+                     , swagger2
                      , text
                      , wai
                      , wai-extra

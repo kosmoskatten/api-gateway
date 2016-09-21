@@ -14,7 +14,9 @@ import System.Exit (exitSuccess)
 import System.Log.FastLogger (defaultBufSize, newFileLoggerSet)
 import Text.Printf (printf)
 
-import Api (app)
+import qualified Data.ByteString.Lazy.Char8 as LBS
+
+import Api (api, prettySwagger)
 import Types (Self (..), TmoSec (..))
 
 -- | Command line options.
@@ -40,6 +42,9 @@ data Options = Options
 
     , displayVersion :: !Bool
       -- ^ Display version?
+
+    , swagger        :: !Bool
+      -- ^ Generate swagger.json
     } deriving Show
 
 -- | Description of the format for the log output. Either it is ApacheLog
@@ -59,6 +64,12 @@ main = do
         printf "CSIM API Gateway version %s\n" version
         exitSuccess
 
+    -- Check if the user wants to write a pretty printed 'swagger.json' file.
+    -- If to, write it to the current directory and then terminate.
+    when (swagger opts) $ do
+        LBS.writeFile "swagger.json" prettySwagger
+        exitSuccess
+
     -- Connect to the specified NATS server.
     withNats defaultSettings [natsUri opts] $ \nats' -> do
 
@@ -72,8 +83,9 @@ main = do
 
         -- Start Warp and make it serve the application. Run a
         -- request logger as 'Middleware'.
-        run (apiPort opts) $ logger (app self)
+        run (apiPort opts) $ logger (api self)
 
+-- | Current version of the CSIM API Gateway.
 version :: String
 version = "0.1.0.0"
 
@@ -110,7 +122,7 @@ optParser =
                 <> short 'r'
                 <> metavar "<DIRECTORY>"
                 <> value "."
-                <> help "Root directory where to find static files (default: .)"
+                <> help "Root directory where to find static files (default: '.')"
                 )
             <*> option auto
                 (  long "timeout"
@@ -135,6 +147,11 @@ optParser =
                 (  long "version"
                 <> short 'v'
                 <> help "Display program version"
+                )
+            <*> switch
+                (  long "swagger"
+                <> short 's'
+                <> help "Generate 'swagger.json' in current directory"
                 )
 
 -- | Setup the logger with format and destination

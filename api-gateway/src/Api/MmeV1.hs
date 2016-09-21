@@ -27,6 +27,8 @@ import Data.Aeson (FromJSON, ToJSON)
 import Data.Maybe (fromJust)
 import Data.String.Conversions (cs)
 import Data.Text (Text)
+import Data.Typeable (Typeable)
+import Data.Swagger (ToSchema)
 import GHC.Generics (Generic)
 import Network.Nats
 import Servant
@@ -36,11 +38,15 @@ import Types (Self (..))
 
 data NameRef = NameRef
     { name :: !Text
-    } deriving (Generic, Show, FromJSON, ToJSON)
+    } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
+
+instance ToSchema NameRef
 
 data UrlRef = UrlRef
     { url :: !Text
-    } deriving (Generic, Show, FromJSON, ToJSON)
+    } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
+
+instance ToSchema UrlRef
 
 data Status = Status
     { status :: !Int

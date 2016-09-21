@@ -3,13 +3,19 @@
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE TypeOperators     #-}
 
--- | Entry module where the 'CsimAPI' is defined.
+-- | Entry module where the 'CsimAPI' and it's API serving Application
+-- 'csimAPI' is defined.
 module Api
-    ( CsimAPI
-    , app
+    ( api
+    , prettySwagger
     ) where
 
+import Control.Lens
+import Data.Aeson.Encode.Pretty (encodePretty)
+import Data.ByteString.Lazy (ByteString)
+import Data.Swagger
 import Servant
+import Servant.Swagger
 
 import Types (Self (..))
 
@@ -23,15 +29,19 @@ type CsimAPI =
     :<|> MmeV1.DeleteMme
     :<|> MmeV1.GetIpConfig
 
-    -- Endpoint for access to static files.
+    -- Endpoint to serve static files.
     :<|> StaticAPI
 
 -- | API type for the static file serving service.
 type StaticAPI = Raw
 
 -- | The application handling the 'CsimAPI'.
-app :: Self -> Application
-app = serve apiProxy . apiRouter
+api :: Self -> Application
+api = serve apiProxy . apiRouter
+
+-- | A prettified Swagger output for Csim's API.
+prettySwagger :: ByteString
+prettySwagger = encodePretty csimSwagger
 
 apiProxy :: Proxy CsimAPI
 apiProxy = Proxy
@@ -48,3 +58,7 @@ apiRouter self@Self {..} =
 
     -- Handler for static file serving.
     :<|> serveDirectory staticDir
+
+csimSwagger :: Swagger
+csimSwagger = toSwagger apiProxy
+    & info.title .~ "CSIM API"
