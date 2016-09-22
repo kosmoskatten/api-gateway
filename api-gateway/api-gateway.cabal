@@ -17,6 +17,7 @@ executable api-gateway
   other-modules:       Api
                        Api.Common
                        Api.MmeV1
+                       Api.MsueV1
                        Types
   -- other-extensions:
   build-depends:       base >=4.9 && <4.10
