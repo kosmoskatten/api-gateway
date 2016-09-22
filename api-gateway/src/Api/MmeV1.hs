@@ -12,15 +12,20 @@ module Api.MmeV1
     , mmeV1Service
     ) where
 
-import Data.Aeson (FromJSON, ToJSON)
+import Control.Lens ((&), (?~), mapped)
+import Data.Aeson (FromJSON, ToJSON, toJSON)
 import Data.Maybe (fromJust)
 import Data.String.Conversions (cs)
 import Data.Text (Text)
 import Data.Typeable (Typeable)
-import Data.Swagger (ToSchema)
+import Data.Swagger ( ToSchema (..), genericDeclareNamedSchema
+                    , defaultSchemaOptions, schema
+                    , description, example
+                    )
 import GHC.Generics (Generic)
 import Network.Nats
 import Servant
+import Servant.Swagger
 
 import Api.Common (tmoRequest)
 import Types (Self (..))
@@ -47,14 +52,24 @@ data NameRef = NameRef
     { name :: !Text
     } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
 
-instance ToSchema NameRef
+-- | Swagger schema for 'NameRef'
+instance ToSchema NameRef where
+    declareNamedSchema proxy =
+        genericDeclareNamedSchema defaultSchemaOptions proxy
+            & mapped.schema.description ?~ "Object naming a resource"
+            & mapped.schema.example ?~ toJSON (NameRef "mme1")
 
 -- | JSON object with one member, the url to a MME resource.
 data UrlRef = UrlRef
     { url :: !Text
     } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
 
-instance ToSchema UrlRef
+-- | Swagger schema for 'UrlRef'.
+instance ToSchema UrlRef where
+    declareNamedSchema proxy =
+        genericDeclareNamedSchema defaultSchemaOptions proxy
+            & mapped.schema.description ?~ "Object holding a resource URL"
+            & mapped.schema.example ?~ toJSON (UrlRef "/api/v1/mme/mme1")
 
 -- | Status indicator from the MME component.
 data Status = Status
