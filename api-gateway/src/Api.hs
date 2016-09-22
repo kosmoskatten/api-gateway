@@ -64,4 +64,7 @@ apiService self@Self {..}
 -- | Generate Swagger for 'CsimAPI'.
 csimSwagger :: Swagger
 csimSwagger = toSwagger csimProxy
-    & info.title .~ "CSIM API"
+    & info.title .~ "CSIM REST API"
+    & info.version .~ "1.0"
+    & info.description ?~ "REST API to provide access to CSIM services."
+    & info.license ?~ "Copyright (c) Ericsson, 2016"
