@@ -25,7 +25,6 @@ import Data.Swagger ( ToSchema (..), genericDeclareNamedSchema
 import GHC.Generics (Generic)
 import Network.Nats
 import Servant
-import Servant.Swagger
 
 import Api.Common (tmoRequest)
 import Types (Self (..))

@@ -45,6 +45,9 @@ apiProxy = Proxy
 csimProxy :: Proxy CsimAPI
 csimProxy = Proxy
 
+mmeV1Proxy :: Proxy MmeV1API
+mmeV1Proxy = Proxy
+
 -- | Service to provide the 'CsimAPI'.
 csimService :: Self -> Server CsimAPI
 csimService self = mmeV1Service self
@@ -63,8 +66,14 @@ apiService self@Self {..}
 
 -- | Generate Swagger for 'CsimAPI'.
 csimSwagger :: Swagger
-csimSwagger = toSwagger csimProxy
-    & info.title .~ "CSIM REST API"
-    & info.version .~ "1.0"
-    & info.description ?~ "REST API to provide access to CSIM services."
-    & info.license ?~ "Copyright (c) Ericsson, 2016"
+csimSwagger =
+    toSwagger csimProxy
+        & info.title .~ "CSIM REST API"
+        & info.version .~ "1.0"
+        & info.description ?~ "REST API to provide access to CSIM services."
+        & info.license ?~ "Copyright (c) Ericsson, 2016"
+        & applyTagsFor mmeV1 [ "mme (version 1)"
+                                    & description ?~ "Manage MMEs" ]
+    where
+        mmeV1 :: Traversal' Swagger Operation
+        mmeV1 = subOperations mmeV1Proxy csimProxy
