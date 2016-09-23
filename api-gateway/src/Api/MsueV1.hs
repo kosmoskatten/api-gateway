@@ -38,10 +38,22 @@ type MsueV1API
  :<|> "api" :> "v1" :> "msue" :> Capture "imsi" Text
                               :> DeleteNoContent '[JSON] NoContent
 
+      -- Get the preferred EUtran cell attribute for the UE.
+ :<|> "api" :> "v1" :> "msue" :> Capture "imsi" Text
+                              :> "preferred-eutran-cell"
+                              :> Get '[JSON] PciRef
+
+      -- Set the preferred EUtran cell attribute for the UE.
+ :<|> "api" :> "v1" :> "msue" :> Capture "imsi" Text
+                              :> "preferred-eutran-cell"
+                              :> PutNoContent '[JSON] NoContent
+
+-- | JSON object with one member, the pci of the preferred cell.
 data PciRef = PciRef
     { pci :: !Int
     } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
 
+-- | Swagger schema for 'PciRef'.
 instance ToSchema PciRef where
     declareNamedSchema proxy =
         genericDeclareNamedSchema defaultSchemaOptions proxy
