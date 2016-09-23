@@ -102,7 +102,7 @@ listMmes Self {..} =
 -- the given name.
 createMme :: Self -> NameRef -> Handler MmeUrlRef
 createMme Self {..} NameRef {..} = do
-    let topic' = "app.v1.mme.createPco." `mappend` (cs name)
+    let topic' = "app.v1.mme.createPco." `mappend` cs name
     tmoRequest tmo (request nats topic' "") $ \msg ->
         maybe (throwError err502) handleStatus (jsonPayload msg)
     where
@@ -116,7 +116,7 @@ createMme Self {..} NameRef {..} = do
 -- | Request the app.v1.mme.deletePco to delete the pco with the given name.
 deleteMme :: Self -> Text -> Handler NoContent
 deleteMme Self {..} name = do
-    let topic' = "app.v1.mme.deletePco." `mappend` (cs name)
+    let topic' = "app.v1.mme.deletePco." `mappend` cs name
     tmoRequest tmo (request nats topic' "") $ \msg ->
         maybe (throwError err502) handleStatus (jsonPayload msg)
     where
@@ -130,7 +130,7 @@ deleteMme Self {..} name = do
 -- | Request the app.v1.mme.<name>.getIpConfig to send its IP config.
 getIpConfig :: Self -> Text -> Handler [Text]
 getIpConfig Self {..} name = do
-    let topic' = "app.v1.mme." `mappend` (cs name) `mappend` ".getIpConfig"
+    let topic' = "app.v1.mme." `mappend` cs name `mappend` ".getIpConfig"
     tmoRequest tmo (request nats topic' "") $ \msg ->
         maybe (throwError err502) handleStatus (jsonPayload msg)
     where

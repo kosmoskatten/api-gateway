@@ -131,7 +131,7 @@ optParser =
                 <> value 5
                 <> help "Timeout duration for requests (default: 5)"
                 )
-            <*> (optional $ strOption
+            <*> optional (strOption
                     (  long "logdest"
                     <> short 'l'
                     <> metavar "<FILEPATH>"

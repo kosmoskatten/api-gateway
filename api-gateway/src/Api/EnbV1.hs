@@ -50,14 +50,14 @@ instance ToSchema EnbCtor where
         genericDeclareNamedSchema defaultSchemaOptions proxy
             & mapped.schema.description ?~ "eNodeB constructor object"
             & mapped.schema.example ?~
-                toJSON ( EnbCtor { name   = "enb1"
-                                 , enbId  = 1001
-                                 , plmnId = PlmnId { mcc       = 234
-                                                   , mnc       = 89
-                                                   , mncLength = 2
-                                                   }
-                                 }
-                       )
+                toJSON EnbCtor { name   = "enb1"
+                               , enbId  = 1001
+                               , plmnId = PlmnId { mcc       = 234
+                                                 , mnc       = 89
+                                                 , mncLength = 2
+                                                 }
+                                }
+
 
 data PlmnId = PlmnId
     { mcc       :: !Int
@@ -71,11 +71,10 @@ instance ToSchema PlmnId where
         genericDeclareNamedSchema defaultSchemaOptions proxy
             & mapped.schema.description ?~ "Object describing a plmn id"
             & mapped.schema.example ?~
-                toJSON (PlmnId { mcc       = 234
-                               , mnc       = 89
-                               , mncLength = 2
-                               }
-                       )
+                toJSON PlmnId { mcc       = 234
+                              , mnc       = 89
+                              , mncLength = 2
+                              }
 
 -- | JSON object with one member, the url to an eNodeB resource.
 data EnbUrlRef = EnbUrlRef
