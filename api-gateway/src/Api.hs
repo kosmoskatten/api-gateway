@@ -16,6 +16,7 @@ import Data.Swagger
 import Servant
 import Servant.Swagger
 
+import Api.EnbV1 (EnbV1API, enbV1Service)
 import Api.MmeV1 (MmeV1API, mmeV1Service)
 import Api.MsueV1 (MsueV1API, msueV1Service)
 import Types (Self (..))
@@ -24,7 +25,7 @@ import Types (Self (..))
 type API = CsimAPI :<|> SwaggerAPI :<|> StaticAPI
 
 -- | The CSIM API, combined by the various sub APIs for CSIM.
-type CsimAPI = MmeV1API :<|> MsueV1API
+type CsimAPI = MmeV1API :<|> MsueV1API :<|> EnbV1API
 
 -- | API type for serving the Swagger file for 'CsimAPI'.
 type SwaggerAPI = "api" :> "swagger.json" :> Get '[JSON] Swagger
@@ -52,11 +53,15 @@ mmeV1Proxy = Proxy
 msueV1Proxy :: Proxy MsueV1API
 msueV1Proxy = Proxy
 
+enbV1Proxy :: Proxy EnbV1API
+enbV1Proxy = Proxy
+
 -- | Service to provide the 'CsimAPI'.
 csimService :: Self -> Server CsimAPI
 csimService self
     = mmeV1Service self
  :<|> msueV1Service self
+ :<|> enbV1Service self
 
 -- | Service to provide the full 'API'.
 apiService :: Self -> Server API
@@ -82,9 +87,14 @@ csimSwagger =
                                     & description ?~ "Manage MMEs" ]
         & applyTagsFor msueV1 [ "msue (version 1)"
                                     & description ?~ "Manage UEs" ]
+        & applyTagsFor enbV1 [ "enb (version 1)"
+                                    & description ?~ "Manage eNodeBs" ]
     where
         mmeV1 :: Traversal' Swagger Operation
         mmeV1 = subOperations mmeV1Proxy csimProxy
 
         msueV1 :: Traversal' Swagger Operation
         msueV1 = subOperations msueV1Proxy csimProxy
+
+        enbV1 :: Traversal' Swagger Operation
+        enbV1 = subOperations enbV1Proxy csimProxy
