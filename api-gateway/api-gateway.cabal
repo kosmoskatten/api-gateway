@@ -16,6 +16,7 @@ executable api-gateway
   main-is:             Main.hs
   other-modules:       Api
                        Api.Common
+                       Api.EnbV1
                        Api.MmeV1
                        Api.MsueV1
                        Types

@@ -32,11 +32,11 @@ import Types (Self (..))
 -- | The type specifying the interface's endpoints.
 type MmeV1API
       -- List all registered MMEs.
-    = "api" :> "v1" :> "mme" :> Get '[JSON] [UrlRef]
+    = "api" :> "v1" :> "mme" :> Get '[JSON] [MmeUrlRef]
 
       -- Create a new MME with the given name.
  :<|> "api" :> "v1" :> "mme" :> ReqBody '[JSON] NameRef
-                             :> PostCreated '[JSON] UrlRef
+                             :> PostCreated '[JSON] MmeUrlRef
 
       -- Delete the referenced MME.
  :<|> "api" :> "v1" :> "mme" :> Capture "name" Text
@@ -59,16 +59,16 @@ instance ToSchema NameRef where
             & mapped.schema.example ?~ toJSON (NameRef "mme1")
 
 -- | JSON object with one member, the url to a MME resource.
-data UrlRef = UrlRef
+data MmeUrlRef = MmeUrlRef
     { url :: !Text
     } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
 
--- | Swagger schema for 'UrlRef'.
-instance ToSchema UrlRef where
+-- | Swagger schema for 'MmeUrlRef'.
+instance ToSchema MmeUrlRef where
     declareNamedSchema proxy =
         genericDeclareNamedSchema defaultSchemaOptions proxy
             & mapped.schema.description ?~ "Object holding a resource URL"
-            & mapped.schema.example ?~ toJSON (UrlRef "/api/v1/mme/mme1")
+            & mapped.schema.example ?~ toJSON (MmeUrlRef "/api/v1/mme/mme1")
 
 -- | Status indicator from the MME component.
 data Status = Status
@@ -93,20 +93,20 @@ mmeV1Service self
 -- request is timing out, a 504 (Gateway Timeout) is returned. If the
 -- requested payload not can be decoded, a 502 (Bad Gateway) is returned.
 -- If everything is ok, 200 Ok is retured with a list of 'UrlRef'.
-listMmes :: Self -> Handler [UrlRef]
+listMmes :: Self -> Handler [MmeUrlRef]
 listMmes Self {..} =
     tmoRequest tmo (request nats "app.v1.mme.listPcos" "") $ \msg ->
         maybe (throwError err502) (return . map toUrlRef) (jsonPayload msg)
 
 -- | Request the app.v1.mme.createPco service to create a new pco with
 -- the given name.
-createMme :: Self -> NameRef -> Handler UrlRef
+createMme :: Self -> NameRef -> Handler MmeUrlRef
 createMme Self {..} NameRef {..} = do
     let topic' = "app.v1.mme.createPco." `mappend` (cs name)
     tmoRequest tmo (request nats topic' "") $ \msg ->
         maybe (throwError err502) handleStatus (jsonPayload msg)
     where
-        handleStatus :: Status -> Handler UrlRef
+        handleStatus :: Status -> Handler MmeUrlRef
         handleStatus Status {..} =
             case status of
                 201 -> return $ toUrlRef name
@@ -141,6 +141,6 @@ getIpConfig Self {..} name = do
                 404 -> throwError err404
                 _   -> throwError err502
 
-toUrlRef :: Text -> UrlRef
+toUrlRef :: Text -> MmeUrlRef
 toUrlRef mmeName =
-    UrlRef { url = "/api/v1/mme/" `mappend` mmeName }
+    MmeUrlRef { url = "/api/v1/mme/" `mappend` mmeName }
