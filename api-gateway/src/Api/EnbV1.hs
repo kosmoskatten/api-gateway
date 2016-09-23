@@ -30,6 +30,12 @@ type EnbV1API
       -- List all registered eNodeBs.
     = "api" :> "v1" :> "enb" :> Get '[JSON] [EnbUrlRef]
 
+data PlmnId = PlmnId
+    { mcc        :: !Int
+    , mnc        :: !Int
+    , mnc_length :: !Int
+    } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
+
 -- | JSON object with one member, the url to an eNodeB resource.
 data EnbUrlRef = EnbUrlRef
     { url :: !Text
