@@ -26,7 +26,7 @@ import GHC.Generics (Generic)
 import Network.Nats
 import Servant
 
-import Api.Common (URL, tmoRequest)
+import Api.Common (URL, concatURL, tmoRequest)
 import Types (Self (..))
 
 -- | The type specifying the interface's endpoints.
@@ -42,7 +42,11 @@ type MmeV1API
  :<|> "api" :> "v1" :> "mme" :> Capture "name" Text
                              :> DeleteNoContent '[JSON] NoContent
 
-      -- Get the IP config for the referenced MME.
+      -- List all attributes for the references MME.
+ :<|> "api" :> "v1" :> "mme" :> Capture "name" Text
+                             :> Get '[JSON] [MmeAttributeDesc]
+
+      -- Get the IP config attribute for the references MME.
  :<|> "api" :> "v1" :> "mme" :> Capture "name" Text :> "ip_config"
                              :> Get '[JSON] [Text]
 
@@ -70,6 +74,22 @@ instance ToSchema MmeUrlRef where
             & mapped.schema.description ?~ "Object holding a resource URL"
             & mapped.schema.example ?~ toJSON (MmeUrlRef "/api/v1/mme/mme1")
 
+-- | Describe the attributes provided by a MME.
+data MmeAttributeDesc = MmeAttributeDesc
+    { url  :: !URL
+    , desc :: !Text
+    } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
+
+-- | Swagger schema for 'MmeAttributeDesc'.
+instance ToSchema MmeAttributeDesc where
+    declareNamedSchema proxy =
+        genericDeclareNamedSchema defaultSchemaOptions proxy
+            & mapped.schema.description ?~ "MME attribute"
+            & mapped.schema.example ?~
+                toJSON MmeAttributeDesc { url = "/api/v1/mme/mme1/ip_config"
+                                        , desc = "Fetch MME IP configuration"
+                                        }
+
 -- | Status indicator from the MME component.
 data Status = Status
     { status :: !Int
@@ -87,19 +107,19 @@ mmeV1Service self
     = listMmes self
  :<|> createMme self
  :<|> deleteMme self
+ :<|> listAttributes self
  :<|> getIpConfig self
 
--- | Request the app.v1.mme service to list all its pco names. If the
--- request is timing out, a 504 (Gateway Timeout) is returned. If the
--- requested payload not can be decoded, a 502 (Bad Gateway) is returned.
--- If everything is ok, 200 Ok is retured with a list of 'UrlRef'.
+-- | List all MMEs. References the app.v1.mme.listPcos topic.
 listMmes :: Self -> Handler [MmeUrlRef]
 listMmes Self {..} =
     tmoRequest tmo (request nats "app.v1.mme.listPcos" "") $ \msg ->
-        maybe (throwError err502) (return . map toUrlRef) (jsonPayload msg)
+        maybe (throwError err502) (return . map toMmeUrlRef) (jsonPayload msg)
+    where
+        toMmeUrlRef :: URL -> MmeUrlRef
+        toMmeUrlRef u = MmeUrlRef { url = concatURL [baseUrl, u]}
 
--- | Request the app.v1.mme.createPco service to create a new pco with
--- the given name.
+-- | Create a new MME. References the app.v1.mme.createPco topic.
 createMme :: Self -> MmeCtor -> Handler MmeUrlRef
 createMme Self {..} MmeCtor {..} = do
     let topic' = "app.v1.mme.createPco." `mappend` cs name
@@ -109,11 +129,11 @@ createMme Self {..} MmeCtor {..} = do
         handleStatus :: Status -> Handler MmeUrlRef
         handleStatus Status {..} =
             case status of
-                201 -> return $ toUrlRef name
+                201 -> return MmeUrlRef { url = concatURL [baseUrl, name] }
                 409 -> throwError err409
                 _   -> throwError err502
 
--- | Request the app.v1.mme.deletePco to delete the pco with the given name.
+-- | Delete a MME. References the app.v1.mme.deletePco.* topic.
 deleteMme :: Self -> Text -> Handler NoContent
 deleteMme Self {..} name = do
     let topic' = "app.v1.mme.deletePco." `mappend` cs name
@@ -127,7 +147,28 @@ deleteMme Self {..} name = do
                 404 -> throwError err404
                 _   -> throwError err502
 
--- | Request the app.v1.mme.<name>.getIpConfig to send its IP config.
+-- | List a MME's attributes. The MME must exist. References the
+-- app.v1.mme.*.exist topic.
+listAttributes :: Self -> Text -> Handler [MmeAttributeDesc]
+listAttributes Self {..} name = do
+    let topic' = "app.v1.mme." `mappend` cs name `mappend` ".exist"
+    tmoRequest tmo (request nats topic' "") $ \msg ->
+        maybe (throwError err502) handleStatus (jsonPayload msg)
+    where
+        handleStatus :: Status -> Handler [MmeAttributeDesc]
+        handleStatus Status {..} =
+            case status of
+                200 -> return
+                    [ MmeAttributeDesc
+                        { url = concatURL [baseUrl, name, "ip_config"]
+                        , desc = "Read the IP configuration from the MME"
+                        }
+                    ]
+                404 -> throwError err404
+                _   -> throwError err502
+
+-- | Get the IP config attribute for a MME. The MME must exist. References the
+-- app.v1.mme.*.getIpConfig topic.
 getIpConfig :: Self -> Text -> Handler [Text]
 getIpConfig Self {..} name = do
     let topic' = "app.v1.mme." `mappend` cs name `mappend` ".getIpConfig"
@@ -141,6 +182,5 @@ getIpConfig Self {..} name = do
                 404 -> throwError err404
                 _   -> throwError err502
 
-toUrlRef :: URL -> MmeUrlRef
-toUrlRef mmeName =
-    MmeUrlRef { url = "/api/v1/mme/" `mappend` mmeName }
+baseUrl :: URL
+baseUrl = "/api/v1/mme"
