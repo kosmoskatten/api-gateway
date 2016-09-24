@@ -2,6 +2,7 @@
 {-# LANGUAGE DeriveGeneric         #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE OverloadedStrings     #-}
+
 module Main
     ( main
     ) where
@@ -20,6 +21,10 @@ import qualified Data.Text as Text
 
 import Common (stayAlive, splitTopic)
 import Options (Options (..), getOptions)
+
+data CreatePco = CreatePco
+    { name :: !Text
+    } deriving (Generic, Show, FromJSON, ToJSON)
 
 data Status = Status
     { status :: !Int
@@ -48,7 +53,7 @@ main = do
     withNats defaultSettings [natsUri options] $ \nats -> do
 
         -- Subscribe to the createPro topic.
-        void $ subscribeAsync nats "app.v1.mme.createPco.*"
+        void $ subscribeAsync nats "app.v1.mme.createPco"
                               Nothing (createPco nats self)
 
         -- Subscribe to tje deletePco topic.
@@ -58,6 +63,10 @@ main = do
         -- Subscribe to the listPcos topic.
         void $ subscribeAsync nats "app.v1.mme.listPcos"
                               Nothing (listPcos nats self)
+
+        -- Subscribe to the exist topic.
+        void $ subscribeAsync nats "app.v1.mme.*.exist"
+                              Nothing (exist nats self)
 
         -- Subscribe to the getIpConfig topic.
         void $ subscribeAsync nats "app.v1.mme.*.getIpConfig"
@@ -72,15 +81,15 @@ createPco :: Nats -> Self -> Msg -> IO ()
 createPco nats self msg =
     case replyTo msg of
         Just reply -> do
-            let [_, _, _, _, name] = splitTopic $ topic msg
-                name'              = cs name
-            publishJson nats reply Nothing =<< createPco' name'
+            maybe (publishJson nats reply Nothing $ Status { status = 400 })
+                  (\json -> publishJson nats reply Nothing =<< createPco' json)
+                  (jsonPayload msg)
 
         Nothing    -> return ()
     where
-        createPco' :: Text -> IO Status
-        createPco' name = do
-            inserted <- atomically $ maybeInsertMme name
+        createPco' :: CreatePco -> IO Status
+        createPco' msg = do
+            inserted <- atomically $ maybeInsertMme (name msg)
             if inserted
                 then return $ Status { status = 201 }
                 else return $ Status { status = 409 }
@@ -134,6 +143,19 @@ listPcos nats self msg =
     where
         listPcos' :: IO [Text]
         listPcos' = HashMap.keys <$> readTVarIO (mmeMap self)
+
+-- | Check existance of the MME.
+exist :: Nats -> Self -> Msg -> IO ()
+exist nats self msg =
+    case replyTo msg of
+        Just reply -> do
+            let [_, _, _, name, _] = splitTopic $ topic msg
+            found <- HashMap.member (cs name) <$> readTVarIO (mmeMap self)
+            if found
+                then publishJson nats reply Nothing $ Status 200
+                else publishJson nats reply Nothing $ Status 404
+
+        Nothing    -> return ()
 
 -- | Get the IP config for the given MME.
 getIpConfig :: Nats -> Self -> Msg -> IO ()

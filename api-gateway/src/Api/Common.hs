@@ -6,12 +6,15 @@ module Api.Common
     , concatTopic
     , concatURL
     , tmoRequest
+    , translateErrCode
     ) where
 
 import Control.Monad.IO.Class (liftIO)
 import Data.Text (Text)
 import Network.Nats (Msg, Topic)
-import Servant (Handler, err504, throwError)
+import Servant ( Handler, throwError, err400, err403
+               , err404, err409, err415, err502, err504
+               )
 import System.Timeout (timeout)
 
 import qualified Data.ByteString.Char8 as BS
@@ -39,3 +42,16 @@ tmoRequest :: TmoSec -> IO Msg -> (Msg -> Handler a) -> Handler a
 tmoRequest tmo action handler = do
     result <- liftIO $ timeout (toUsec tmo) action
     maybe (throwError err504) handler result
+
+-- | Translate error codes - coming as status replies from some service -
+-- to Servant errors. If no translation can be made the 502/Bad gateway will
+-- be used.
+translateErrCode :: Int -> Handler a
+translateErrCode code =
+    case code of
+        400 -> throwError err400
+        403 -> throwError err403
+        404 -> throwError err404
+        409 -> throwError err409
+        415 -> throwError err415
+        _   -> throwError err502

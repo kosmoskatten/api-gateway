@@ -26,7 +26,7 @@ import GHC.Generics (Generic)
 import Network.Nats
 import Servant
 
-import Api.Common (URL, concatTopic, concatURL, tmoRequest)
+import Api.Common (URL, concatTopic, concatURL, tmoRequest, translateErrCode)
 import Types (Self (..))
 
 -- | The type specifying the interface's endpoints.
@@ -121,17 +121,18 @@ listMmes Self {..} =
 
 -- | Create a new MME. References the app.v1.mme.createPco topic.
 createMme :: Self -> MmeCtor -> Handler MmeUrlRef
-createMme Self {..} MmeCtor {..} = do
-    let topic' = concatTopic ["app.v1.mme.createPco", cs name]
-    tmoRequest tmo (request nats topic' "") $ \msg ->
+createMme Self {..} mmeCtor@MmeCtor {..} =
+    tmoRequest tmo (requestJson nats "app.v1.mme.createPco" mmeCtor) $ \msg ->
         maybe (throwError err502) handleStatus (jsonPayload msg)
     where
         handleStatus :: Status -> Handler MmeUrlRef
         handleStatus Status {..} =
             case status of
+                -- 201 is the expected positive status.
                 201 -> return MmeUrlRef { url = concatURL [baseUrl, name] }
-                409 -> throwError err409
-                _   -> throwError err502
+
+                -- Catch all the rest as error codes.
+                _   -> translateErrCode status
 
 -- | Delete a MME. References the app.v1.mme.deletePco.* topic.
 deleteMme :: Self -> Text -> Handler NoContent
@@ -143,9 +144,11 @@ deleteMme Self {..} name = do
         handleStatus :: Status -> Handler NoContent
         handleStatus Status {..} =
             case status of
+                -- 200 is the expected positive status.
                 200 -> return NoContent
-                404 -> throwError err404
-                _   -> throwError err502
+
+                -- Catch all the rest as error codes.
+                _   -> translateErrCode status
 
 -- | List a MME's attributes. The MME must exist. References the
 -- app.v1.mme.*.exist topic.
@@ -158,14 +161,16 @@ listAttributes Self {..} name = do
         handleStatus :: Status -> Handler [MmeAttributeDesc]
         handleStatus Status {..} =
             case status of
+                -- 200 is the expected positive status.
                 200 -> return
                     [ MmeAttributeDesc
                         { url = concatURL [baseUrl, name, "ip_config"]
                         , desc = "Read the IP configuration from the MME"
                         }
                     ]
-                404 -> throwError err404
-                _   -> throwError err502
+
+                -- Catch all the rest as error codes.
+                _   -> translateErrCode status
 
 -- | Get the IP config attribute for a MME. The MME must exist. References the
 -- app.v1.mme.*.getIpConfig topic.
@@ -178,8 +183,10 @@ getIpConfig Self {..} name = do
         handleStatus :: IpConfig -> Handler [Text]
         handleStatus IpConfig {..} =
             case status of
+                -- 200 is the expected positive status.
                 200 -> return $ fromJust config
-                404 -> throwError err404
+
+                -- Catch all the rest as error codes.
                 _   -> throwError err502
 
 baseUrl :: URL
