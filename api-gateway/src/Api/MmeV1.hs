@@ -26,7 +26,7 @@ import GHC.Generics (Generic)
 import Network.Nats
 import Servant
 
-import Api.Common (URL, concatURL, tmoRequest)
+import Api.Common (URL, concatTopic, concatURL, tmoRequest)
 import Types (Self (..))
 
 -- | The type specifying the interface's endpoints.
@@ -122,7 +122,7 @@ listMmes Self {..} =
 -- | Create a new MME. References the app.v1.mme.createPco topic.
 createMme :: Self -> MmeCtor -> Handler MmeUrlRef
 createMme Self {..} MmeCtor {..} = do
-    let topic' = "app.v1.mme.createPco." `mappend` cs name
+    let topic' = concatTopic ["app.v1.mme.createPco", cs name]
     tmoRequest tmo (request nats topic' "") $ \msg ->
         maybe (throwError err502) handleStatus (jsonPayload msg)
     where
@@ -136,7 +136,7 @@ createMme Self {..} MmeCtor {..} = do
 -- | Delete a MME. References the app.v1.mme.deletePco.* topic.
 deleteMme :: Self -> Text -> Handler NoContent
 deleteMme Self {..} name = do
-    let topic' = "app.v1.mme.deletePco." `mappend` cs name
+    let topic' = concatTopic ["app.v1.mme.deletePco", cs name]
     tmoRequest tmo (request nats topic' "") $ \msg ->
         maybe (throwError err502) handleStatus (jsonPayload msg)
     where
@@ -151,7 +151,7 @@ deleteMme Self {..} name = do
 -- app.v1.mme.*.exist topic.
 listAttributes :: Self -> Text -> Handler [MmeAttributeDesc]
 listAttributes Self {..} name = do
-    let topic' = "app.v1.mme." `mappend` cs name `mappend` ".exist"
+    let topic' = concatTopic ["app.v1.mme", cs name, "exist"]
     tmoRequest tmo (request nats topic' "") $ \msg ->
         maybe (throwError err502) handleStatus (jsonPayload msg)
     where
@@ -171,7 +171,7 @@ listAttributes Self {..} name = do
 -- app.v1.mme.*.getIpConfig topic.
 getIpConfig :: Self -> Text -> Handler [Text]
 getIpConfig Self {..} name = do
-    let topic' = "app.v1.mme." `mappend` cs name `mappend` ".getIpConfig"
+    let topic' = concatTopic ["app.v1.mme", cs name, "getIpConfig"]
     tmoRequest tmo (request nats topic' "") $ \msg ->
         maybe (throwError err502) handleStatus (jsonPayload msg)
     where
