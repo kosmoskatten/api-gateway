@@ -19,7 +19,7 @@ import Network.Nats
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
 
-import Common (stayAlive, splitTopic)
+import Common (stayAlive, splitTopic, ifReply)
 import Options (Options (..), getOptions)
 
 data CreatePco = CreatePco
@@ -79,20 +79,17 @@ main = do
 -- part of the topic.
 createPco :: Nats -> Self -> Msg -> IO ()
 createPco nats self msg =
-    case replyTo msg of
-        Just reply -> do
-            maybe (publishJson nats reply Nothing $ Status { status = 400 })
-                  (\json -> publishJson nats reply Nothing =<< createPco' json)
-                  (jsonPayload msg)
-
-        Nothing    -> return ()
+    ifReply msg $ \reply -> do
+        maybe (publishJson nats reply Nothing $ Status 400)
+              (\json -> publishJson nats reply Nothing =<< createPco' json)
+              (jsonPayload msg)
     where
         createPco' :: CreatePco -> IO Status
         createPco' msg = do
             inserted <- atomically $ maybeInsertMme (name msg)
             if inserted
-                then return $ Status { status = 201 }
-                else return $ Status { status = 409 }
+                then return $ Status 201
+                else return $ Status 409
 
         maybeInsertMme :: Text -> STM Bool
         maybeInsertMme name = do
@@ -108,20 +105,16 @@ createPco nats self msg =
 
 deletePco :: Nats -> Self -> Msg -> IO ()
 deletePco nats self msg =
-    case replyTo msg of
-        Just reply -> do
-            let [_, _, _, _, name] = splitTopic $ topic msg
-                name'              = cs name
-            publishJson nats reply Nothing =<< deletePco' name'
-
-        Nothing    -> return ()
+    ifReply msg $ \reply -> do
+        let [_, _, _, _, name] = splitTopic $ topic msg
+        publishJson nats reply Nothing =<< deletePco' (cs name)
     where
         deletePco' :: Text -> IO Status
         deletePco' name = do
             deleted <- atomically $ maybeDeleteMme name
             if deleted
-                then return $ Status { status = 200 }
-                else return $ Status { status = 404 }
+                then return $ Status 200
+                else return $ Status 404
 
         maybeDeleteMme :: Text -> STM Bool
         maybeDeleteMme name = do
@@ -135,11 +128,7 @@ deletePco nats self msg =
 -- | List all MME pcos.
 listPcos :: Nats -> Self -> Msg -> IO ()
 listPcos nats self msg =
-    case replyTo msg of
-        Just reply ->
-            publishJson nats reply Nothing =<< listPcos'
-
-        Nothing    -> return ()
+    ifReply msg $ \reply -> publishJson nats reply Nothing =<< listPcos'
     where
         listPcos' :: IO [Text]
         listPcos' = HashMap.keys <$> readTVarIO (mmeMap self)
@@ -147,26 +136,19 @@ listPcos nats self msg =
 -- | Check existance of the MME.
 exist :: Nats -> Self -> Msg -> IO ()
 exist nats self msg =
-    case replyTo msg of
-        Just reply -> do
-            let [_, _, _, name, _] = splitTopic $ topic msg
-            found <- HashMap.member (cs name) <$> readTVarIO (mmeMap self)
-            if found
-                then publishJson nats reply Nothing $ Status 200
-                else publishJson nats reply Nothing $ Status 404
-
-        Nothing    -> return ()
+    ifReply msg $ \reply -> do
+        let [_, _, _, name, _] = splitTopic $ topic msg
+        found <- HashMap.member (cs name) <$> readTVarIO (mmeMap self)
+        if found
+            then publishJson nats reply Nothing $ Status 200
+            else publishJson nats reply Nothing $ Status 404
 
 -- | Get the IP config for the given MME.
 getIpConfig :: Nats -> Self -> Msg -> IO ()
 getIpConfig nats self msg =
-    case replyTo msg of
-        Just reply -> do
-            let [_, _, _, name, _] = splitTopic $ topic msg
-                name'              = cs name
-            publishJson nats reply Nothing =<< getIpConfig' name'
-
-        Nothing -> return ()
+    ifReply msg $ \reply -> do
+        let [_, _, _, name, _] = splitTopic $ topic msg
+        publishJson nats reply Nothing =<< getIpConfig' (cs name)
     where
         getIpConfig' :: Text -> IO IpConfig
         getIpConfig' name = do
