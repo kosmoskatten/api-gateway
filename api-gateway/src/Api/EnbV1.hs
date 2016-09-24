@@ -23,6 +23,7 @@ import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import Servant
 
+import Api.Common (URL)
 import Types (Self (..))
 
 -- | The type specifying the interface's endpoints.
@@ -38,6 +39,7 @@ type EnbV1API
  :<|> "api" :> "v1" :> "enb" :> Capture "name" Text
                              :> DeleteNoContent '[JSON] NoContent
 
+-- | JSON object to construct a new eNodeB.
 data EnbCtor = EnbCtor
     { name   :: !Text
     , enbId  :: !Int
@@ -58,7 +60,6 @@ instance ToSchema EnbCtor where
                                                  }
                                 }
 
-
 data PlmnId = PlmnId
     { mcc       :: !Int
     , mnc       :: !Int
@@ -78,7 +79,7 @@ instance ToSchema PlmnId where
 
 -- | JSON object with one member, the url to an eNodeB resource.
 data EnbUrlRef = EnbUrlRef
-    { url :: !Text
+    { url :: !URL
     } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
 
 -- | Swagger schema for 'EnbUrlRef'.

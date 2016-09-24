@@ -23,6 +23,7 @@ import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import Servant
 
+import Api.Common (URL)
 import Types (Self (..))
 
 -- | The type specifying the interface's endpoints.
@@ -31,7 +32,7 @@ type MsueV1API
     = "api" :> "v1" :> "msue" :> Get '[JSON] [MsueUrlRef]
 
       -- Create a new UE with the given IMSI.
- :<|> "api" :> "v1" :> "msue" :> ReqBody '[JSON] ImsiRef
+ :<|> "api" :> "v1" :> "msue" :> ReqBody '[JSON] MsueCtor
                               :> PostCreated '[JSON] MsueUrlRef
 
       -- Delete the referenced UE.
@@ -48,6 +49,18 @@ type MsueV1API
                               :> "preferred-eutran-cell"
                               :> PutNoContent '[JSON] NoContent
 
+-- | JSON object to construct a new UE.
+data MsueCtor = MsueCtor
+    { imsi :: !Text
+    } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
+
+-- | Swagger schema for 'MsueCtor'
+instance ToSchema MsueCtor where
+  declareNamedSchema proxy =
+      genericDeclareNamedSchema defaultSchemaOptions proxy
+      & mapped.schema.description ?~ "Msue constructor object"
+      & mapped.schema.example ?~ toJSON (MsueCtor "123456")
+
 -- | JSON object with one member, the pci of the preferred cell.
 data PciRef = PciRef
     { pci :: !Int
@@ -60,21 +73,9 @@ instance ToSchema PciRef where
             & mapped.schema.description ?~ "Object providing PCI"
             & mapped.schema.example ?~ toJSON (PciRef 3)
 
--- | JSON object with one member, the imsi of the UE to be created.
-data ImsiRef = ImsiRef
-    { imsi :: !Text
-    } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
-
--- | Swagger schema for 'ImsiRef'
-instance ToSchema ImsiRef where
-    declareNamedSchema proxy =
-        genericDeclareNamedSchema defaultSchemaOptions proxy
-            & mapped.schema.description ?~ "Object providing UE IMSI"
-            & mapped.schema.example ?~ toJSON (ImsiRef "123456")
-
 -- | JSON object with one member, the url to a UE resource.
 data MsueUrlRef = MsueUrlRef
-    { url :: !Text
+    { url :: !URL
     } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
 
 -- | Swagger schema for 'MsueUrlRef'.

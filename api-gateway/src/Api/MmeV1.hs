@@ -26,7 +26,7 @@ import GHC.Generics (Generic)
 import Network.Nats
 import Servant
 
-import Api.Common (tmoRequest)
+import Api.Common (URL, tmoRequest)
 import Types (Self (..))
 
 -- | The type specifying the interface's endpoints.
@@ -35,7 +35,7 @@ type MmeV1API
     = "api" :> "v1" :> "mme" :> Get '[JSON] [MmeUrlRef]
 
       -- Create a new MME with the given name.
- :<|> "api" :> "v1" :> "mme" :> ReqBody '[JSON] NameRef
+ :<|> "api" :> "v1" :> "mme" :> ReqBody '[JSON] MmeCtor
                              :> PostCreated '[JSON] MmeUrlRef
 
       -- Delete the referenced MME.
@@ -46,21 +46,21 @@ type MmeV1API
  :<|> "api" :> "v1" :> "mme" :> Capture "name" Text :> "ip_config"
                              :> Get '[JSON] [Text]
 
--- | JSON object with one member, the name of the MME to be created.
-data NameRef = NameRef
+-- | JSON object to create a new MME.
+data MmeCtor = MmeCtor
     { name :: !Text
     } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
 
--- | Swagger schema for 'NameRef'
-instance ToSchema NameRef where
+-- | Swagger schema for 'MmeCtor'
+instance ToSchema MmeCtor where
     declareNamedSchema proxy =
         genericDeclareNamedSchema defaultSchemaOptions proxy
-            & mapped.schema.description ?~ "Object naming a resource"
-            & mapped.schema.example ?~ toJSON (NameRef "mme1")
+            & mapped.schema.description ?~ "MME constructor object"
+            & mapped.schema.example ?~ toJSON (MmeCtor "mme1")
 
--- | JSON object with one member, the url to a MME resource.
+-- | JSON object to construct a new MME.
 data MmeUrlRef = MmeUrlRef
-    { url :: !Text
+    { url :: !URL
     } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
 
 -- | Swagger schema for 'MmeUrlRef'.
@@ -100,8 +100,8 @@ listMmes Self {..} =
 
 -- | Request the app.v1.mme.createPco service to create a new pco with
 -- the given name.
-createMme :: Self -> NameRef -> Handler MmeUrlRef
-createMme Self {..} NameRef {..} = do
+createMme :: Self -> MmeCtor -> Handler MmeUrlRef
+createMme Self {..} MmeCtor {..} = do
     let topic' = "app.v1.mme.createPco." `mappend` cs name
     tmoRequest tmo (request nats topic' "") $ \msg ->
         maybe (throwError err502) handleStatus (jsonPayload msg)
@@ -141,6 +141,6 @@ getIpConfig Self {..} name = do
                 404 -> throwError err404
                 _   -> throwError err502
 
-toUrlRef :: Text -> MmeUrlRef
+toUrlRef :: URL -> MmeUrlRef
 toUrlRef mmeName =
     MmeUrlRef { url = "/api/v1/mme/" `mappend` mmeName }
