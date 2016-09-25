@@ -1,8 +1,11 @@
+{-# LANGUAGE DeriveAnyClass    #-}
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 -- | Common data structures, and common functionality for the API modules.
 module Api.Common
     ( URL
+    , Status (..)
     , concatTopic
     , concatURL
     , tmoRequest
@@ -10,7 +13,9 @@ module Api.Common
     ) where
 
 import Control.Monad.IO.Class (liftIO)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Text (Text)
+import GHC.Generics (Generic)
 import Network.Nats (Msg, Topic)
 import Servant ( Handler, throwError, err400, err403
                , err404, err409, err415, err502, err504
@@ -24,6 +29,11 @@ import Types (TmoSec, toUsec)
 
 -- | Type alias for URLs.
 type URL = Text
+
+-- | Status indicator from the MME component.
+data Status = Status
+    { status :: !Int
+    } deriving (Generic, Show, FromJSON, ToJSON)
 
 -- | Concat the 'Topic' fragments to a 'Topic'. The character (.) is
 -- inserted in between the fragments.
@@ -50,7 +60,6 @@ translateErrCode :: Int -> Handler a
 translateErrCode code =
     case code of
         400 -> throwError err400
-        403 -> throwError err403
         404 -> throwError err404
         409 -> throwError err409
         415 -> throwError err415

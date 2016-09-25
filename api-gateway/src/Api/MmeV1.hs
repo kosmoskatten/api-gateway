@@ -26,7 +26,9 @@ import GHC.Generics (Generic)
 import Network.Nats
 import Servant
 
-import Api.Common (URL, concatTopic, concatURL, tmoRequest, translateErrCode)
+import Api.Common ( URL, Status (..), concatTopic, concatURL
+                  , tmoRequest, translateErrCode
+                  )
 import Types (Self (..))
 
 -- | The type specifying the interface's endpoints.
@@ -90,12 +92,7 @@ instance ToSchema MmeAttributeDesc where
                                         , desc = "Fetch MME IP configuration"
                                         }
 
--- | Status indicator from the MME component.
-data Status = Status
-    { status :: !Int
-    } deriving (Generic, Show, FromJSON, ToJSON)
-
--- Status indicator, with payload, from the MME component.
+-- IP config payload, with status indicator.
 data IpConfig = IpConfig
     { status :: !Int
     , config :: !(Maybe [Text])
@@ -123,10 +120,10 @@ listMmes Self {..} =
 createMme :: Self -> MmeCtor -> Handler MmeUrlRef
 createMme Self {..} mmeCtor@MmeCtor {..} =
     tmoRequest tmo (requestJson nats "app.v1.mme.createPco" mmeCtor) $ \msg ->
-        maybe (throwError err502) handleStatus (jsonPayload msg)
+        maybe (throwError err502) handleReply (jsonPayload msg)
     where
-        handleStatus :: Status -> Handler MmeUrlRef
-        handleStatus Status {..} =
+        handleReply :: Status -> Handler MmeUrlRef
+        handleReply Status {..} =
             case status of
                 -- 201 is the expected positive status.
                 201 -> return MmeUrlRef { url = concatURL [baseUrl, name] }
@@ -139,10 +136,10 @@ deleteMme :: Self -> Text -> Handler NoContent
 deleteMme Self {..} name = do
     let topic' = concatTopic ["app.v1.mme.deletePco", cs name]
     tmoRequest tmo (request nats topic' "") $ \msg ->
-        maybe (throwError err502) handleStatus (jsonPayload msg)
+        maybe (throwError err502) handleReply (jsonPayload msg)
     where
-        handleStatus :: Status -> Handler NoContent
-        handleStatus Status {..} =
+        handleReply :: Status -> Handler NoContent
+        handleReply Status {..} =
             case status of
                 -- 200 is the expected positive status.
                 200 -> return NoContent
@@ -156,10 +153,10 @@ listAttributes :: Self -> Text -> Handler [MmeAttributeDesc]
 listAttributes Self {..} name = do
     let topic' = concatTopic ["app.v1.mme", cs name, "exist"]
     tmoRequest tmo (request nats topic' "") $ \msg ->
-        maybe (throwError err502) handleStatus (jsonPayload msg)
+        maybe (throwError err502) handleReply (jsonPayload msg)
     where
-        handleStatus :: Status -> Handler [MmeAttributeDesc]
-        handleStatus Status {..} =
+        handleReply :: Status -> Handler [MmeAttributeDesc]
+        handleReply Status {..} =
             case status of
                 -- 200 is the expected positive status.
                 200 -> return
@@ -178,10 +175,10 @@ getIpConfig :: Self -> Text -> Handler [Text]
 getIpConfig Self {..} name = do
     let topic' = concatTopic ["app.v1.mme", cs name, "getIpConfig"]
     tmoRequest tmo (request nats topic' "") $ \msg ->
-        maybe (throwError err502) handleStatus (jsonPayload msg)
+        maybe (throwError err502) handleReply (jsonPayload msg)
     where
-        handleStatus :: IpConfig -> Handler [Text]
-        handleStatus IpConfig {..} =
+        handleReply :: IpConfig -> Handler [Text]
+        handleReply IpConfig {..} =
             case status of
                 -- 200 is the expected positive status.
                 200 -> return $ fromJust config
