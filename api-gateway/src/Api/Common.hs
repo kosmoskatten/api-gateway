@@ -30,7 +30,7 @@ import Types (TmoSec, toUsec)
 -- | Type alias for URLs.
 type URL = Text
 
--- | Status indicator from the MME component.
+-- | Generic status indicator from CSIM component.
 data Status = Status
     { status :: !Int
     } deriving (Generic, Show, FromJSON, ToJSON)
