@@ -23,6 +23,7 @@ type Msg
   | CancelNewMmeForm
   | OnInputNewMmeName String
   | SubmitNewMmeForm String
+  | StoredMmesFetched (List Mme)
   | NewMmeCreated Mme
   | DeleteMme Mme
   | MmeDeleted Mme

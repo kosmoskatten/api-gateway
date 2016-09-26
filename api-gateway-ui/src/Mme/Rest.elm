@@ -1,5 +1,6 @@
 module Mme.Rest exposing
-  ( createMme
+  ( fetchStoredMmes
+  , createMme
   , deleteMme
   )
 
@@ -13,9 +14,18 @@ import Task exposing (..)
 
 import Types exposing (..)
 
+{-| Fetch the already stored Mmes from the server. -}
+fetchStoredMmes : Cmd Msg
+fetchStoredMmes =
+  Task.perform (\_ -> CloseErrorMsg) (StoredMmesFetched)
+    <| succeed [ { name = "dummy"
+                 , url = "dummier"
+                 , addresses = Array.fromList ["1.2.3.4"]
+                 }
+               ]
+
 {-| Command for creating a Mme, fetch its addresses and finally
-    return a Mme record.
--}
+    return a Mme record. -}
 createMme : String -> Cmd Msg
 createMme name =
   Task.perform RestOpFailed NewMmeCreated

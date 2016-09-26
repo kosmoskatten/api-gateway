@@ -7,6 +7,7 @@ module Mme.Panel exposing
   , cancelNewMmeForm
   , onInputNewMmeName
   , newMmeFormSubmitted
+  , storedMmesFetched
   , newMmeCreated
   , mmeDeleted
   )
@@ -142,6 +143,11 @@ newMmeFormSubmitted : MmeModel -> MmeModel
 newMmeFormSubmitted model =
   {model | newMmeFormOpen = False
          , newMmeName = ""}
+
+{-| Response from the API, stored Mmes are fetched. -}
+storedMmesFetched : MmeModel -> List Mme -> MmeModel
+storedMmesFetched model mmes =
+  {model | mmes = mmes }
 
 {-| Response from the API, the Mme is created. -}
 newMmeCreated : MmeModel -> Mme -> MmeModel

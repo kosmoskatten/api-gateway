@@ -18,7 +18,7 @@ import Unicode as Uni
 import Types exposing (..)
 
 import Mme.Panel exposing (..)
-import Mme.Rest exposing (createMme, deleteMme)
+import Mme.Rest exposing (createMme, deleteMme, fetchStoredMmes)
 
 -- Main model.
 type alias Model =
@@ -28,7 +28,8 @@ type alias Model =
   }
 
 init : (Model, Cmd Msg)
-init = ({livePanel = UE, errorMessage = Nothing, mmeModel = initMme}, Cmd.none)
+init = ( {livePanel = UE, errorMessage = Nothing, mmeModel = initMme}
+       , fetchStoredMmes )
 
 -- Main view.
 view : Model -> Html Msg
@@ -134,6 +135,9 @@ update msg model =
 
     SubmitNewMmeForm name  ->
       ({model | mmeModel = newMmeFormSubmitted model.mmeModel}, createMme name)
+
+    StoredMmesFetched mmes    ->
+      ({model | mmeModel = storedMmesFetched model.mmeModel mmes}, Cmd.none)
 
     NewMmeCreated mme         ->
       ({model | mmeModel = newMmeCreated model.mmeModel mme}, Cmd.none)

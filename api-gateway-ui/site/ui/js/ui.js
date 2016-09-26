@@ -9408,6 +9408,9 @@ var _kosmoskatten$api_gateway$Types$DeleteMme = function (a) {
 var _kosmoskatten$api_gateway$Types$NewMmeCreated = function (a) {
 	return {ctor: 'NewMmeCreated', _0: a};
 };
+var _kosmoskatten$api_gateway$Types$StoredMmesFetched = function (a) {
+	return {ctor: 'StoredMmesFetched', _0: a};
+};
 var _kosmoskatten$api_gateway$Types$SubmitNewMmeForm = function (a) {
 	return {ctor: 'SubmitNewMmeForm', _0: a};
 };
@@ -9463,6 +9466,12 @@ var _kosmoskatten$api_gateway$Mme_Panel$newMmeCreated = F2(
 					_elm_lang$core$Native_List.fromArray(
 						[mme]))
 			});
+	});
+var _kosmoskatten$api_gateway$Mme_Panel$storedMmesFetched = F2(
+	function (model, mmes) {
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{mmes: mmes});
 	});
 var _kosmoskatten$api_gateway$Mme_Panel$newMmeFormSubmitted = function (model) {
 	return _elm_lang$core$Native_Utils.update(
@@ -9807,6 +9816,23 @@ var _kosmoskatten$api_gateway$Mme_Rest$createMme = function (name) {
 					});
 			}));
 };
+var _kosmoskatten$api_gateway$Mme_Rest$fetchStoredMmes = A3(
+	_elm_lang$core$Task$perform,
+	function (_p1) {
+		return _kosmoskatten$api_gateway$Types$CloseErrorMsg;
+	},
+	_kosmoskatten$api_gateway$Types$StoredMmesFetched,
+	_elm_lang$core$Task$succeed(
+		_elm_lang$core$Native_List.fromArray(
+			[
+				{
+				name: 'dummy',
+				url: 'dummier',
+				addresses: _elm_lang$core$Array$fromList(
+					_elm_lang$core$Native_List.fromArray(
+						['1.2.3.4']))
+			}
+			])));
 
 var _kosmoskatten$api_gateway$CsimControlApp$expandError = function (error) {
 	var _p0 = error;
@@ -9882,6 +9908,16 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 							mmeModel: _kosmoskatten$api_gateway$Mme_Panel$newMmeFormSubmitted(model.mmeModel)
 						}),
 					_1: _kosmoskatten$api_gateway$Mme_Rest$createMme(_p2._0)
+				};
+			case 'StoredMmesFetched':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							mmeModel: A2(_kosmoskatten$api_gateway$Mme_Panel$storedMmesFetched, model.mmeModel, _p2._0)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'NewMmeCreated':
 				return {
@@ -10182,7 +10218,7 @@ var _kosmoskatten$api_gateway$CsimControlApp$view = function (model) {
 var _kosmoskatten$api_gateway$CsimControlApp$init = {
 	ctor: '_Tuple2',
 	_0: {livePanel: _kosmoskatten$api_gateway$Types$UE, errorMessage: _elm_lang$core$Maybe$Nothing, mmeModel: _kosmoskatten$api_gateway$Mme_Panel$initMme},
-	_1: _elm_lang$core$Platform_Cmd$none
+	_1: _kosmoskatten$api_gateway$Mme_Rest$fetchStoredMmes
 };
 var _kosmoskatten$api_gateway$CsimControlApp$Model = F3(
 	function (a, b, c) {
