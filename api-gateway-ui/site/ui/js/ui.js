@@ -9741,6 +9741,13 @@ var _kosmoskatten$api_gateway$Mme_Panel$MmeModel = F3(
 		return {newMmeFormOpen: a, newMmeName: b, mmes: c};
 	});
 
+var _kosmoskatten$api_gateway$Mme_Rest$nameFromUrl = function (urlRef) {
+	return _elm_lang$core$List$head(
+		A2(
+			_elm_lang$core$List$drop,
+			4,
+			A2(_elm_lang$core$String$split, '/', urlRef.url)));
+};
 var _kosmoskatten$api_gateway$Mme_Rest$deleteMmeTask = function (mme) {
 	return A3(
 		_lukewestby$elm_http_builder$HttpBuilder$send,
@@ -9786,6 +9793,32 @@ var _kosmoskatten$api_gateway$Mme_Rest$createMmeTask = function (name) {
 						])),
 				_lukewestby$elm_http_builder$HttpBuilder$post('/api/v1/mme'))));
 };
+var _kosmoskatten$api_gateway$Mme_Rest$resolveMme = function (urlRef) {
+	return A2(
+		_elm_lang$core$Task$andThen,
+		_kosmoskatten$api_gateway$Mme_Rest$fetchMmeIpConfigTask(urlRef),
+		function (resp) {
+			return _elm_lang$core$Task$succeed(
+				{
+					name: A2(
+						_elm_lang$core$Maybe$withDefault,
+						'???',
+						_kosmoskatten$api_gateway$Mme_Rest$nameFromUrl(urlRef)),
+					url: urlRef.url,
+					addresses: resp.data
+				});
+		});
+};
+var _kosmoskatten$api_gateway$Mme_Rest$fetchStoredMmesTask = A3(
+	_lukewestby$elm_http_builder$HttpBuilder$send,
+	_lukewestby$elm_http_builder$HttpBuilder$jsonReader(
+		_elm_lang$core$Json_Decode$list(_kosmoskatten$api_gateway$Types$urlRef)),
+	_lukewestby$elm_http_builder$HttpBuilder$stringReader,
+	A3(
+		_lukewestby$elm_http_builder$HttpBuilder$withHeader,
+		'Accept',
+		'application/json',
+		_lukewestby$elm_http_builder$HttpBuilder$get('/api/v1/mme')));
 var _kosmoskatten$api_gateway$Mme_Rest$deleteMme = function (mme) {
 	return A3(
 		_elm_lang$core$Task$perform,
@@ -9818,21 +9851,15 @@ var _kosmoskatten$api_gateway$Mme_Rest$createMme = function (name) {
 };
 var _kosmoskatten$api_gateway$Mme_Rest$fetchStoredMmes = A3(
 	_elm_lang$core$Task$perform,
-	function (_p1) {
-		return _kosmoskatten$api_gateway$Types$CloseErrorMsg;
-	},
+	_kosmoskatten$api_gateway$Types$RestOpFailed,
 	_kosmoskatten$api_gateway$Types$StoredMmesFetched,
-	_elm_lang$core$Task$succeed(
-		_elm_lang$core$Native_List.fromArray(
-			[
-				{
-				name: 'dummy',
-				url: 'dummier',
-				addresses: _elm_lang$core$Array$fromList(
-					_elm_lang$core$Native_List.fromArray(
-						['1.2.3.4']))
-			}
-			])));
+	A2(
+		_elm_lang$core$Task$andThen,
+		_kosmoskatten$api_gateway$Mme_Rest$fetchStoredMmesTask,
+		function (xs) {
+			return _elm_lang$core$Task$sequence(
+				A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Mme_Rest$resolveMme, xs.data));
+		}));
 
 var _kosmoskatten$api_gateway$CsimControlApp$expandError = function (error) {
 	var _p0 = error;

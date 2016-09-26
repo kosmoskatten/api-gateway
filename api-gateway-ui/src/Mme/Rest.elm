@@ -8,8 +8,10 @@ module Mme.Rest exposing
 
 import Array exposing (Array)
 import HttpBuilder exposing (..)
+import Maybe exposing (withDefault)
 import Json.Decode as Dec
 import Json.Encode as Enc
+import String exposing (..)
 import Task exposing (..)
 
 import Types exposing (..)
@@ -17,12 +19,10 @@ import Types exposing (..)
 {-| Fetch the already stored Mmes from the server. -}
 fetchStoredMmes : Cmd Msg
 fetchStoredMmes =
-  Task.perform (\_ -> CloseErrorMsg) (StoredMmesFetched)
-    <| succeed [ { name = "dummy"
-                 , url = "dummier"
-                 , addresses = Array.fromList ["1.2.3.4"]
-                 }
-               ]
+  Task.perform RestOpFailed (StoredMmesFetched)
+      <| fetchStoredMmesTask `andThen` (\xs ->
+            Task.sequence <| List.map resolveMme xs.data
+      )
 
 {-| Command for creating a Mme, fetch its addresses and finally
     return a Mme record. -}
@@ -43,6 +43,22 @@ deleteMme : Mme -> Cmd Msg
 deleteMme mme =
   Task.perform RestOpFailed MmeDeleted
     <| deleteMmeTask mme `andThen` (\_ -> succeed mme)
+
+fetchStoredMmesTask : Task (HttpBuilder.Error String)
+                           (HttpBuilder.Response (List UrlRef))
+fetchStoredMmesTask =
+  HttpBuilder.get "/api/v1/mme"
+    |> withHeader "Accept" "application/json"
+    |> HttpBuilder.send (jsonReader <| Dec.list urlRef) stringReader
+
+resolveMme : UrlRef -> Task (HttpBuilder.Error String) Mme
+resolveMme urlRef =
+  fetchMmeIpConfigTask urlRef `andThen` (\resp ->
+      succeed { name      = withDefault "???" <| nameFromUrl urlRef
+              , url       = urlRef.url
+              , addresses = resp.data
+              }
+    )
 
 {-| Task that creates one Mme and returns the Mme's url ref. -}
 createMmeTask : String -> Task (HttpBuilder.Error String)
@@ -68,3 +84,7 @@ deleteMmeTask : Mme -> Task (HttpBuilder.Error String)
 deleteMmeTask mme =
   HttpBuilder.delete mme.url
     |> HttpBuilder.send unitReader stringReader
+
+nameFromUrl : UrlRef -> Maybe String
+nameFromUrl urlRef =
+  List.head <| List.drop 4 <| split "/" urlRef.url
