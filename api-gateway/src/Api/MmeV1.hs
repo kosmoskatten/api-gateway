@@ -92,7 +92,13 @@ instance ToSchema MmeAttributeDesc where
                                         , desc = "Fetch MME IP configuration"
                                         }
 
--- IP config payload, with status indicator.
+-- | List of MME names, with status indicator.
+data MmeNameList = MmeNameList
+    { status :: !Int
+    , names  :: !(Maybe [Text])
+    } deriving (Generic, Show, FromJSON, ToJSON)
+
+-- | IP config payload, with status indicator.
 data IpConfig = IpConfig
     { status :: !Int
     , config :: !(Maybe [Text])
@@ -111,10 +117,18 @@ mmeV1Service self
 listMmes :: Self -> Handler [MmeUrlRef]
 listMmes Self {..} =
     tmoRequest tmo (request nats "app.v1.mme.listPcos" "") $ \msg ->
-        maybe (throwError err502) (return . map toMmeUrlRef) (jsonPayload msg)
+        maybe (throwError err502) handleReply (jsonPayload msg)
     where
-        toMmeUrlRef :: URL -> MmeUrlRef
-        toMmeUrlRef u = MmeUrlRef { url = concatURL [baseUrl, u]}
+        handleReply :: MmeNameList -> Handler [MmeUrlRef]
+        handleReply MmeNameList {..} =
+            case status of
+                -- 200 is the expected positive status.
+                200 -> return $ map
+                    (\n -> MmeUrlRef { url = concatURL [baseUrl, n] })
+                    (fromJust names)
+
+                -- Catch all the rest as error codes.
+                _   -> translateErrCode status
 
 -- | Create a new MME. References the app.v1.mme.createPco topic.
 createMme :: Self -> MmeCtor -> Handler MmeUrlRef

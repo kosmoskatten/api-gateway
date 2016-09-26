@@ -30,6 +30,11 @@ data Status = Status
     { status :: !Int
     } deriving (Generic, Show, FromJSON, ToJSON)
 
+data MmeNameList = MmeNameList
+    { status :: !Int
+    , names  :: !(Maybe [Text])
+    } deriving (Generic, Show, FromJSON, ToJSON)
+
 data IpConfig = IpConfig
     { status :: !Int
     , config :: !(Maybe [Text])
@@ -130,8 +135,10 @@ listPcos :: Nats -> Self -> Msg -> IO ()
 listPcos nats self msg =
     ifReply msg $ \reply -> publishJson nats reply Nothing =<< listPcos'
     where
-        listPcos' :: IO [Text]
-        listPcos' = HashMap.keys <$> readTVarIO (mmeMap self)
+        listPcos' :: IO MmeNameList
+        listPcos' = do
+            ns <- HashMap.keys <$> readTVarIO (mmeMap self)
+            return MmeNameList { status = 200, names = Just ns}
 
 -- | Check existance of the MME.
 exist :: Nats -> Self -> Msg -> IO ()

@@ -17,8 +17,8 @@ import Data.Aeson (FromJSON, ToJSON)
 import Data.Text (Text)
 import GHC.Generics (Generic)
 import Network.Nats (Msg, Topic)
-import Servant ( Handler, throwError, err400, err403
-               , err404, err409, err415, err502, err504
+import Servant ( Handler, throwError, err400, err404
+               , err409, err415, err502, err504
                )
 import System.Timeout (timeout)
 
