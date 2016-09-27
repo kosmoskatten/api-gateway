@@ -24,7 +24,10 @@ import Mme.Panel exposing ( MmeModel, initMme, numMmes
                           , newMmeCreated, mmeDeleted
                           )
 import Mme.Rest exposing (createMme, deleteMme, fetchStoredMmes)
-import Ue.Panel exposing (UeModel, initUe, numUes, viewUePanel)
+import Ue.Panel exposing ( UeModel, initUe, numUes
+                         , viewUePanel, openNewUeForm
+                         , cancelNewUeForm, onInputNewUeImsi
+                         )
 
 -- Main model.
 type alias Model =
@@ -152,6 +155,15 @@ update msg model =
 
     MmeDeleted mme            ->
       ({model | mmeModel = mmeDeleted model.mmeModel mme}, Cmd.none)
+
+    OpenNewUeForm             ->
+      ({model | ueModel = openNewUeForm model.ueModel}, Cmd.none)
+
+    CancelNewUeForm           ->
+      ({model | ueModel = cancelNewUeForm model.ueModel}, Cmd.none)
+
+    OnInputNewUeImsi imsi     ->
+      ({model | ueModel = onInputNewUeImsi model.ueModel imsi}, Cmd.none)
 
     RestOpFailed error        ->
       ({model | errorMessage = Just <| expandError error}, Cmd.none)

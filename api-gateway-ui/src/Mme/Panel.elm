@@ -61,11 +61,12 @@ addNewMme =
   div [ A.class "w3-blue-grey" ]
       [ div [ A.class "w3-left" ]
           [ i [ A.class "material-icons w3-padding-tiny"
-          , A.style [("cursor", "pointer")]
-          , A.title "Open the form to create a new MME"
-          , E.onClick OpenNewMmeForm
-          ] [ text "add"]
-      ]
+              , A.style [("cursor", "pointer")]
+              , A.title "Open the form to create a new MME"
+              , E.onClick OpenNewMmeForm
+              ]
+              [ text "add"]
+          ]
       , h5 [] [ text "Add new MME" ]
       ]
 
@@ -130,7 +131,7 @@ openNewMmeForm model =
 cancelNewMmeForm : MmeModel -> MmeModel
 cancelNewMmeForm model =
   {model | newMmeFormOpen = False
-         , newMmeName = ""
+         , newMmeName     = ""
   }
 
 {-| The user have entered text into the input field for the Mme's name. -}
@@ -142,7 +143,8 @@ onInputNewMmeName model newName =
 newMmeFormSubmitted : MmeModel -> MmeModel
 newMmeFormSubmitted model =
   {model | newMmeFormOpen = False
-         , newMmeName = ""}
+         , newMmeName     = ""
+  }
 
 {-| Response from the API, stored Mmes are fetched. -}
 storedMmesFetched : MmeModel -> List Mme -> MmeModel
@@ -159,7 +161,7 @@ mmeDeleted : MmeModel -> Mme -> MmeModel
 mmeDeleted model mme =
   {model | mmes = filter (\x -> x.name /= mme.name) model.mmes}
 
-{-| Input data validator, to tell if "Submit" shall be enabled. -}
+{-| Input data validator, to tell if "Submit" shall be disabled. -}
 shallNewMmeSubmitBeDisabled : String -> Bool
 shallNewMmeSubmitBeDisabled newMme =
     length newMme < 1 || not (isFirstCharAlpha newMme) || any isSpace newMme

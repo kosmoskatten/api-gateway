@@ -20,6 +20,8 @@ type Equipment
 
 type Msg
   = SetLivePanel Equipment
+
+  -- MME stuff
   | OpenNewMmeForm
   | CancelNewMmeForm
   | OnInputNewMmeName String
@@ -28,6 +30,13 @@ type Msg
   | NewMmeCreated Mme
   | DeleteMme Mme
   | MmeDeleted Mme
+
+  -- UE stuff.
+  | OpenNewUeForm
+  | CancelNewUeForm
+  | OnInputNewUeImsi String
+
+  -- General REST related stuff.
   | RestOpFailed (Error String)
   | CloseErrorMsg
 

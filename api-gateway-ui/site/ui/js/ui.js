@@ -9402,6 +9402,11 @@ var _kosmoskatten$api_gateway$Types$CloseErrorMsg = {ctor: 'CloseErrorMsg'};
 var _kosmoskatten$api_gateway$Types$RestOpFailed = function (a) {
 	return {ctor: 'RestOpFailed', _0: a};
 };
+var _kosmoskatten$api_gateway$Types$OnInputNewUeImsi = function (a) {
+	return {ctor: 'OnInputNewUeImsi', _0: a};
+};
+var _kosmoskatten$api_gateway$Types$CancelNewUeForm = {ctor: 'CancelNewUeForm'};
+var _kosmoskatten$api_gateway$Types$OpenNewUeForm = {ctor: 'OpenNewUeForm'};
 var _kosmoskatten$api_gateway$Types$MmeDeleted = function (a) {
 	return {ctor: 'MmeDeleted', _0: a};
 };
@@ -9858,6 +9863,174 @@ var _kosmoskatten$api_gateway$Mme_Rest$fetchStoredMmes = A3(
 				A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Mme_Rest$resolveMmeTask, xs.data));
 		}));
 
+var _kosmoskatten$api_gateway$Ue_Panel$shallNewUeSubmitBeDisabled = function (newUe) {
+	return (_elm_lang$core$Native_Utils.cmp(
+		_elm_lang$core$String$length(newUe),
+		1) < 0) || _elm_lang$core$Basics$not(
+		A2(_elm_lang$core$String$all, _elm_lang$core$Char$isDigit, newUe));
+};
+var _kosmoskatten$api_gateway$Ue_Panel$onInputNewUeImsi = F2(
+	function (model, newImsi) {
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{newUeImsi: newImsi});
+	});
+var _kosmoskatten$api_gateway$Ue_Panel$cancelNewUeForm = function (model) {
+	return _elm_lang$core$Native_Utils.update(
+		model,
+		{newUeFormOpen: false, newUeImsi: ''});
+};
+var _kosmoskatten$api_gateway$Ue_Panel$openNewUeForm = function (model) {
+	return _elm_lang$core$Native_Utils.update(
+		model,
+		{newUeFormOpen: true});
+};
+var _kosmoskatten$api_gateway$Ue_Panel$newUeForm = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('w3-container w3-blue')
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$h4,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text('Add new UE')
+							]))
+					])),
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('w3-container'),
+						_elm_lang$html$Html_Attributes$style(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								{ctor: '_Tuple2', _0: 'padding-bottom', _1: '20px'}
+							]))
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$p,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[])),
+						A2(
+						_elm_lang$html$Html$label,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text('New UE IMSI')
+							])),
+						A2(
+						_elm_lang$html$Html$input,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('w3-input w3-light-grey'),
+								_elm_lang$html$Html_Attributes$type$('text'),
+								_elm_lang$html$Html_Attributes$placeholder('Imsi number for the new UE (e.g. 123456)'),
+								_elm_lang$html$Html_Attributes$value(model.newUeImsi),
+								_elm_lang$html$Html_Events$onInput(_kosmoskatten$api_gateway$Types$OnInputNewUeImsi)
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[]))
+					])),
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('w3-container'),
+						_elm_lang$html$Html_Attributes$style(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								{ctor: '_Tuple2', _0: 'padding-bottom', _1: '10px'}
+							]))
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$button,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('w3-btn w3-green'),
+								_elm_lang$html$Html_Attributes$disabled(
+								_kosmoskatten$api_gateway$Ue_Panel$shallNewUeSubmitBeDisabled(model.newUeImsi))
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text('Submit')
+							])),
+						A2(
+						_elm_lang$html$Html$button,
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html_Attributes$class('w3-btn w3-red'),
+								_elm_lang$html$Html_Events$onClick(_kosmoskatten$api_gateway$Types$CancelNewUeForm)
+							]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text('Cancel')
+							]))
+					]))
+			]));
+};
+var _kosmoskatten$api_gateway$Ue_Panel$addNewUe = A2(
+	_elm_lang$html$Html$div,
+	_elm_lang$core$Native_List.fromArray(
+		[
+			_elm_lang$html$Html_Attributes$class('w3-blue')
+		]),
+	_elm_lang$core$Native_List.fromArray(
+		[
+			A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$class('w3-left')
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(
+					_elm_lang$html$Html$i,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('material-icons w3-padding-tiny'),
+							_elm_lang$html$Html_Attributes$style(
+							_elm_lang$core$Native_List.fromArray(
+								[
+									{ctor: '_Tuple2', _0: 'cursor', _1: 'pointer'}
+								])),
+							_elm_lang$html$Html_Attributes$title('Open the form to create a new UE'),
+							_elm_lang$html$Html_Events$onClick(_kosmoskatten$api_gateway$Types$OpenNewUeForm)
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text('add')
+						]))
+				])),
+			A2(
+			_elm_lang$html$Html$h5,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('Add new UE')
+				]))
+		]));
 var _kosmoskatten$api_gateway$Ue_Panel$numUes = function (model) {
 	return _elm_lang$core$List$length(model.ues);
 };
@@ -9876,17 +10049,21 @@ var _kosmoskatten$api_gateway$Ue_Panel$viewUePanel = function (model) {
 					[]),
 				_elm_lang$core$Native_List.fromArray(
 					[
-						_elm_lang$html$Html$text('The REAL UEs')
-					]))
+						_elm_lang$html$Html$text('UEs')
+					])),
+				model.newUeFormOpen ? _kosmoskatten$api_gateway$Ue_Panel$newUeForm(model) : _kosmoskatten$api_gateway$Ue_Panel$addNewUe
 			]));
 };
 var _kosmoskatten$api_gateway$Ue_Panel$initUe = {
+	newUeFormOpen: false,
+	newUeImsi: '',
 	ues: _elm_lang$core$Native_List.fromArray(
 		[])
 };
-var _kosmoskatten$api_gateway$Ue_Panel$UeModel = function (a) {
-	return {ues: a};
-};
+var _kosmoskatten$api_gateway$Ue_Panel$UeModel = F3(
+	function (a, b, c) {
+		return {newUeFormOpen: a, newUeImsi: b, ues: c};
+	});
 
 var _kosmoskatten$api_gateway$CsimControlApp$expandError = function (error) {
 	var _p0 = error;
@@ -9996,6 +10173,36 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 						model,
 						{
 							mmeModel: A2(_kosmoskatten$api_gateway$Mme_Panel$mmeDeleted, model.mmeModel, _p2._0)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'OpenNewUeForm':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							ueModel: _kosmoskatten$api_gateway$Ue_Panel$openNewUeForm(model.ueModel)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'CancelNewUeForm':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							ueModel: _kosmoskatten$api_gateway$Ue_Panel$cancelNewUeForm(model.ueModel)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'OnInputNewUeImsi':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							ueModel: A2(_kosmoskatten$api_gateway$Ue_Panel$onInputNewUeImsi, model.ueModel, _p2._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
