@@ -17,18 +17,29 @@ import Unicode as Uni
 
 import Types exposing (..)
 
-import Mme.Panel exposing (..)
+import Mme.Panel exposing ( MmeModel, initMme, numMmes
+                          , viewMmePanel, openNewMmeForm
+                          , cancelNewMmeForm, onInputNewMmeName
+                          , newMmeFormSubmitted, storedMmesFetched
+                          , newMmeCreated, mmeDeleted
+                          )
 import Mme.Rest exposing (createMme, deleteMme, fetchStoredMmes)
+import Ue.Panel exposing (UeModel, initUe, numUes, viewUePanel)
 
 -- Main model.
 type alias Model =
-  { livePanel : Equipment
+  { livePanel    : Equipment
   , errorMessage : Maybe String
-  , mmeModel  : MmeModel
+  , mmeModel     : MmeModel
+  , ueModel      : UeModel
   }
 
 init : (Model, Cmd Msg)
-init = ( {livePanel = UE, errorMessage = Nothing, mmeModel = initMme}
+init = ( { livePanel    = UE
+         , errorMessage = Nothing
+         , mmeModel     = initMme
+         , ueModel      = initUe
+         }
        , fetchStoredMmes )
 
 -- Main view.
@@ -45,7 +56,7 @@ view model =
 viewEquipmentSelectors : Model -> Html Msg
 viewEquipmentSelectors model =
   div [ A.class "w3-row-padding w3-margin-bottom" ]
-      [ viewEquipmentSelector UE 0
+      [ viewEquipmentSelector UE (numUes model.ueModel)
       , viewEquipmentSelector ENB 0
       , viewEquipmentSelector MME (numMmes model.mmeModel)
       ]
@@ -99,15 +110,9 @@ viewErrorMessage model =
 viewEquipmentPanel : Model -> Html Msg
 viewEquipmentPanel model =
   case model.livePanel of
-        UE  -> viewUePanel model
+        UE  -> viewUePanel model.ueModel
         ENB -> viewEnbPanel model
         MME -> viewMmePanel model.mmeModel
-
-viewUePanel : Model -> Html Msg
-viewUePanel model =
-  div [ A.class "w3-container" ]
-    [ h4 [] [ text "UEs" ]
-    ]
 
 viewEnbPanel : Model -> Html Msg
 viewEnbPanel model =

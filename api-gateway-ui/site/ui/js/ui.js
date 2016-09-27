@@ -9385,6 +9385,9 @@ var _kosmoskatten$api_gateway$Types$Mme = F3(
 	function (a, b, c) {
 		return {name: a, url: b, addresses: c};
 	});
+var _kosmoskatten$api_gateway$Types$Ue = function (a) {
+	return {imsi: a};
+};
 var _kosmoskatten$api_gateway$Types$UrlRef = function (a) {
 	return {url: a};
 };
@@ -9855,6 +9858,36 @@ var _kosmoskatten$api_gateway$Mme_Rest$fetchStoredMmes = A3(
 				A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Mme_Rest$resolveMmeTask, xs.data));
 		}));
 
+var _kosmoskatten$api_gateway$Ue_Panel$numUes = function (model) {
+	return _elm_lang$core$List$length(model.ues);
+};
+var _kosmoskatten$api_gateway$Ue_Panel$viewUePanel = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$class('w3-container')
+			]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$h4,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text('The REAL UEs')
+					]))
+			]));
+};
+var _kosmoskatten$api_gateway$Ue_Panel$initUe = {
+	ues: _elm_lang$core$Native_List.fromArray(
+		[])
+};
+var _kosmoskatten$api_gateway$Ue_Panel$UeModel = function (a) {
+	return {ues: a};
+};
+
 var _kosmoskatten$api_gateway$CsimControlApp$expandError = function (error) {
 	var _p0 = error;
 	switch (_p0.ctor) {
@@ -10006,30 +10039,11 @@ var _kosmoskatten$api_gateway$CsimControlApp$viewEnbPanel = function (model) {
 					]))
 			]));
 };
-var _kosmoskatten$api_gateway$CsimControlApp$viewUePanel = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[
-				_elm_lang$html$Html_Attributes$class('w3-container')
-			]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				A2(
-				_elm_lang$html$Html$h4,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('UEs')
-					]))
-			]));
-};
 var _kosmoskatten$api_gateway$CsimControlApp$viewEquipmentPanel = function (model) {
 	var _p3 = model.livePanel;
 	switch (_p3.ctor) {
 		case 'UE':
-			return _kosmoskatten$api_gateway$CsimControlApp$viewUePanel(model);
+			return _kosmoskatten$api_gateway$Ue_Panel$viewUePanel(model.ueModel);
 		case 'ENB':
 			return _kosmoskatten$api_gateway$CsimControlApp$viewEnbPanel(model);
 		default:
@@ -10209,7 +10223,10 @@ var _kosmoskatten$api_gateway$CsimControlApp$viewEquipmentSelectors = function (
 			]),
 		_elm_lang$core$Native_List.fromArray(
 			[
-				A2(_kosmoskatten$api_gateway$CsimControlApp$viewEquipmentSelector, _kosmoskatten$api_gateway$Types$UE, 0),
+				A2(
+				_kosmoskatten$api_gateway$CsimControlApp$viewEquipmentSelector,
+				_kosmoskatten$api_gateway$Types$UE,
+				_kosmoskatten$api_gateway$Ue_Panel$numUes(model.ueModel)),
 				A2(_kosmoskatten$api_gateway$CsimControlApp$viewEquipmentSelector, _kosmoskatten$api_gateway$Types$ENB, 0),
 				A2(
 				_kosmoskatten$api_gateway$CsimControlApp$viewEquipmentSelector,
@@ -10238,12 +10255,12 @@ var _kosmoskatten$api_gateway$CsimControlApp$view = function (model) {
 };
 var _kosmoskatten$api_gateway$CsimControlApp$init = {
 	ctor: '_Tuple2',
-	_0: {livePanel: _kosmoskatten$api_gateway$Types$UE, errorMessage: _elm_lang$core$Maybe$Nothing, mmeModel: _kosmoskatten$api_gateway$Mme_Panel$initMme},
+	_0: {livePanel: _kosmoskatten$api_gateway$Types$UE, errorMessage: _elm_lang$core$Maybe$Nothing, mmeModel: _kosmoskatten$api_gateway$Mme_Panel$initMme, ueModel: _kosmoskatten$api_gateway$Ue_Panel$initUe},
 	_1: _kosmoskatten$api_gateway$Mme_Rest$fetchStoredMmes
 };
-var _kosmoskatten$api_gateway$CsimControlApp$Model = F3(
-	function (a, b, c) {
-		return {livePanel: a, errorMessage: b, mmeModel: c};
+var _kosmoskatten$api_gateway$CsimControlApp$Model = F4(
+	function (a, b, c, d) {
+		return {livePanel: a, errorMessage: b, mmeModel: c, ueModel: d};
 	});
 
 var _kosmoskatten$api_gateway$Main$main = {

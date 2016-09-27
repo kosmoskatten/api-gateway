@@ -2,6 +2,7 @@ module Types exposing
   ( Equipment (..)
   , Msg (..)
   , Mme
+  , Ue
   , UrlRef
   , urlRef
   )
@@ -34,6 +35,10 @@ type alias Mme =
   { name      : String
   , url       : String
   , addresses : Array String
+  }
+
+type alias Ue =
+  { imsi : String
   }
 
 type alias UrlRef =
