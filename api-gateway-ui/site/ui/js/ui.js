@@ -9793,7 +9793,7 @@ var _kosmoskatten$api_gateway$Mme_Rest$createMmeTask = function (name) {
 						])),
 				_lukewestby$elm_http_builder$HttpBuilder$post('/api/v1/mme'))));
 };
-var _kosmoskatten$api_gateway$Mme_Rest$resolveMme = function (urlRef) {
+var _kosmoskatten$api_gateway$Mme_Rest$resolveMmeTask = function (urlRef) {
 	return A2(
 		_elm_lang$core$Task$andThen,
 		_kosmoskatten$api_gateway$Mme_Rest$fetchMmeIpConfigTask(urlRef),
@@ -9839,14 +9839,8 @@ var _kosmoskatten$api_gateway$Mme_Rest$createMme = function (name) {
 		A2(
 			_elm_lang$core$Task$andThen,
 			_kosmoskatten$api_gateway$Mme_Rest$createMmeTask(name),
-			function (resp1) {
-				return A2(
-					_elm_lang$core$Task$andThen,
-					_kosmoskatten$api_gateway$Mme_Rest$fetchMmeIpConfigTask(resp1.data),
-					function (resp2) {
-						return _elm_lang$core$Task$succeed(
-							{name: name, url: resp1.data.url, addresses: resp2.data});
-					});
+			function (resp) {
+				return _kosmoskatten$api_gateway$Mme_Rest$resolveMmeTask(resp.data);
 			}));
 };
 var _kosmoskatten$api_gateway$Mme_Rest$fetchStoredMmes = A3(
@@ -9858,7 +9852,7 @@ var _kosmoskatten$api_gateway$Mme_Rest$fetchStoredMmes = A3(
 		_kosmoskatten$api_gateway$Mme_Rest$fetchStoredMmesTask,
 		function (xs) {
 			return _elm_lang$core$Task$sequence(
-				A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Mme_Rest$resolveMme, xs.data));
+				A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Mme_Rest$resolveMmeTask, xs.data));
 		}));
 
 var _kosmoskatten$api_gateway$CsimControlApp$expandError = function (error) {

@@ -21,7 +21,7 @@ fetchStoredMmes : Cmd Msg
 fetchStoredMmes =
   Task.perform RestOpFailed (StoredMmesFetched)
       <| fetchStoredMmesTask `andThen` (\xs ->
-            Task.sequence <| List.map resolveMme xs.data
+            Task.sequence <| List.map resolveMmeTask xs.data
       )
 
 {-| Command for creating a Mme, fetch its addresses and finally
@@ -29,14 +29,7 @@ fetchStoredMmes =
 createMme : String -> Cmd Msg
 createMme name =
   Task.perform RestOpFailed NewMmeCreated
-    <| createMmeTask name `andThen` (\resp1 ->
-         fetchMmeIpConfigTask resp1.data `andThen` (\resp2 ->
-           succeed { name      = name
-                   , url       = resp1.data.url
-                   , addresses = resp2.data
-                   }
-         )
-       )
+    <| createMmeTask name `andThen` (\resp -> resolveMmeTask resp.data)
 
 {-| Command for deleting a Mme. -}
 deleteMme : Mme -> Cmd Msg
@@ -51,8 +44,8 @@ fetchStoredMmesTask =
     |> withHeader "Accept" "application/json"
     |> HttpBuilder.send (jsonReader <| Dec.list urlRef) stringReader
 
-resolveMme : UrlRef -> Task (HttpBuilder.Error String) Mme
-resolveMme urlRef =
+resolveMmeTask : UrlRef -> Task (HttpBuilder.Error String) Mme
+resolveMmeTask urlRef =
   fetchMmeIpConfigTask urlRef `andThen` (\resp ->
       succeed { name      = withDefault "???" <| nameFromUrl urlRef
               , url       = urlRef.url
