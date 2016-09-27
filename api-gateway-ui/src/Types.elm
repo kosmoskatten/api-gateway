@@ -35,6 +35,7 @@ type Msg
   | OpenNewUeForm
   | CancelNewUeForm
   | OnInputNewUeImsi String
+  | SubmitNewUeForm String
 
   -- General REST related stuff.
   | RestOpFailed (Error String)

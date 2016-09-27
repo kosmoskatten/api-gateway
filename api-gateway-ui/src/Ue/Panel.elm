@@ -6,6 +6,7 @@ module Ue.Panel exposing
   , openNewUeForm
   , cancelNewUeForm
   , onInputNewUeImsi
+  , newUeFormSubmitted
   )
 
 {-| Viewing of, and handling the model of, the Ue control panel. -}
@@ -81,7 +82,7 @@ newUeForm model =
     , div [ A.class "w3-container", A.style [("padding-bottom", "10px")]]
         [ button [ A.class "w3-btn w3-green"
                  , A.disabled (shallNewUeSubmitBeDisabled model.newUeImsi)
-                 --, E.onClick (SubmitNewMmeForm model.newMmeName)
+                 , E.onClick (SubmitNewUeForm model.newUeImsi)
                  ]
                  [ text "Submit" ]
         , button [ A.class "w3-btn w3-red"
@@ -109,6 +110,13 @@ cancelNewUeForm model =
 onInputNewUeImsi : UeModel -> String -> UeModel
 onInputNewUeImsi model newImsi =
   {model | newUeImsi = newImsi}
+
+{-| The user have pressed "Submit" for creating a new Ue. -}
+newUeFormSubmitted : UeModel -> UeModel
+newUeFormSubmitted model =
+  { model | newUeFormOpen = False
+          , newUeImsi     = ""
+  }
 
 {-| Input data validator, to tell if "Submit" shall be disabled. -}
 shallNewUeSubmitBeDisabled : String -> Bool

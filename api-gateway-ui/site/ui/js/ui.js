@@ -9402,6 +9402,9 @@ var _kosmoskatten$api_gateway$Types$CloseErrorMsg = {ctor: 'CloseErrorMsg'};
 var _kosmoskatten$api_gateway$Types$RestOpFailed = function (a) {
 	return {ctor: 'RestOpFailed', _0: a};
 };
+var _kosmoskatten$api_gateway$Types$SubmitNewUeForm = function (a) {
+	return {ctor: 'SubmitNewUeForm', _0: a};
+};
 var _kosmoskatten$api_gateway$Types$OnInputNewUeImsi = function (a) {
 	return {ctor: 'OnInputNewUeImsi', _0: a};
 };
@@ -9869,6 +9872,11 @@ var _kosmoskatten$api_gateway$Ue_Panel$shallNewUeSubmitBeDisabled = function (ne
 		1) < 0) || _elm_lang$core$Basics$not(
 		A2(_elm_lang$core$String$all, _elm_lang$core$Char$isDigit, newUe));
 };
+var _kosmoskatten$api_gateway$Ue_Panel$newUeFormSubmitted = function (model) {
+	return _elm_lang$core$Native_Utils.update(
+		model,
+		{newUeFormOpen: false, newUeImsi: ''});
+};
 var _kosmoskatten$api_gateway$Ue_Panel$onInputNewUeImsi = F2(
 	function (model, newImsi) {
 		return _elm_lang$core$Native_Utils.update(
@@ -9968,7 +9976,9 @@ var _kosmoskatten$api_gateway$Ue_Panel$newUeForm = function (model) {
 							[
 								_elm_lang$html$Html_Attributes$class('w3-btn w3-green'),
 								_elm_lang$html$Html_Attributes$disabled(
-								_kosmoskatten$api_gateway$Ue_Panel$shallNewUeSubmitBeDisabled(model.newUeImsi))
+								_kosmoskatten$api_gateway$Ue_Panel$shallNewUeSubmitBeDisabled(model.newUeImsi)),
+								_elm_lang$html$Html_Events$onClick(
+								_kosmoskatten$api_gateway$Types$SubmitNewUeForm(model.newUeImsi))
 							]),
 						_elm_lang$core$Native_List.fromArray(
 							[
@@ -10203,6 +10213,16 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 						model,
 						{
 							ueModel: A2(_kosmoskatten$api_gateway$Ue_Panel$onInputNewUeImsi, model.ueModel, _p2._0)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'SubmitNewUeForm':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							ueModel: _kosmoskatten$api_gateway$Ue_Panel$newUeFormSubmitted(model.ueModel)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};

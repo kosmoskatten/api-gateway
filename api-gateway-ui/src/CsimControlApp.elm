@@ -27,6 +27,7 @@ import Mme.Rest exposing (createMme, deleteMme, fetchStoredMmes)
 import Ue.Panel exposing ( UeModel, initUe, numUes
                          , viewUePanel, openNewUeForm
                          , cancelNewUeForm, onInputNewUeImsi
+                         , newUeFormSubmitted
                          )
 
 -- Main model.
@@ -164,6 +165,9 @@ update msg model =
 
     OnInputNewUeImsi imsi     ->
       ({model | ueModel = onInputNewUeImsi model.ueModel imsi}, Cmd.none)
+
+    SubmitNewUeForm _         ->
+      ({model | ueModel = newUeFormSubmitted model.ueModel}, Cmd.none)
 
     RestOpFailed error        ->
       ({model | errorMessage = Just <| expandError error}, Cmd.none)
