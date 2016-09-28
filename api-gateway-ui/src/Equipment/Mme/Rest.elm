@@ -1,4 +1,4 @@
-module Mme.Rest exposing
+module Equipment.Mme.Rest exposing
   ( fetchStoredMmes
   , createMme
   , deleteMme

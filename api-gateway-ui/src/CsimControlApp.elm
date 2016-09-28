@@ -17,18 +17,18 @@ import Unicode as Uni
 
 import Types exposing (..)
 
-import Mme.Panel exposing ( MmeModel, initMme, numMmes
-                          , viewMmePanel, openNewMmeForm
-                          , cancelNewMmeForm, onInputNewMmeName
-                          , newMmeFormSubmitted, storedMmesFetched
-                          , newMmeCreated, mmeDeleted
-                          )
-import Mme.Rest exposing (createMme, deleteMme, fetchStoredMmes)
-import Ue.Panel exposing ( UeModel, initUe, numUes
-                         , viewUePanel, openNewUeForm
-                         , cancelNewUeForm, onInputNewUeImsi
-                         , newUeFormSubmitted
-                         )
+import Equipment.Mme.Panel exposing ( MmeModel, initMme, numMmes
+                                    , viewMmePanel, openNewMmeForm
+                                    , cancelNewMmeForm, onInputNewMmeName
+                                    , newMmeFormSubmitted, storedMmesFetched
+                                    , newMmeCreated, mmeDeleted
+                                    )
+import Equipment.Mme.Rest exposing (createMme, deleteMme, fetchStoredMmes)
+import Equipment.Ue.Panel exposing ( UeModel, initUe, numUes
+                                   , viewUePanel, openNewUeForm
+                                   , cancelNewUeForm, onInputNewUeImsi
+                                   , newUeFormSubmitted
+                                   )
 
 -- Main model.
 type alias Model =

@@ -1,4 +1,4 @@
-module Ue.Panel exposing
+module Equipment.Ue.Panel exposing
   ( UeModel
   , initUe
   , viewUePanel

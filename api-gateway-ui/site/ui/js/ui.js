@@ -9434,26 +9434,26 @@ var _kosmoskatten$api_gateway$Types$SetLivePanel = function (a) {
 	return {ctor: 'SetLivePanel', _0: a};
 };
 
-var _kosmoskatten$api_gateway$Mme_Panel$firstChar = function (_p0) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$firstChar = function (_p0) {
 	return _elm_lang$core$List$head(
 		_elm_lang$core$String$toList(
 			A2(_elm_lang$core$String$left, 1, _p0)));
 };
-var _kosmoskatten$api_gateway$Mme_Panel$isFirstCharAlpha = function (str) {
-	var _p1 = _kosmoskatten$api_gateway$Mme_Panel$firstChar(str);
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$isFirstCharAlpha = function (str) {
+	var _p1 = _kosmoskatten$api_gateway$Equipment_Mme_Panel$firstChar(str);
 	if (_p1.ctor === 'Just') {
 		return _kosmoskatten$api_gateway$Char_Extra$isAlpha(_p1._0);
 	} else {
 		return false;
 	}
 };
-var _kosmoskatten$api_gateway$Mme_Panel$shallNewMmeSubmitBeDisabled = function (newMme) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$shallNewMmeSubmitBeDisabled = function (newMme) {
 	return (_elm_lang$core$Native_Utils.cmp(
 		_elm_lang$core$String$length(newMme),
 		1) < 0) || (_elm_lang$core$Basics$not(
-		_kosmoskatten$api_gateway$Mme_Panel$isFirstCharAlpha(newMme)) || A2(_elm_lang$core$String$any, _kosmoskatten$api_gateway$Char_Extra$isSpace, newMme));
+		_kosmoskatten$api_gateway$Equipment_Mme_Panel$isFirstCharAlpha(newMme)) || A2(_elm_lang$core$String$any, _kosmoskatten$api_gateway$Char_Extra$isSpace, newMme));
 };
-var _kosmoskatten$api_gateway$Mme_Panel$mmeDeleted = F2(
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$mmeDeleted = F2(
 	function (model, mme) {
 		return _elm_lang$core$Native_Utils.update(
 			model,
@@ -9466,7 +9466,7 @@ var _kosmoskatten$api_gateway$Mme_Panel$mmeDeleted = F2(
 					model.mmes)
 			});
 	});
-var _kosmoskatten$api_gateway$Mme_Panel$newMmeCreated = F2(
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$newMmeCreated = F2(
 	function (model, mme) {
 		return _elm_lang$core$Native_Utils.update(
 			model,
@@ -9478,34 +9478,34 @@ var _kosmoskatten$api_gateway$Mme_Panel$newMmeCreated = F2(
 						[mme]))
 			});
 	});
-var _kosmoskatten$api_gateway$Mme_Panel$storedMmesFetched = F2(
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$storedMmesFetched = F2(
 	function (model, mmes) {
 		return _elm_lang$core$Native_Utils.update(
 			model,
 			{mmes: mmes});
 	});
-var _kosmoskatten$api_gateway$Mme_Panel$newMmeFormSubmitted = function (model) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$newMmeFormSubmitted = function (model) {
 	return _elm_lang$core$Native_Utils.update(
 		model,
 		{newMmeFormOpen: false, newMmeName: ''});
 };
-var _kosmoskatten$api_gateway$Mme_Panel$onInputNewMmeName = F2(
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$onInputNewMmeName = F2(
 	function (model, newName) {
 		return _elm_lang$core$Native_Utils.update(
 			model,
 			{newMmeName: newName});
 	});
-var _kosmoskatten$api_gateway$Mme_Panel$cancelNewMmeForm = function (model) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$cancelNewMmeForm = function (model) {
 	return _elm_lang$core$Native_Utils.update(
 		model,
 		{newMmeFormOpen: false, newMmeName: ''});
 };
-var _kosmoskatten$api_gateway$Mme_Panel$openNewMmeForm = function (model) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$openNewMmeForm = function (model) {
 	return _elm_lang$core$Native_Utils.update(
 		model,
 		{newMmeFormOpen: true});
 };
-var _kosmoskatten$api_gateway$Mme_Panel$viewMmeListItem = function (mme) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$viewMmeListItem = function (mme) {
 	return A2(
 		_elm_lang$html$Html$tr,
 		_elm_lang$core$Native_List.fromArray(
@@ -9560,16 +9560,16 @@ var _kosmoskatten$api_gateway$Mme_Panel$viewMmeListItem = function (mme) {
 					]))
 			]));
 };
-var _kosmoskatten$api_gateway$Mme_Panel$viewMmeList = function (model) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$viewMmeList = function (model) {
 	return A2(
 		_elm_lang$html$Html$table,
 		_elm_lang$core$Native_List.fromArray(
 			[
 				_elm_lang$html$Html_Attributes$class('w3-table-all')
 			]),
-		A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Mme_Panel$viewMmeListItem, model.mmes));
+		A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Equipment_Mme_Panel$viewMmeListItem, model.mmes));
 };
-var _kosmoskatten$api_gateway$Mme_Panel$newMmeForm = function (model) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$newMmeForm = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -9652,7 +9652,7 @@ var _kosmoskatten$api_gateway$Mme_Panel$newMmeForm = function (model) {
 							[
 								_elm_lang$html$Html_Attributes$class('w3-btn w3-green'),
 								_elm_lang$html$Html_Attributes$disabled(
-								_kosmoskatten$api_gateway$Mme_Panel$shallNewMmeSubmitBeDisabled(model.newMmeName)),
+								_kosmoskatten$api_gateway$Equipment_Mme_Panel$shallNewMmeSubmitBeDisabled(model.newMmeName)),
 								_elm_lang$html$Html_Events$onClick(
 								_kosmoskatten$api_gateway$Types$SubmitNewMmeForm(model.newMmeName))
 							]),
@@ -9674,7 +9674,7 @@ var _kosmoskatten$api_gateway$Mme_Panel$newMmeForm = function (model) {
 					]))
 			]));
 };
-var _kosmoskatten$api_gateway$Mme_Panel$addNewMme = A2(
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$addNewMme = A2(
 	_elm_lang$html$Html$div,
 	_elm_lang$core$Native_List.fromArray(
 		[
@@ -9717,10 +9717,10 @@ var _kosmoskatten$api_gateway$Mme_Panel$addNewMme = A2(
 					_elm_lang$html$Html$text('Add new MME')
 				]))
 		]));
-var _kosmoskatten$api_gateway$Mme_Panel$numMmes = function (model) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$numMmes = function (model) {
 	return _elm_lang$core$List$length(model.mmes);
 };
-var _kosmoskatten$api_gateway$Mme_Panel$viewMmePanel = function (model) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$viewMmePanel = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -9737,36 +9737,36 @@ var _kosmoskatten$api_gateway$Mme_Panel$viewMmePanel = function (model) {
 					[
 						_elm_lang$html$Html$text('MMEs')
 					])),
-				model.newMmeFormOpen ? _kosmoskatten$api_gateway$Mme_Panel$newMmeForm(model) : _kosmoskatten$api_gateway$Mme_Panel$addNewMme,
-				_kosmoskatten$api_gateway$Mme_Panel$viewMmeList(model)
+				model.newMmeFormOpen ? _kosmoskatten$api_gateway$Equipment_Mme_Panel$newMmeForm(model) : _kosmoskatten$api_gateway$Equipment_Mme_Panel$addNewMme,
+				_kosmoskatten$api_gateway$Equipment_Mme_Panel$viewMmeList(model)
 			]));
 };
-var _kosmoskatten$api_gateway$Mme_Panel$initMme = {
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$initMme = {
 	newMmeFormOpen: false,
 	newMmeName: '',
 	mmes: _elm_lang$core$Native_List.fromArray(
 		[])
 };
-var _kosmoskatten$api_gateway$Mme_Panel$MmeModel = F3(
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$MmeModel = F3(
 	function (a, b, c) {
 		return {newMmeFormOpen: a, newMmeName: b, mmes: c};
 	});
 
-var _kosmoskatten$api_gateway$Mme_Rest$nameFromUrl = function (urlRef) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Rest$nameFromUrl = function (urlRef) {
 	return _elm_lang$core$List$head(
 		A2(
 			_elm_lang$core$List$drop,
 			4,
 			A2(_elm_lang$core$String$split, '/', urlRef.url)));
 };
-var _kosmoskatten$api_gateway$Mme_Rest$deleteMmeTask = function (mme) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Rest$deleteMmeTask = function (mme) {
 	return A3(
 		_lukewestby$elm_http_builder$HttpBuilder$send,
 		_lukewestby$elm_http_builder$HttpBuilder$unitReader,
 		_lukewestby$elm_http_builder$HttpBuilder$stringReader,
 		_lukewestby$elm_http_builder$HttpBuilder$delete(mme.url));
 };
-var _kosmoskatten$api_gateway$Mme_Rest$fetchMmeIpConfigTask = function (urlRef) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Rest$fetchMmeIpConfigTask = function (urlRef) {
 	return A3(
 		_lukewestby$elm_http_builder$HttpBuilder$send,
 		_lukewestby$elm_http_builder$HttpBuilder$jsonReader(
@@ -9779,7 +9779,7 @@ var _kosmoskatten$api_gateway$Mme_Rest$fetchMmeIpConfigTask = function (urlRef) 
 			_lukewestby$elm_http_builder$HttpBuilder$get(
 				A2(_elm_lang$core$Basics_ops['++'], urlRef.url, '/ip_config'))));
 };
-var _kosmoskatten$api_gateway$Mme_Rest$createMmeTask = function (name) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Rest$createMmeTask = function (name) {
 	return A3(
 		_lukewestby$elm_http_builder$HttpBuilder$send,
 		_lukewestby$elm_http_builder$HttpBuilder$jsonReader(_kosmoskatten$api_gateway$Types$urlRef),
@@ -9804,23 +9804,23 @@ var _kosmoskatten$api_gateway$Mme_Rest$createMmeTask = function (name) {
 						])),
 				_lukewestby$elm_http_builder$HttpBuilder$post('/api/v1/mme'))));
 };
-var _kosmoskatten$api_gateway$Mme_Rest$resolveMmeTask = function (urlRef) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Rest$resolveMmeTask = function (urlRef) {
 	return A2(
 		_elm_lang$core$Task$andThen,
-		_kosmoskatten$api_gateway$Mme_Rest$fetchMmeIpConfigTask(urlRef),
+		_kosmoskatten$api_gateway$Equipment_Mme_Rest$fetchMmeIpConfigTask(urlRef),
 		function (resp) {
 			return _elm_lang$core$Task$succeed(
 				{
 					name: A2(
 						_elm_lang$core$Maybe$withDefault,
 						'???',
-						_kosmoskatten$api_gateway$Mme_Rest$nameFromUrl(urlRef)),
+						_kosmoskatten$api_gateway$Equipment_Mme_Rest$nameFromUrl(urlRef)),
 					url: urlRef.url,
 					addresses: resp.data
 				});
 		});
 };
-var _kosmoskatten$api_gateway$Mme_Rest$fetchStoredMmesTask = A3(
+var _kosmoskatten$api_gateway$Equipment_Mme_Rest$fetchStoredMmesTask = A3(
 	_lukewestby$elm_http_builder$HttpBuilder$send,
 	_lukewestby$elm_http_builder$HttpBuilder$jsonReader(
 		_elm_lang$core$Json_Decode$list(_kosmoskatten$api_gateway$Types$urlRef)),
@@ -9830,70 +9830,70 @@ var _kosmoskatten$api_gateway$Mme_Rest$fetchStoredMmesTask = A3(
 		'Accept',
 		'application/json',
 		_lukewestby$elm_http_builder$HttpBuilder$get('/api/v1/mme')));
-var _kosmoskatten$api_gateway$Mme_Rest$deleteMme = function (mme) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Rest$deleteMme = function (mme) {
 	return A3(
 		_elm_lang$core$Task$perform,
 		_kosmoskatten$api_gateway$Types$RestOpFailed,
 		_kosmoskatten$api_gateway$Types$MmeDeleted,
 		A2(
 			_elm_lang$core$Task$andThen,
-			_kosmoskatten$api_gateway$Mme_Rest$deleteMmeTask(mme),
+			_kosmoskatten$api_gateway$Equipment_Mme_Rest$deleteMmeTask(mme),
 			function (_p0) {
 				return _elm_lang$core$Task$succeed(mme);
 			}));
 };
-var _kosmoskatten$api_gateway$Mme_Rest$createMme = function (name) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Rest$createMme = function (name) {
 	return A3(
 		_elm_lang$core$Task$perform,
 		_kosmoskatten$api_gateway$Types$RestOpFailed,
 		_kosmoskatten$api_gateway$Types$NewMmeCreated,
 		A2(
 			_elm_lang$core$Task$andThen,
-			_kosmoskatten$api_gateway$Mme_Rest$createMmeTask(name),
+			_kosmoskatten$api_gateway$Equipment_Mme_Rest$createMmeTask(name),
 			function (resp) {
-				return _kosmoskatten$api_gateway$Mme_Rest$resolveMmeTask(resp.data);
+				return _kosmoskatten$api_gateway$Equipment_Mme_Rest$resolveMmeTask(resp.data);
 			}));
 };
-var _kosmoskatten$api_gateway$Mme_Rest$fetchStoredMmes = A3(
+var _kosmoskatten$api_gateway$Equipment_Mme_Rest$fetchStoredMmes = A3(
 	_elm_lang$core$Task$perform,
 	_kosmoskatten$api_gateway$Types$RestOpFailed,
 	_kosmoskatten$api_gateway$Types$StoredMmesFetched,
 	A2(
 		_elm_lang$core$Task$andThen,
-		_kosmoskatten$api_gateway$Mme_Rest$fetchStoredMmesTask,
+		_kosmoskatten$api_gateway$Equipment_Mme_Rest$fetchStoredMmesTask,
 		function (xs) {
 			return _elm_lang$core$Task$sequence(
-				A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Mme_Rest$resolveMmeTask, xs.data));
+				A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Equipment_Mme_Rest$resolveMmeTask, xs.data));
 		}));
 
-var _kosmoskatten$api_gateway$Ue_Panel$shallNewUeSubmitBeDisabled = function (newUe) {
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$shallNewUeSubmitBeDisabled = function (newUe) {
 	return (_elm_lang$core$Native_Utils.cmp(
 		_elm_lang$core$String$length(newUe),
 		1) < 0) || _elm_lang$core$Basics$not(
 		A2(_elm_lang$core$String$all, _elm_lang$core$Char$isDigit, newUe));
 };
-var _kosmoskatten$api_gateway$Ue_Panel$newUeFormSubmitted = function (model) {
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeFormSubmitted = function (model) {
 	return _elm_lang$core$Native_Utils.update(
 		model,
 		{newUeFormOpen: false, newUeImsi: ''});
 };
-var _kosmoskatten$api_gateway$Ue_Panel$onInputNewUeImsi = F2(
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$onInputNewUeImsi = F2(
 	function (model, newImsi) {
 		return _elm_lang$core$Native_Utils.update(
 			model,
 			{newUeImsi: newImsi});
 	});
-var _kosmoskatten$api_gateway$Ue_Panel$cancelNewUeForm = function (model) {
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$cancelNewUeForm = function (model) {
 	return _elm_lang$core$Native_Utils.update(
 		model,
 		{newUeFormOpen: false, newUeImsi: ''});
 };
-var _kosmoskatten$api_gateway$Ue_Panel$openNewUeForm = function (model) {
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$openNewUeForm = function (model) {
 	return _elm_lang$core$Native_Utils.update(
 		model,
 		{newUeFormOpen: true});
 };
-var _kosmoskatten$api_gateway$Ue_Panel$newUeForm = function (model) {
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeForm = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -9976,7 +9976,7 @@ var _kosmoskatten$api_gateway$Ue_Panel$newUeForm = function (model) {
 							[
 								_elm_lang$html$Html_Attributes$class('w3-btn w3-green'),
 								_elm_lang$html$Html_Attributes$disabled(
-								_kosmoskatten$api_gateway$Ue_Panel$shallNewUeSubmitBeDisabled(model.newUeImsi)),
+								_kosmoskatten$api_gateway$Equipment_Ue_Panel$shallNewUeSubmitBeDisabled(model.newUeImsi)),
 								_elm_lang$html$Html_Events$onClick(
 								_kosmoskatten$api_gateway$Types$SubmitNewUeForm(model.newUeImsi))
 							]),
@@ -9998,7 +9998,7 @@ var _kosmoskatten$api_gateway$Ue_Panel$newUeForm = function (model) {
 					]))
 			]));
 };
-var _kosmoskatten$api_gateway$Ue_Panel$addNewUe = A2(
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$addNewUe = A2(
 	_elm_lang$html$Html$div,
 	_elm_lang$core$Native_List.fromArray(
 		[
@@ -10041,10 +10041,10 @@ var _kosmoskatten$api_gateway$Ue_Panel$addNewUe = A2(
 					_elm_lang$html$Html$text('Add new UE')
 				]))
 		]));
-var _kosmoskatten$api_gateway$Ue_Panel$numUes = function (model) {
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$numUes = function (model) {
 	return _elm_lang$core$List$length(model.ues);
 };
-var _kosmoskatten$api_gateway$Ue_Panel$viewUePanel = function (model) {
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$viewUePanel = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
 		_elm_lang$core$Native_List.fromArray(
@@ -10061,16 +10061,16 @@ var _kosmoskatten$api_gateway$Ue_Panel$viewUePanel = function (model) {
 					[
 						_elm_lang$html$Html$text('UEs')
 					])),
-				model.newUeFormOpen ? _kosmoskatten$api_gateway$Ue_Panel$newUeForm(model) : _kosmoskatten$api_gateway$Ue_Panel$addNewUe
+				model.newUeFormOpen ? _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeForm(model) : _kosmoskatten$api_gateway$Equipment_Ue_Panel$addNewUe
 			]));
 };
-var _kosmoskatten$api_gateway$Ue_Panel$initUe = {
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$initUe = {
 	newUeFormOpen: false,
 	newUeImsi: '',
 	ues: _elm_lang$core$Native_List.fromArray(
 		[])
 };
-var _kosmoskatten$api_gateway$Ue_Panel$UeModel = F3(
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$UeModel = F3(
 	function (a, b, c) {
 		return {newUeFormOpen: a, newUeImsi: b, ues: c};
 	});
@@ -10116,7 +10116,7 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							mmeModel: _kosmoskatten$api_gateway$Mme_Panel$openNewMmeForm(model.mmeModel)
+							mmeModel: _kosmoskatten$api_gateway$Equipment_Mme_Panel$openNewMmeForm(model.mmeModel)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10126,7 +10126,7 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							mmeModel: _kosmoskatten$api_gateway$Mme_Panel$cancelNewMmeForm(model.mmeModel)
+							mmeModel: _kosmoskatten$api_gateway$Equipment_Mme_Panel$cancelNewMmeForm(model.mmeModel)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10136,7 +10136,7 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							mmeModel: A2(_kosmoskatten$api_gateway$Mme_Panel$onInputNewMmeName, model.mmeModel, _p2._0)
+							mmeModel: A2(_kosmoskatten$api_gateway$Equipment_Mme_Panel$onInputNewMmeName, model.mmeModel, _p2._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10146,9 +10146,9 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							mmeModel: _kosmoskatten$api_gateway$Mme_Panel$newMmeFormSubmitted(model.mmeModel)
+							mmeModel: _kosmoskatten$api_gateway$Equipment_Mme_Panel$newMmeFormSubmitted(model.mmeModel)
 						}),
-					_1: _kosmoskatten$api_gateway$Mme_Rest$createMme(_p2._0)
+					_1: _kosmoskatten$api_gateway$Equipment_Mme_Rest$createMme(_p2._0)
 				};
 			case 'StoredMmesFetched':
 				return {
@@ -10156,7 +10156,7 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							mmeModel: A2(_kosmoskatten$api_gateway$Mme_Panel$storedMmesFetched, model.mmeModel, _p2._0)
+							mmeModel: A2(_kosmoskatten$api_gateway$Equipment_Mme_Panel$storedMmesFetched, model.mmeModel, _p2._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10166,7 +10166,7 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							mmeModel: A2(_kosmoskatten$api_gateway$Mme_Panel$newMmeCreated, model.mmeModel, _p2._0)
+							mmeModel: A2(_kosmoskatten$api_gateway$Equipment_Mme_Panel$newMmeCreated, model.mmeModel, _p2._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10174,7 +10174,7 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: _kosmoskatten$api_gateway$Mme_Rest$deleteMme(_p2._0)
+					_1: _kosmoskatten$api_gateway$Equipment_Mme_Rest$deleteMme(_p2._0)
 				};
 			case 'MmeDeleted':
 				return {
@@ -10182,7 +10182,7 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							mmeModel: A2(_kosmoskatten$api_gateway$Mme_Panel$mmeDeleted, model.mmeModel, _p2._0)
+							mmeModel: A2(_kosmoskatten$api_gateway$Equipment_Mme_Panel$mmeDeleted, model.mmeModel, _p2._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10192,7 +10192,7 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							ueModel: _kosmoskatten$api_gateway$Ue_Panel$openNewUeForm(model.ueModel)
+							ueModel: _kosmoskatten$api_gateway$Equipment_Ue_Panel$openNewUeForm(model.ueModel)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10202,7 +10202,7 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							ueModel: _kosmoskatten$api_gateway$Ue_Panel$cancelNewUeForm(model.ueModel)
+							ueModel: _kosmoskatten$api_gateway$Equipment_Ue_Panel$cancelNewUeForm(model.ueModel)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10212,7 +10212,7 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							ueModel: A2(_kosmoskatten$api_gateway$Ue_Panel$onInputNewUeImsi, model.ueModel, _p2._0)
+							ueModel: A2(_kosmoskatten$api_gateway$Equipment_Ue_Panel$onInputNewUeImsi, model.ueModel, _p2._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10222,7 +10222,7 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							ueModel: _kosmoskatten$api_gateway$Ue_Panel$newUeFormSubmitted(model.ueModel)
+							ueModel: _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeFormSubmitted(model.ueModel)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10270,11 +10270,11 @@ var _kosmoskatten$api_gateway$CsimControlApp$viewEquipmentPanel = function (mode
 	var _p3 = model.livePanel;
 	switch (_p3.ctor) {
 		case 'UE':
-			return _kosmoskatten$api_gateway$Ue_Panel$viewUePanel(model.ueModel);
+			return _kosmoskatten$api_gateway$Equipment_Ue_Panel$viewUePanel(model.ueModel);
 		case 'ENB':
 			return _kosmoskatten$api_gateway$CsimControlApp$viewEnbPanel(model);
 		default:
-			return _kosmoskatten$api_gateway$Mme_Panel$viewMmePanel(model.mmeModel);
+			return _kosmoskatten$api_gateway$Equipment_Mme_Panel$viewMmePanel(model.mmeModel);
 	}
 };
 var _kosmoskatten$api_gateway$CsimControlApp$viewErrorMessage = function (model) {
@@ -10453,12 +10453,12 @@ var _kosmoskatten$api_gateway$CsimControlApp$viewEquipmentSelectors = function (
 				A2(
 				_kosmoskatten$api_gateway$CsimControlApp$viewEquipmentSelector,
 				_kosmoskatten$api_gateway$Types$UE,
-				_kosmoskatten$api_gateway$Ue_Panel$numUes(model.ueModel)),
+				_kosmoskatten$api_gateway$Equipment_Ue_Panel$numUes(model.ueModel)),
 				A2(_kosmoskatten$api_gateway$CsimControlApp$viewEquipmentSelector, _kosmoskatten$api_gateway$Types$ENB, 0),
 				A2(
 				_kosmoskatten$api_gateway$CsimControlApp$viewEquipmentSelector,
 				_kosmoskatten$api_gateway$Types$MME,
-				_kosmoskatten$api_gateway$Mme_Panel$numMmes(model.mmeModel))
+				_kosmoskatten$api_gateway$Equipment_Mme_Panel$numMmes(model.mmeModel))
 			]));
 };
 var _kosmoskatten$api_gateway$CsimControlApp$view = function (model) {
@@ -10482,8 +10482,8 @@ var _kosmoskatten$api_gateway$CsimControlApp$view = function (model) {
 };
 var _kosmoskatten$api_gateway$CsimControlApp$init = {
 	ctor: '_Tuple2',
-	_0: {livePanel: _kosmoskatten$api_gateway$Types$UE, errorMessage: _elm_lang$core$Maybe$Nothing, mmeModel: _kosmoskatten$api_gateway$Mme_Panel$initMme, ueModel: _kosmoskatten$api_gateway$Ue_Panel$initUe},
-	_1: _kosmoskatten$api_gateway$Mme_Rest$fetchStoredMmes
+	_0: {livePanel: _kosmoskatten$api_gateway$Types$UE, errorMessage: _elm_lang$core$Maybe$Nothing, mmeModel: _kosmoskatten$api_gateway$Equipment_Mme_Panel$initMme, ueModel: _kosmoskatten$api_gateway$Equipment_Ue_Panel$initUe},
+	_1: _kosmoskatten$api_gateway$Equipment_Mme_Rest$fetchStoredMmes
 };
 var _kosmoskatten$api_gateway$CsimControlApp$Model = F4(
 	function (a, b, c, d) {

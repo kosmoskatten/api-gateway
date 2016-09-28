@@ -1,4 +1,4 @@
-module Mme.Panel exposing
+module Equipment.Mme.Panel exposing
   ( MmeModel
   , initMme
   , viewMmePanel
