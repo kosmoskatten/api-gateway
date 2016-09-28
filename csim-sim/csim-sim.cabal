@@ -29,3 +29,21 @@ executable mme-sim
   hs-source-dirs:      src
   default-language:    Haskell2010
   ghc-options:         -Wall
+
+executable msue-sim
+  main-is:             Msue.hs
+  other-modules:       Common
+                       Options
+  -- other-extensions:
+  build-depends:       base >=4.9 && <4.10
+                     , aeson
+                     , bytestring
+                     , hats
+                     , optparse-applicative
+                     , stm
+                     , string-conversions
+                     , text
+                     , unordered-containers
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  ghc-options:         -Wall

@@ -80,8 +80,7 @@ main = do
         -- Make the main thread staying alive.
         stayAlive
 
--- | Create a new MME pco. The name for the MME to be created is the last
--- part of the topic.
+-- | Create a new MME pco.
 createPco :: Nats -> Self -> Msg -> IO ()
 createPco nats self msg =
     ifReply msg $ \reply -> do
