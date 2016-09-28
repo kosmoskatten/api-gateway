@@ -4,7 +4,7 @@ module Equipment.Mme.Rest exposing
   , deleteMme
   )
 
-{-| Rest API routines for the Mme. -}
+{-| REST API routines for the Mme. -}
 
 import Array exposing (Array)
 import HttpBuilder exposing (..)
@@ -19,7 +19,7 @@ import Types exposing (..)
 {-| Fetch the already stored Mmes from the server. -}
 fetchStoredMmes : Cmd Msg
 fetchStoredMmes =
-  Task.perform RestOpFailed (StoredMmesFetched)
+  Task.perform RestOpFailed StoredMmesFetched
       <| fetchStoredMmesTask `andThen` (\xs ->
             Task.sequence <| List.map resolveMmeTask xs.data
       )

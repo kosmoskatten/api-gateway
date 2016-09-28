@@ -27,8 +27,9 @@ import Equipment.Mme.Rest exposing (createMme, deleteMme, fetchStoredMmes)
 import Equipment.Ue.Panel exposing ( UeModel, initUe, numUes
                                    , viewUePanel, openNewUeForm
                                    , cancelNewUeForm, onInputNewUeImsi
-                                   , newUeFormSubmitted
+                                   , newUeFormSubmitted, storedUesFetched
                                    )
+import Equipment.Ue.Rest exposing (fetchStoredUes)
 
 -- Main model.
 type alias Model =
@@ -44,7 +45,10 @@ init = ( { livePanel    = UE
          , mmeModel     = initMme
          , ueModel      = initUe
          }
-       , fetchStoredMmes )
+       , Cmd.batch [ fetchStoredUes
+                   , fetchStoredMmes
+                   ]
+       )
 
 -- Main view.
 view : Model -> Html Msg
@@ -168,6 +172,9 @@ update msg model =
 
     SubmitNewUeForm _         ->
       ({model | ueModel = newUeFormSubmitted model.ueModel}, Cmd.none)
+
+    StoredUesFetched ues      ->
+      ({model | ueModel = storedUesFetched model.ueModel ues}, Cmd.none)
 
     RestOpFailed error        ->
       ({model | errorMessage = Just <| expandError error}, Cmd.none)

@@ -6,6 +6,7 @@ module Equipment.Ue.Panel exposing
   , openNewUeForm
   , cancelNewUeForm
   , onInputNewUeImsi
+  , storedUesFetched
   , newUeFormSubmitted
   )
 
@@ -90,6 +91,11 @@ newUeFormSubmitted model =
   { model | newUeFormOpen = False
           , newUeImsi     = ""
   }
+
+{-| Response from the API, stored Ues are fetched. -}
+storedUesFetched : UeModel -> List Ue -> UeModel
+storedUesFetched model ues =
+  {model | ues = ues }
 
 {-| Input data validator, to tell if "Submit" shall be disabled. -}
 shallNewUeSubmitBeDisabled : String -> Bool

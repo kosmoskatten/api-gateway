@@ -9385,9 +9385,25 @@ var _kosmoskatten$api_gateway$Types$Mme = F3(
 	function (a, b, c) {
 		return {name: a, url: b, addresses: c};
 	});
-var _kosmoskatten$api_gateway$Types$Ue = function (a) {
-	return {imsi: a};
+var _kosmoskatten$api_gateway$Types$Ue = F3(
+	function (a, b, c) {
+		return {imsi: a, url: b, pci: c};
+	});
+var _kosmoskatten$api_gateway$Types$PciRef = function (a) {
+	return {pci: a};
 };
+var _kosmoskatten$api_gateway$Types$pciRef = A2(
+	_elm_lang$core$Json_Decode$object1,
+	_kosmoskatten$api_gateway$Types$PciRef,
+	A2(
+		_elm_lang$core$Json_Decode_ops[':='],
+		'pci',
+		_elm_lang$core$Json_Decode$oneOf(
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+					A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$int)
+				]))));
 var _kosmoskatten$api_gateway$Types$UrlRef = function (a) {
 	return {url: a};
 };
@@ -9401,6 +9417,9 @@ var _kosmoskatten$api_gateway$Types$UE = {ctor: 'UE'};
 var _kosmoskatten$api_gateway$Types$CloseErrorMsg = {ctor: 'CloseErrorMsg'};
 var _kosmoskatten$api_gateway$Types$RestOpFailed = function (a) {
 	return {ctor: 'RestOpFailed', _0: a};
+};
+var _kosmoskatten$api_gateway$Types$StoredUesFetched = function (a) {
+	return {ctor: 'StoredUesFetched', _0: a};
 };
 var _kosmoskatten$api_gateway$Types$SubmitNewUeForm = function (a) {
 	return {ctor: 'SubmitNewUeForm', _0: a};
@@ -9886,6 +9905,12 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Panel$shallNewUeSubmitBeDisabled = fu
 		1) < 0) || _elm_lang$core$Basics$not(
 		A2(_elm_lang$core$String$all, _elm_lang$core$Char$isDigit, newUe));
 };
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$storedUesFetched = F2(
+	function (model, ues) {
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{ues: ues});
+	});
 var _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeFormSubmitted = function (model) {
 	return _elm_lang$core$Native_Utils.update(
 		model,
@@ -10000,6 +10025,73 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Panel$UeModel = F3(
 	function (a, b, c) {
 		return {newUeFormOpen: a, newUeImsi: b, ues: c};
 	});
+
+var _kosmoskatten$api_gateway$Equipment_Ue_Rest$imsiFromUrl = function (urlRef) {
+	return _elm_lang$core$List$head(
+		A2(
+			_elm_lang$core$List$drop,
+			4,
+			A2(_elm_lang$core$String$split, '/', urlRef.url)));
+};
+var _kosmoskatten$api_gateway$Equipment_Ue_Rest$fetchPreferredEutranCellTask = function (urlRef) {
+	return A2(
+		_elm_lang$core$Task$andThen,
+		A3(
+			_lukewestby$elm_http_builder$HttpBuilder$send,
+			_lukewestby$elm_http_builder$HttpBuilder$jsonReader(_kosmoskatten$api_gateway$Types$pciRef),
+			_lukewestby$elm_http_builder$HttpBuilder$stringReader,
+			A3(
+				_lukewestby$elm_http_builder$HttpBuilder$withHeader,
+				'Accept',
+				'application/json',
+				_lukewestby$elm_http_builder$HttpBuilder$get(
+					A2(_elm_lang$core$Basics_ops['++'], urlRef.url, '/preferred-eutran-cell')))),
+		function (resp) {
+			return _elm_lang$core$Task$succeed(resp.data);
+		});
+};
+var _kosmoskatten$api_gateway$Equipment_Ue_Rest$resolveUeTask = function (urlRef) {
+	return A2(
+		_elm_lang$core$Task$andThen,
+		_kosmoskatten$api_gateway$Equipment_Ue_Rest$fetchPreferredEutranCellTask(urlRef),
+		function (pciRef) {
+			return _elm_lang$core$Task$succeed(
+				{
+					imsi: A2(
+						_elm_lang$core$Maybe$withDefault,
+						'???',
+						_kosmoskatten$api_gateway$Equipment_Ue_Rest$imsiFromUrl(urlRef)),
+					url: urlRef.url,
+					pci: pciRef.pci
+				});
+		});
+};
+var _kosmoskatten$api_gateway$Equipment_Ue_Rest$fetchStoredUesTask = A2(
+	_elm_lang$core$Task$andThen,
+	A3(
+		_lukewestby$elm_http_builder$HttpBuilder$send,
+		_lukewestby$elm_http_builder$HttpBuilder$jsonReader(
+			_elm_lang$core$Json_Decode$list(_kosmoskatten$api_gateway$Types$urlRef)),
+		_lukewestby$elm_http_builder$HttpBuilder$stringReader,
+		A3(
+			_lukewestby$elm_http_builder$HttpBuilder$withHeader,
+			'Accept',
+			'application/json',
+			_lukewestby$elm_http_builder$HttpBuilder$get('/api/v1/msue'))),
+	function (resp) {
+		return _elm_lang$core$Task$succeed(resp.data);
+	});
+var _kosmoskatten$api_gateway$Equipment_Ue_Rest$fetchStoredUes = A3(
+	_elm_lang$core$Task$perform,
+	_kosmoskatten$api_gateway$Types$RestOpFailed,
+	_kosmoskatten$api_gateway$Types$StoredUesFetched,
+	A2(
+		_elm_lang$core$Task$andThen,
+		_kosmoskatten$api_gateway$Equipment_Ue_Rest$fetchStoredUesTask,
+		function (xs) {
+			return _elm_lang$core$Task$sequence(
+				A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Equipment_Ue_Rest$resolveUeTask, xs));
+		}));
 
 var _kosmoskatten$api_gateway$CsimControlApp$expandError = function (error) {
 	var _p0 = error;
@@ -10149,6 +10241,16 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 						model,
 						{
 							ueModel: _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeFormSubmitted(model.ueModel)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'StoredUesFetched':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							ueModel: A2(_kosmoskatten$api_gateway$Equipment_Ue_Panel$storedUesFetched, model.ueModel, _p2._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -10409,7 +10511,9 @@ var _kosmoskatten$api_gateway$CsimControlApp$view = function (model) {
 var _kosmoskatten$api_gateway$CsimControlApp$init = {
 	ctor: '_Tuple2',
 	_0: {livePanel: _kosmoskatten$api_gateway$Types$UE, errorMessage: _elm_lang$core$Maybe$Nothing, mmeModel: _kosmoskatten$api_gateway$Equipment_Mme_Panel$initMme, ueModel: _kosmoskatten$api_gateway$Equipment_Ue_Panel$initUe},
-	_1: _kosmoskatten$api_gateway$Equipment_Mme_Rest$fetchStoredMmes
+	_1: _elm_lang$core$Platform_Cmd$batch(
+		_elm_lang$core$Native_List.fromArray(
+			[_kosmoskatten$api_gateway$Equipment_Ue_Rest$fetchStoredUes, _kosmoskatten$api_gateway$Equipment_Mme_Rest$fetchStoredMmes]))
 };
 var _kosmoskatten$api_gateway$CsimControlApp$Model = F4(
 	function (a, b, c, d) {

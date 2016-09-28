@@ -3,7 +3,9 @@ module Types exposing
   , Msg (..)
   , Mme
   , Ue
+  , PciRef
   , UrlRef
+  , pciRef
   , urlRef
   )
 
@@ -36,6 +38,7 @@ type Msg
   | CancelNewUeForm
   | OnInputNewUeImsi String
   | SubmitNewUeForm String
+  | StoredUesFetched (List Ue)
 
   -- General REST related stuff.
   | RestOpFailed (Error String)
@@ -49,13 +52,25 @@ type alias Mme =
 
 type alias Ue =
   { imsi : String
+  , url  : String
+  , pci  : Maybe Int
+  }
+
+type alias PciRef =
+  { pci : Maybe Int
   }
 
 type alias UrlRef =
   { url : String
   }
 
-{-| Json decoder for UrlRef -}
+{-| Json decoder for PciRef. -}
+pciRef : Decoder PciRef
+pciRef =
+  object1 PciRef
+    ("pci" := oneOf [null Nothing, map Just int])
+
+{-| Json decoder for UrlRef. -}
 urlRef : Decoder UrlRef
 urlRef =
   object1 UrlRef
