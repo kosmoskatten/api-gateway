@@ -1,5 +1,6 @@
 module Equipment.Widgets exposing
   ( addNewEquipBar
+  , submitBtnGroup
   )
 
 {-| Common Html widgets used by various equipment panels. -}
@@ -23,4 +24,19 @@ addNewEquipBar color tooltip caption msg =
               [ text "add"]
           ]
       , h5 [] [ text caption ]
+      ]
+
+{-| Button group with two buttons - Submit and Cancel. -}
+submitBtnGroup : Bool -> Msg -> Msg -> Html Msg
+submitBtnGroup disable submit cancel =
+  div [ A.class "w3-container", A.style [("padding-bottom", "10px")]]
+      [ button [ A.class "w3-btn w3-green"
+               , A.disabled disable
+               , E.onClick submit
+               ]
+               [ text "Submit" ]
+      , button [ A.class "w3-btn w3-red"
+               , E.onClick cancel
+               ]
+               [ text "Cancel" ]
       ]

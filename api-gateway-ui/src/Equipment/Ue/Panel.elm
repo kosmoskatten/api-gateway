@@ -18,7 +18,7 @@ import Html.Events as E
 import String exposing (all, length)
 
 import Types exposing (..)
-import Equipment.Widgets exposing (addNewEquipBar)
+import Equipment.Widgets exposing (addNewEquipBar, submitBtnGroup)
 
 {-| Model for the Ue panel. -}
 type alias UeModel =
@@ -66,17 +66,8 @@ newUeForm model =
                 , E.onInput OnInputNewUeImsi
                 ] []
         ]
-    , div [ A.class "w3-container", A.style [("padding-bottom", "10px")]]
-        [ button [ A.class "w3-btn w3-green"
-                 , A.disabled (shallNewUeSubmitBeDisabled model.newUeImsi)
-                 , E.onClick (SubmitNewUeForm model.newUeImsi)
-                 ]
-                 [ text "Submit" ]
-        , button [ A.class "w3-btn w3-red"
-                 , E.onClick CancelNewUeForm
-                 ]
-                 [ text "Cancel" ]
-        ]
+    , submitBtnGroup (shallNewUeSubmitBeDisabled model.newUeImsi)
+                     (SubmitNewUeForm model.newUeImsi) CancelNewUeForm
     ]
 
 -- Event callbacks from the main update function.

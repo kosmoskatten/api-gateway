@@ -24,7 +24,7 @@ import Maybe exposing (withDefault)
 import String exposing (length, toList, left, any)
 
 import Types exposing (..)
-import Equipment.Widgets exposing (addNewEquipBar)
+import Equipment.Widgets exposing (addNewEquipBar, submitBtnGroup)
 
 {-| Model for the Mme panel. -}
 type alias MmeModel =
@@ -73,17 +73,8 @@ newMmeForm model =
                 , E.onInput OnInputNewMmeName
                 ] []
         ]
-    , div [ A.class "w3-container", A.style [("padding-bottom", "10px")]]
-        [ button [ A.class "w3-btn w3-green"
-                 , A.disabled (shallNewMmeSubmitBeDisabled model.newMmeName)
-                 , E.onClick (SubmitNewMmeForm model.newMmeName)
-                 ]
-                 [ text "Submit" ]
-        , button [ A.class "w3-btn w3-red"
-                 , E.onClick CancelNewMmeForm
-                 ]
-                 [ text "Cancel" ]
-        ]
+    , submitBtnGroup (shallNewMmeSubmitBeDisabled model.newMmeName)
+                     (SubmitNewMmeForm model.newMmeName) CancelNewMmeForm
     ]
 
 {-| View the list of attached Mmes. -}
