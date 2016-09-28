@@ -24,6 +24,7 @@ import Maybe exposing (withDefault)
 import String exposing (length, toList, left, any)
 
 import Types exposing (..)
+import Equipment.Widgets exposing (addNewEquipBar)
 
 {-| Model for the Mme panel. -}
 type alias MmeModel =
@@ -47,28 +48,14 @@ viewMmePanel model =
     [ h4 [] [ text "MMEs" ]
     , if model.newMmeFormOpen
         then newMmeForm model
-        else addNewMme
+        else (addNewEquipBar "w3-blue-grey" "Open the form to create a new MME"
+                             "Add new MME" OpenNewMmeForm)
     , viewMmeList model
     ]
 
 {-| Tell the number of Mmes attached to the model. -}
 numMmes : MmeModel -> Int
 numMmes model = List.length model.mmes
-
-{-| Widget to give the user the action to add a new Mme. -}
-addNewMme : Html Msg
-addNewMme =
-  div [ A.class "w3-blue-grey" ]
-      [ div [ A.class "w3-left" ]
-          [ i [ A.class "material-icons w3-padding-tiny"
-              , A.style [("cursor", "pointer")]
-              , A.title "Open the form to create a new MME"
-              , E.onClick OpenNewMmeForm
-              ]
-              [ text "add"]
-          ]
-      , h5 [] [ text "Add new MME" ]
-      ]
 
 {-| Widget to fill in the data for the Mme to be created. -}
 newMmeForm : MmeModel -> Html Msg

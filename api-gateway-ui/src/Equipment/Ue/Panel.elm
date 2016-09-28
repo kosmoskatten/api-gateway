@@ -18,6 +18,7 @@ import Html.Events as E
 import String exposing (all, length)
 
 import Types exposing (..)
+import Equipment.Widgets exposing (addNewEquipBar)
 
 {-| Model for the Ue panel. -}
 type alias UeModel =
@@ -41,27 +42,13 @@ viewUePanel model =
     [ h4 [] [ text "UEs" ]
     , if model.newUeFormOpen
         then newUeForm model
-        else addNewUe
+        else (addNewEquipBar "w3-blue" "Open the form to create a new UE"
+                             "Add new UE" OpenNewUeForm)
     ]
 
 {-| Tell the number of Ues attached to the model. -}
 numUes : UeModel -> Int
 numUes model = List.length model.ues
-
-{-| Widget to give the user the action to a new Ue -}
-addNewUe : Html Msg
-addNewUe =
-  div [ A.class "w3-blue" ]
-      [ div [ A.class "w3-left" ]
-          [ i [ A.class "material-icons w3-padding-tiny"
-              , A.style [("cursor", "pointer")]
-              , A.title "Open the form to create a new UE"
-              , E.onClick OpenNewUeForm
-              ]
-              [ text "add" ]
-          ]
-      , h5 [] [ text "Add new UE" ]
-      ]
 
 {-| Widget to fill in the data for the Ue to be created. -}
 newUeForm : UeModel -> Html Msg

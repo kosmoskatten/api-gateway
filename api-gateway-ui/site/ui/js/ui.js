@@ -9434,6 +9434,53 @@ var _kosmoskatten$api_gateway$Types$SetLivePanel = function (a) {
 	return {ctor: 'SetLivePanel', _0: a};
 };
 
+var _kosmoskatten$api_gateway$Equipment_Widgets$addNewEquipBar = F4(
+	function (color, tooltip, caption, msg) {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$class(color)
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(
+					_elm_lang$html$Html$div,
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html_Attributes$class('w3-left')
+						]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							A2(
+							_elm_lang$html$Html$i,
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html_Attributes$class('material-icons w3-padding-tiny'),
+									_elm_lang$html$Html_Attributes$style(
+									_elm_lang$core$Native_List.fromArray(
+										[
+											{ctor: '_Tuple2', _0: 'cursor', _1: 'pointer'}
+										])),
+									_elm_lang$html$Html_Attributes$title(tooltip),
+									_elm_lang$html$Html_Events$onClick(msg)
+								]),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text('add')
+								]))
+						])),
+					A2(
+					_elm_lang$html$Html$h5,
+					_elm_lang$core$Native_List.fromArray(
+						[]),
+					_elm_lang$core$Native_List.fromArray(
+						[
+							_elm_lang$html$Html$text(caption)
+						]))
+				]));
+	});
+
 var _kosmoskatten$api_gateway$Equipment_Mme_Panel$firstChar = function (_p0) {
 	return _elm_lang$core$List$head(
 		_elm_lang$core$String$toList(
@@ -9674,49 +9721,6 @@ var _kosmoskatten$api_gateway$Equipment_Mme_Panel$newMmeForm = function (model) 
 					]))
 			]));
 };
-var _kosmoskatten$api_gateway$Equipment_Mme_Panel$addNewMme = A2(
-	_elm_lang$html$Html$div,
-	_elm_lang$core$Native_List.fromArray(
-		[
-			_elm_lang$html$Html_Attributes$class('w3-blue-grey')
-		]),
-	_elm_lang$core$Native_List.fromArray(
-		[
-			A2(
-			_elm_lang$html$Html$div,
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html_Attributes$class('w3-left')
-				]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					A2(
-					_elm_lang$html$Html$i,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$class('material-icons w3-padding-tiny'),
-							_elm_lang$html$Html_Attributes$style(
-							_elm_lang$core$Native_List.fromArray(
-								[
-									{ctor: '_Tuple2', _0: 'cursor', _1: 'pointer'}
-								])),
-							_elm_lang$html$Html_Attributes$title('Open the form to create a new MME'),
-							_elm_lang$html$Html_Events$onClick(_kosmoskatten$api_gateway$Types$OpenNewMmeForm)
-						]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html$text('add')
-						]))
-				])),
-			A2(
-			_elm_lang$html$Html$h5,
-			_elm_lang$core$Native_List.fromArray(
-				[]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html$text('Add new MME')
-				]))
-		]));
 var _kosmoskatten$api_gateway$Equipment_Mme_Panel$numMmes = function (model) {
 	return _elm_lang$core$List$length(model.mmes);
 };
@@ -9737,7 +9741,7 @@ var _kosmoskatten$api_gateway$Equipment_Mme_Panel$viewMmePanel = function (model
 					[
 						_elm_lang$html$Html$text('MMEs')
 					])),
-				model.newMmeFormOpen ? _kosmoskatten$api_gateway$Equipment_Mme_Panel$newMmeForm(model) : _kosmoskatten$api_gateway$Equipment_Mme_Panel$addNewMme,
+				model.newMmeFormOpen ? _kosmoskatten$api_gateway$Equipment_Mme_Panel$newMmeForm(model) : A4(_kosmoskatten$api_gateway$Equipment_Widgets$addNewEquipBar, 'w3-blue-grey', 'Open the form to create a new MME', 'Add new MME', _kosmoskatten$api_gateway$Types$OpenNewMmeForm),
 				_kosmoskatten$api_gateway$Equipment_Mme_Panel$viewMmeList(model)
 			]));
 };
@@ -9998,49 +10002,6 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeForm = function (model) {
 					]))
 			]));
 };
-var _kosmoskatten$api_gateway$Equipment_Ue_Panel$addNewUe = A2(
-	_elm_lang$html$Html$div,
-	_elm_lang$core$Native_List.fromArray(
-		[
-			_elm_lang$html$Html_Attributes$class('w3-blue')
-		]),
-	_elm_lang$core$Native_List.fromArray(
-		[
-			A2(
-			_elm_lang$html$Html$div,
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html_Attributes$class('w3-left')
-				]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					A2(
-					_elm_lang$html$Html$i,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$class('material-icons w3-padding-tiny'),
-							_elm_lang$html$Html_Attributes$style(
-							_elm_lang$core$Native_List.fromArray(
-								[
-									{ctor: '_Tuple2', _0: 'cursor', _1: 'pointer'}
-								])),
-							_elm_lang$html$Html_Attributes$title('Open the form to create a new UE'),
-							_elm_lang$html$Html_Events$onClick(_kosmoskatten$api_gateway$Types$OpenNewUeForm)
-						]),
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html$text('add')
-						]))
-				])),
-			A2(
-			_elm_lang$html$Html$h5,
-			_elm_lang$core$Native_List.fromArray(
-				[]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					_elm_lang$html$Html$text('Add new UE')
-				]))
-		]));
 var _kosmoskatten$api_gateway$Equipment_Ue_Panel$numUes = function (model) {
 	return _elm_lang$core$List$length(model.ues);
 };
@@ -10061,7 +10022,7 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Panel$viewUePanel = function (model) 
 					[
 						_elm_lang$html$Html$text('UEs')
 					])),
-				model.newUeFormOpen ? _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeForm(model) : _kosmoskatten$api_gateway$Equipment_Ue_Panel$addNewUe
+				model.newUeFormOpen ? _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeForm(model) : A4(_kosmoskatten$api_gateway$Equipment_Widgets$addNewEquipBar, 'w3-blue', 'Open the form to create a new UE', 'Add new UE', _kosmoskatten$api_gateway$Types$OpenNewUeForm)
 			]));
 };
 var _kosmoskatten$api_gateway$Equipment_Ue_Panel$initUe = {
