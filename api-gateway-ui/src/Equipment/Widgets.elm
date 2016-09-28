@@ -1,6 +1,7 @@
 module Equipment.Widgets exposing
   ( addNewEquipBar
   , submitBtnGroup
+  , formInput
   )
 
 {-| Common Html widgets used by various equipment panels. -}
@@ -40,3 +41,12 @@ submitBtnGroup disable submit cancel =
                ]
                [ text "Cancel" ]
       ]
+
+formInput : String -> String -> (String -> Msg) -> Html Msg
+formInput placeholder value action =
+  input [ A.class "w3-input w3-light-grey"
+        , A.type' "text"
+        , A.placeholder placeholder
+        , A.value value
+        , E.onInput action
+        ] []

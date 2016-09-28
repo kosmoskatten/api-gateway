@@ -9434,6 +9434,21 @@ var _kosmoskatten$api_gateway$Types$SetLivePanel = function (a) {
 	return {ctor: 'SetLivePanel', _0: a};
 };
 
+var _kosmoskatten$api_gateway$Equipment_Widgets$formInput = F3(
+	function (placeholder, value, action) {
+		return A2(
+			_elm_lang$html$Html$input,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$class('w3-input w3-light-grey'),
+					_elm_lang$html$Html_Attributes$type$('text'),
+					_elm_lang$html$Html_Attributes$placeholder(placeholder),
+					_elm_lang$html$Html_Attributes$value(value),
+					_elm_lang$html$Html_Events$onInput(action)
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[]));
+	});
 var _kosmoskatten$api_gateway$Equipment_Widgets$submitBtnGroup = F3(
 	function (disable, submit, cancel) {
 		return A2(
@@ -9707,18 +9722,7 @@ var _kosmoskatten$api_gateway$Equipment_Mme_Panel$newMmeForm = function (model) 
 							[
 								_elm_lang$html$Html$text('New MME Name')
 							])),
-						A2(
-						_elm_lang$html$Html$input,
-						_elm_lang$core$Native_List.fromArray(
-							[
-								_elm_lang$html$Html_Attributes$class('w3-input w3-light-grey'),
-								_elm_lang$html$Html_Attributes$type$('text'),
-								_elm_lang$html$Html_Attributes$placeholder('Name for the new MME (e.g. mme1)'),
-								_elm_lang$html$Html_Attributes$value(model.newMmeName),
-								_elm_lang$html$Html_Events$onInput(_kosmoskatten$api_gateway$Types$OnInputNewMmeName)
-							]),
-						_elm_lang$core$Native_List.fromArray(
-							[]))
+						A3(_kosmoskatten$api_gateway$Equipment_Widgets$formInput, 'Name for the new MME (e.g. mme1)', model.newMmeName, _kosmoskatten$api_gateway$Types$OnInputNewMmeName)
 					])),
 				A3(
 				_kosmoskatten$api_gateway$Equipment_Widgets$submitBtnGroup,
@@ -9954,18 +9958,7 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeForm = function (model) {
 							[
 								_elm_lang$html$Html$text('New UE IMSI')
 							])),
-						A2(
-						_elm_lang$html$Html$input,
-						_elm_lang$core$Native_List.fromArray(
-							[
-								_elm_lang$html$Html_Attributes$class('w3-input w3-light-grey'),
-								_elm_lang$html$Html_Attributes$type$('text'),
-								_elm_lang$html$Html_Attributes$placeholder('Imsi number for the new UE (e.g. 123456)'),
-								_elm_lang$html$Html_Attributes$value(model.newUeImsi),
-								_elm_lang$html$Html_Events$onInput(_kosmoskatten$api_gateway$Types$OnInputNewUeImsi)
-							]),
-						_elm_lang$core$Native_List.fromArray(
-							[]))
+						A3(_kosmoskatten$api_gateway$Equipment_Widgets$formInput, 'Imsi number for the new UE (e.g. 123456)', model.newUeImsi, _kosmoskatten$api_gateway$Types$OnInputNewUeImsi)
 					])),
 				A3(
 				_kosmoskatten$api_gateway$Equipment_Widgets$submitBtnGroup,

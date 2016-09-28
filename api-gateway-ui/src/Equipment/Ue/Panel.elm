@@ -14,11 +14,10 @@ module Equipment.Ue.Panel exposing
 import Char exposing (isDigit)
 import Html exposing (..)
 import Html.Attributes as A
-import Html.Events as E
 import String exposing (all, length)
 
 import Types exposing (..)
-import Equipment.Widgets exposing (addNewEquipBar, submitBtnGroup)
+import Equipment.Widgets exposing (addNewEquipBar, submitBtnGroup, formInput)
 
 {-| Model for the Ue panel. -}
 type alias UeModel =
@@ -59,12 +58,8 @@ newUeForm model =
     , div [ A.class "w3-container", A.style [("padding-bottom", "20px")] ]
         [ p [] []
         , label [] [ text "New UE IMSI" ]
-        , input [ A.class "w3-input w3-light-grey"
-                , A.type' "text"
-                , A.placeholder "Imsi number for the new UE (e.g. 123456)"
-                , A.value model.newUeImsi
-                , E.onInput OnInputNewUeImsi
-                ] []
+        , formInput "Imsi number for the new UE (e.g. 123456)"
+                    model.newUeImsi OnInputNewUeImsi
         ]
     , submitBtnGroup (shallNewUeSubmitBeDisabled model.newUeImsi)
                      (SubmitNewUeForm model.newUeImsi) CancelNewUeForm
