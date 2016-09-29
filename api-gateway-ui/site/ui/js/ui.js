@@ -9810,7 +9810,7 @@ var _kosmoskatten$api_gateway$Equipment_Mme_Rest$fetchMmeIpConfigTask = function
 			'Accept',
 			'application/json',
 			_lukewestby$elm_http_builder$HttpBuilder$get(
-				A2(_elm_lang$core$Basics_ops['++'], urlRef.url, '/ip_config'))));
+				A2(_elm_lang$core$Basics_ops['++'], urlRef.url, '/ip-config'))));
 };
 var _kosmoskatten$api_gateway$Equipment_Mme_Rest$createMmeTask = function (name) {
 	return A3(

@@ -49,7 +49,7 @@ type MmeV1API
                              :> Get '[JSON] [MmeAttributeDesc]
 
       -- Get the IP config attribute for the references MME.
- :<|> "api" :> "v1" :> "mme" :> Capture "name" Text :> "ip_config"
+ :<|> "api" :> "v1" :> "mme" :> Capture "name" Text :> "ip-config"
                              :> Get '[JSON] [Text]
 
 -- | JSON object to create a new MME.

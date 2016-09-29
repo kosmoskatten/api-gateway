@@ -67,7 +67,7 @@ createMmeTask name =
 fetchMmeIpConfigTask : UrlRef -> Task (HttpBuilder.Error String)
                                       (HttpBuilder.Response (Array String))
 fetchMmeIpConfigTask urlRef =
-  HttpBuilder.get (urlRef.url ++ "/ip_config")
+  HttpBuilder.get (urlRef.url ++ "/ip-config")
     |> withHeader "Accept" "application/json"
     |> HttpBuilder.send (jsonReader <| Dec.array Dec.string) stringReader
 
