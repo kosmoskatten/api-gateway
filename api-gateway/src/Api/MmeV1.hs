@@ -44,7 +44,7 @@ type MmeV1API
  :<|> "api" :> "v1" :> "mme" :> Capture "name" Text
                              :> DeleteNoContent '[JSON] NoContent
 
-      -- List all attributes for the references MME.
+      -- List all attributes for the referenced MME.
  :<|> "api" :> "v1" :> "mme" :> Capture "name" Text
                              :> Get '[JSON] [MmeAttributeDesc]
 
@@ -88,7 +88,7 @@ instance ToSchema MmeAttributeDesc where
         genericDeclareNamedSchema defaultSchemaOptions proxy
             & mapped.schema.description ?~ "MME attribute"
             & mapped.schema.example ?~
-                toJSON MmeAttributeDesc { url = "/api/v1/mme/mme1/ip_config"
+                toJSON MmeAttributeDesc { url = "/api/v1/mme/mme1/ip-config"
                                         , desc = "Fetch MME IP configuration"
                                         }
 
@@ -175,8 +175,8 @@ listAttributes Self {..} name = do
                 -- 200 is the expected positive status.
                 200 -> return
                     [ MmeAttributeDesc
-                        { url = concatURL [baseUrl, name, "ip_config"]
-                        , desc = "Read the IP configuration from the MME"
+                        { url = concatURL [baseUrl, name, "ip-config"]
+                        , desc = "Fetch MME IP configuration"
                         }
                     ]
 
@@ -198,7 +198,7 @@ getIpConfig Self {..} name = do
                 200 -> return $ fromJust config
 
                 -- Catch all the rest as error codes.
-                _   -> throwError err502
+                _   -> translateErrCode status
 
 baseUrl :: URL
 baseUrl = "/api/v1/mme"
