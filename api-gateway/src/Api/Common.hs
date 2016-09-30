@@ -8,6 +8,8 @@ module Api.Common
     , Status (..)
     , concatTopic
     , concatURL
+    , csimRequest
+    , csimRequestJSON
     , tmoRequest
     , translateErrCode
     ) where
@@ -16,7 +18,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Text (Text)
 import GHC.Generics (Generic)
-import Network.Nats (Msg, Topic)
+import Network.Nats (Msg, Topic, jsonPayload, request, requestJson)
 import Servant ( Handler, throwError, err400, err404
                , err409, err415, err502, err504
                )
@@ -25,7 +27,7 @@ import System.Timeout (timeout)
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.Text as Text
 
-import Types (TmoSec, toUsec)
+import Types (Self (..), TmoSec, toUsec)
 
 -- | Type alias for URLs.
 type URL = Text
@@ -44,6 +46,17 @@ concatTopic = BS.intercalate "."
 -- inserted in between the fragments.
 concatURL :: [URL] -> URL
 concatURL = Text.intercalate "/"
+
+csimRequest :: FromJSON a => Self -> Topic -> (a -> Handler r) -> Handler r
+csimRequest self topic handleReply =
+    tmoRequest (tmo self) (request (nats self) topic "") $ \msg ->
+        maybe (throwError err502) handleReply (jsonPayload msg)
+
+csimRequestJSON :: (FromJSON a, ToJSON b) => Self -> Topic -> b
+                -> (a -> Handler r) -> Handler r
+csimRequestJSON self topic payload handleReply =
+    tmoRequest (tmo self) (requestJson (nats self) topic payload) $ \msg ->
+        maybe (throwError err502) handleReply (jsonPayload msg)
 
 -- | Perform a Nats request, or any IO action with the type IO Msg. If the
 -- action not is completed within the timeout duration a 504/Gateway timeout

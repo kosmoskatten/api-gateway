@@ -27,7 +27,8 @@ import Network.Nats
 import Servant
 
 import Api.Common ( URL, Status (..), concatTopic, concatURL
-                  , tmoRequest, translateErrCode
+                  , csimRequest, csimRequestJSON, tmoRequest
+                  , translateErrCode
                   )
 import Types (Self (..))
 
@@ -115,34 +116,28 @@ mmeV1Service self
 
 -- | List all MMEs. References the app.v1.mme.listPcos topic.
 listMmes :: Self -> Handler [MmeUrlRef]
-listMmes Self {..} =
-    tmoRequest tmo (request nats "app.v1.mme.listPcos" "") $ \msg ->
-        maybe (throwError err502) handleReply (jsonPayload msg)
+listMmes self =
+    csimRequest self "app.v1.mme.listPcos" handleReply
     where
-        handleReply :: MmeNameList -> Handler [MmeUrlRef]
-        handleReply MmeNameList {..} =
-            case status of
-                -- 200 is the expected positive status.
-                200 -> return $ map
-                    (\n -> MmeUrlRef { url = concatURL [baseUrl, n] })
-                    (fromJust names)
+      handleReply :: MmeNameList -> Handler [MmeUrlRef]
+      handleReply MmeNameList {..} =
+          case status of
+              200 -> return $ map
+                  (\n -> MmeUrlRef { url = concatURL [baseUrl, n] })
+                  (fromJust names)
 
-                -- Catch all the rest as error codes.
-                _   -> translateErrCode status
+              _   -> translateErrCode status
 
 -- | Create a new MME. References the app.v1.mme.createPco topic.
 createMme :: Self -> MmeCtor -> Handler MmeUrlRef
-createMme Self {..} mmeCtor@MmeCtor {..} =
-    tmoRequest tmo (requestJson nats "app.v1.mme.createPco" mmeCtor) $ \msg ->
-        maybe (throwError err502) handleReply (jsonPayload msg)
+createMme self mmeCtor@MmeCtor {..} =
+    csimRequestJSON self "app.v1.mme.createPco" mmeCtor handleReply
     where
         handleReply :: Status -> Handler MmeUrlRef
         handleReply Status {..} =
             case status of
-                -- 201 is the expected positive status.
                 201 -> return MmeUrlRef { url = concatURL [baseUrl, name] }
 
-                -- Catch all the rest as error codes.
                 _   -> translateErrCode status
 
 -- | Delete a MME. References the app.v1.mme.deletePco.* topic.
