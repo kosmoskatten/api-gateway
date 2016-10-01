@@ -43,6 +43,7 @@ fetchPreferredEutranCellTask urlRef =
     |> HttpBuilder.send (jsonReader pciRef) stringReader)
       `andThen` (\resp -> succeed resp.data)
 
+{-| Deconstruct the URL to get the UE name. It's the 4th segment. -}
 imsiFromUrl : UrlRef -> Maybe String
 imsiFromUrl urlRef =
   List.head <| List.drop 4 <| split "/" urlRef.url

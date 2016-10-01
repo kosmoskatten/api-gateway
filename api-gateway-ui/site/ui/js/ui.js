@@ -9945,6 +9945,32 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Panel$openNewUeForm = function (model
 		model,
 		{newUeFormOpen: true});
 };
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$viewUeListItem = function (ue) {
+	return A2(
+		_elm_lang$html$Html$tr,
+		_elm_lang$core$Native_List.fromArray(
+			[]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$td,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(ue.imsi)
+					]))
+			]));
+};
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$viewUeList = function (model) {
+	return A2(
+		_elm_lang$html$Html$table,
+		_elm_lang$core$Native_List.fromArray(
+			[
+				_elm_lang$html$Html_Attributes$class('w3-table-all')
+			]),
+		A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Equipment_Ue_Panel$viewUeListItem, model.ues));
+};
 var _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeForm = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -10025,7 +10051,8 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Panel$viewUePanel = function (model) 
 					[
 						_elm_lang$html$Html$text('UEs')
 					])),
-				model.newUeFormOpen ? _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeForm(model) : A4(_kosmoskatten$api_gateway$Equipment_Widgets$addNewEquipBar, 'w3-blue', 'Open the form to create a new UE', 'Add new UE', _kosmoskatten$api_gateway$Types$OpenNewUeForm)
+				model.newUeFormOpen ? _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeForm(model) : A4(_kosmoskatten$api_gateway$Equipment_Widgets$addNewEquipBar, 'w3-blue', 'Open the form to create a new UE', 'Add new UE', _kosmoskatten$api_gateway$Types$OpenNewUeForm),
+				_kosmoskatten$api_gateway$Equipment_Ue_Panel$viewUeList(model)
 			]));
 };
 var _kosmoskatten$api_gateway$Equipment_Ue_Panel$initUe = {

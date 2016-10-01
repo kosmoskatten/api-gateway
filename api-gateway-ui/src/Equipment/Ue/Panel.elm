@@ -15,6 +15,7 @@ module Equipment.Ue.Panel exposing
 import Char exposing (isDigit)
 import Html exposing (..)
 import Html.Attributes as A
+import List exposing (map)
 import String exposing (all, length)
 
 import Types exposing (..)
@@ -44,6 +45,7 @@ viewUePanel model =
         then newUeForm model
         else (addNewEquipBar "w3-blue" "Open the form to create a new UE"
                              "Add new UE" OpenNewUeForm)
+    , viewUeList model
     ]
 
 {-| Tell the number of Ues attached to the model. -}
@@ -64,6 +66,18 @@ newUeForm model =
         ]
     , submitBtnGroup (shallNewUeSubmitBeDisabled model.newUeImsi)
                      (SubmitNewUeForm model.newUeImsi) CancelNewUeForm
+    ]
+
+{-| View the list of Ues. -}
+viewUeList : UeModel -> Html Msg
+viewUeList model =
+  table [ A.class "w3-table-all" ]
+    (map viewUeListItem model.ues)
+
+viewUeListItem : Ue -> Html Msg
+viewUeListItem ue =
+  tr []
+    [ td [] [ text ue.imsi ]
     ]
 
 -- Event callbacks from the main update function.

@@ -81,7 +81,7 @@ deleteMmeTask mme =
   HttpBuilder.delete mme.url
     |> HttpBuilder.send unitReader stringReader
 
-{-| Deconstruct the URL to get the Mme name. It's the 4th fragment. -}
+{-| Deconstruct the URL to get the Mme name. It's the 4th segment. -}
 nameFromUrl : UrlRef -> Maybe String
 nameFromUrl urlRef =
   List.head <| List.drop 4 <| split "/" urlRef.url
