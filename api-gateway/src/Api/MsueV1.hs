@@ -29,6 +29,7 @@ import Api.Common ( HasStatus (..), URL, StatusCode, Status (..)
                   , actOnStatus, concatTopic, concatURL
                   , csimRequest, csimRequestJSON
                   )
+
 import Types (Self)
 
 -- | The type specifying the interface's endpoints.
@@ -124,7 +125,7 @@ instance HasStatus MsueImsiList where
 -- | Preferred 'PciRef', with status indicator.
 data MsuePciRef = MsuePciRef
     { status :: !StatusCode
-    , pciRef :: !(Maybe PciRef)
+    , pci    :: !(Maybe Int)
     } deriving (Generic, Show, FromJSON, ToJSON)
 
 instance HasStatus MsuePciRef where
@@ -191,7 +192,7 @@ getPreferredEutranCell self imsi = do
     csimRequest self topic' $ actOnStatus 200 handleReply
     where
         handleReply :: MsuePciRef -> PciRef
-        handleReply MsuePciRef {..} = fromJust pciRef
+        handleReply MsuePciRef {..} = PciRef { pci = pci }
 
 -- | Set the preferred UETRAN cell for a UE. The UE must exist.
 -- References the app.v1.msue.*.setPreferredEutranCell topic.
