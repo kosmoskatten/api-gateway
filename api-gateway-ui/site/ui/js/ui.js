@@ -9800,48 +9800,58 @@ var _kosmoskatten$api_gateway$Equipment_Mme_Rest$deleteMmeTask = function (mme) 
 		_lukewestby$elm_http_builder$HttpBuilder$delete(mme.url));
 };
 var _kosmoskatten$api_gateway$Equipment_Mme_Rest$fetchMmeIpConfigTask = function (urlRef) {
-	return A3(
-		_lukewestby$elm_http_builder$HttpBuilder$send,
-		_lukewestby$elm_http_builder$HttpBuilder$jsonReader(
-			_elm_lang$core$Json_Decode$array(_elm_lang$core$Json_Decode$string)),
-		_lukewestby$elm_http_builder$HttpBuilder$stringReader,
+	return A2(
+		_elm_lang$core$Task$andThen,
 		A3(
-			_lukewestby$elm_http_builder$HttpBuilder$withHeader,
-			'Accept',
-			'application/json',
-			_lukewestby$elm_http_builder$HttpBuilder$get(
-				A2(_elm_lang$core$Basics_ops['++'], urlRef.url, '/ip-config'))));
+			_lukewestby$elm_http_builder$HttpBuilder$send,
+			_lukewestby$elm_http_builder$HttpBuilder$jsonReader(
+				_elm_lang$core$Json_Decode$array(_elm_lang$core$Json_Decode$string)),
+			_lukewestby$elm_http_builder$HttpBuilder$stringReader,
+			A3(
+				_lukewestby$elm_http_builder$HttpBuilder$withHeader,
+				'Accept',
+				'application/json',
+				_lukewestby$elm_http_builder$HttpBuilder$get(
+					A2(_elm_lang$core$Basics_ops['++'], urlRef.url, '/ip-config')))),
+		function (resp) {
+			return _elm_lang$core$Task$succeed(resp.data);
+		});
 };
 var _kosmoskatten$api_gateway$Equipment_Mme_Rest$createMmeTask = function (name) {
-	return A3(
-		_lukewestby$elm_http_builder$HttpBuilder$send,
-		_lukewestby$elm_http_builder$HttpBuilder$jsonReader(_kosmoskatten$api_gateway$Types$urlRef),
-		_lukewestby$elm_http_builder$HttpBuilder$stringReader,
-		A2(
-			_lukewestby$elm_http_builder$HttpBuilder$withHeaders,
-			_elm_lang$core$Native_List.fromArray(
-				[
-					{ctor: '_Tuple2', _0: 'Content-Type', _1: 'application/json'},
-					{ctor: '_Tuple2', _0: 'Accept', _1: 'application/json'}
-				]),
+	return A2(
+		_elm_lang$core$Task$andThen,
+		A3(
+			_lukewestby$elm_http_builder$HttpBuilder$send,
+			_lukewestby$elm_http_builder$HttpBuilder$jsonReader(_kosmoskatten$api_gateway$Types$urlRef),
+			_lukewestby$elm_http_builder$HttpBuilder$stringReader,
 			A2(
-				_lukewestby$elm_http_builder$HttpBuilder$withJsonBody,
-				_elm_lang$core$Json_Encode$object(
-					_elm_lang$core$Native_List.fromArray(
-						[
-							{
-							ctor: '_Tuple2',
-							_0: 'name',
-							_1: _elm_lang$core$Json_Encode$string(name)
-						}
-						])),
-				_lukewestby$elm_http_builder$HttpBuilder$post('/api/v1/mme'))));
+				_lukewestby$elm_http_builder$HttpBuilder$withHeaders,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						{ctor: '_Tuple2', _0: 'Content-Type', _1: 'application/json'},
+						{ctor: '_Tuple2', _0: 'Accept', _1: 'application/json'}
+					]),
+				A2(
+					_lukewestby$elm_http_builder$HttpBuilder$withJsonBody,
+					_elm_lang$core$Json_Encode$object(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								{
+								ctor: '_Tuple2',
+								_0: 'name',
+								_1: _elm_lang$core$Json_Encode$string(name)
+							}
+							])),
+					_lukewestby$elm_http_builder$HttpBuilder$post('/api/v1/mme')))),
+		function (resp) {
+			return _elm_lang$core$Task$succeed(resp.data);
+		});
 };
 var _kosmoskatten$api_gateway$Equipment_Mme_Rest$resolveMmeTask = function (urlRef) {
 	return A2(
 		_elm_lang$core$Task$andThen,
 		_kosmoskatten$api_gateway$Equipment_Mme_Rest$fetchMmeIpConfigTask(urlRef),
-		function (resp) {
+		function (addresses) {
 			return _elm_lang$core$Task$succeed(
 				{
 					name: A2(
@@ -9849,20 +9859,25 @@ var _kosmoskatten$api_gateway$Equipment_Mme_Rest$resolveMmeTask = function (urlR
 						'???',
 						_kosmoskatten$api_gateway$Equipment_Mme_Rest$nameFromUrl(urlRef)),
 					url: urlRef.url,
-					addresses: resp.data
+					addresses: addresses
 				});
 		});
 };
-var _kosmoskatten$api_gateway$Equipment_Mme_Rest$fetchStoredMmesTask = A3(
-	_lukewestby$elm_http_builder$HttpBuilder$send,
-	_lukewestby$elm_http_builder$HttpBuilder$jsonReader(
-		_elm_lang$core$Json_Decode$list(_kosmoskatten$api_gateway$Types$urlRef)),
-	_lukewestby$elm_http_builder$HttpBuilder$stringReader,
+var _kosmoskatten$api_gateway$Equipment_Mme_Rest$fetchStoredMmesTask = A2(
+	_elm_lang$core$Task$andThen,
 	A3(
-		_lukewestby$elm_http_builder$HttpBuilder$withHeader,
-		'Accept',
-		'application/json',
-		_lukewestby$elm_http_builder$HttpBuilder$get('/api/v1/mme')));
+		_lukewestby$elm_http_builder$HttpBuilder$send,
+		_lukewestby$elm_http_builder$HttpBuilder$jsonReader(
+			_elm_lang$core$Json_Decode$list(_kosmoskatten$api_gateway$Types$urlRef)),
+		_lukewestby$elm_http_builder$HttpBuilder$stringReader,
+		A3(
+			_lukewestby$elm_http_builder$HttpBuilder$withHeader,
+			'Accept',
+			'application/json',
+			_lukewestby$elm_http_builder$HttpBuilder$get('/api/v1/mme'))),
+	function (resp) {
+		return _elm_lang$core$Task$succeed(resp.data);
+	});
 var _kosmoskatten$api_gateway$Equipment_Mme_Rest$deleteMme = function (mme) {
 	return A3(
 		_elm_lang$core$Task$perform,
@@ -9883,9 +9898,7 @@ var _kosmoskatten$api_gateway$Equipment_Mme_Rest$createMme = function (name) {
 		A2(
 			_elm_lang$core$Task$andThen,
 			_kosmoskatten$api_gateway$Equipment_Mme_Rest$createMmeTask(name),
-			function (resp) {
-				return _kosmoskatten$api_gateway$Equipment_Mme_Rest$resolveMmeTask(resp.data);
-			}));
+			_kosmoskatten$api_gateway$Equipment_Mme_Rest$resolveMmeTask));
 };
 var _kosmoskatten$api_gateway$Equipment_Mme_Rest$fetchStoredMmes = A3(
 	_elm_lang$core$Task$perform,
@@ -9896,7 +9909,7 @@ var _kosmoskatten$api_gateway$Equipment_Mme_Rest$fetchStoredMmes = A3(
 		_kosmoskatten$api_gateway$Equipment_Mme_Rest$fetchStoredMmesTask,
 		function (xs) {
 			return _elm_lang$core$Task$sequence(
-				A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Equipment_Mme_Rest$resolveMmeTask, xs.data));
+				A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Equipment_Mme_Rest$resolveMmeTask, xs));
 		}));
 
 var _kosmoskatten$api_gateway$Equipment_Ue_Panel$shallNewUeSubmitBeDisabled = function (newUe) {
