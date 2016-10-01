@@ -124,10 +124,10 @@ listMmes :: Self -> Handler [MmeUrlRef]
 listMmes self =
     csimRequest self "app.v1.mme.listPcos" $ actOnStatus 200 handleReply
     where
-      handleReply :: MmeNameList -> [MmeUrlRef]
-      handleReply MmeNameList {..} =
-          map (\n -> MmeUrlRef { url = concatURL [baseUrl, n] })
-              (fromJust names)
+        handleReply :: MmeNameList -> [MmeUrlRef]
+        handleReply MmeNameList {..} =
+            map (\n -> MmeUrlRef { url = concatURL [baseUrl, n] })
+            (fromJust names)
 
 -- | Create a new MME. References the app.v1.mme.createPco topic.
 createMme :: Self -> MmeCtor -> Handler MmeUrlRef

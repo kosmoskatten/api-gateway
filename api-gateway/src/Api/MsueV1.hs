@@ -23,13 +23,13 @@ import Data.Swagger ( ToSchema (..), genericDeclareNamedSchema
 import Data.Text (Text)
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
-import Network.Nats
 import Servant
 
-import Api.Common ( URL, Status (..), concatTopic, concatURL
-                  , tmoRequest, translateErrCode
+import Api.Common ( HasStatus (..), URL, StatusCode, Status (..)
+                  , actOnStatus, concatTopic, concatURL
+                  , csimRequest, csimRequestJSON
                   )
-import Types (Self (..))
+import Types (Self)
 
 -- | The type specifying the interface's endpoints.
 type MsueV1API
@@ -114,15 +114,21 @@ instance ToSchema MsueAttributeDesc where
 
 -- | List of UE Imsis, with status indicator.
 data MsueImsiList = MsueImsiList
-    { status :: !Int
+    { status :: !StatusCode
     , imsis  :: !(Maybe [Text])
     } deriving (Generic, Show, FromJSON, ToJSON)
 
+instance HasStatus MsueImsiList where
+    statusCode = status
+
 -- | Preferred 'PciRef', with status indicator.
 data MsuePciRef = MsuePciRef
-    { status :: !Int
+    { status :: !StatusCode
     , pciRef :: !(Maybe PciRef)
     } deriving (Generic, Show, FromJSON, ToJSON)
+
+instance HasStatus MsuePciRef where
+    statusCode = status
 
 -- | The service implementing the 'MsueV1API'.
 msueV1Service :: Self -> Server MsueV1API
@@ -136,99 +142,66 @@ msueV1Service self
 
 -- | List all UEs. References to app.v1.msue.listPcos topic.
 listUes :: Self -> Handler [MsueUrlRef]
-listUes Self {..} =
-    tmoRequest tmo (request nats "app.v1.msue.listPcos" "") $ \msg ->
-        maybe (throwError err502) handleReply (jsonPayload msg)
+listUes self =
+    csimRequest self "app.v1.msue.listPcos" $ actOnStatus 200 handleReply
     where
-        handleReply :: MsueImsiList -> Handler [MsueUrlRef]
+        handleReply :: MsueImsiList -> [MsueUrlRef]
         handleReply MsueImsiList {..} =
-            case status of
-                -- 200 is the expected positive status.
-                200 -> return $ map
-                    (\i -> MsueUrlRef { url = concatURL [baseUrl, i] })
-                    (fromJust imsis)
-
-                -- Catch all the rest as error codes.
-                _   -> translateErrCode status
+            map (\imsi -> MsueUrlRef { url = concatURL [baseUrl, imsi] })
+                (fromJust imsis)
 
 -- | Create a new UE. References the app.v1.msue.createPco topic.
 createUe :: Self -> MsueCtor -> Handler MsueUrlRef
-createUe Self {..} msueCtor@MsueCtor {..} =
-    tmoRequest tmo (requestJson nats "app.v1.msue.createPco" msueCtor) $ \msg ->
-        maybe (throwError err502) handleReply (jsonPayload msg)
+createUe self msueCtor@MsueCtor {..} =
+    csimRequestJSON self "app.v1.msue.createPco" msueCtor $
+        actOnStatus 201 handleReply
     where
-        handleReply :: Status -> Handler MsueUrlRef
-        handleReply Status {..} =
-            case status of
-                -- 201 is the expected positive status.
-                201 -> return MsueUrlRef { url = concatURL [baseUrl, imsi ]}
-
-                -- Catch all the rest as error codes.
-                _   -> translateErrCode status
+        handleReply :: Status -> MsueUrlRef
+        handleReply _ = MsueUrlRef { url = concatURL [baseUrl, imsi ]}
 
 -- | Delete an UE. References the app.v1.msue.deletePco.* topic.
 deleteUe :: Self -> Text -> Handler NoContent
-deleteUe Self {..} imsi = do
+deleteUe self imsi = do
     let topic' = concatTopic ["app.v1.msue.deletePco", cs imsi]
-    tmoRequest tmo (request nats topic' "") $ \msg ->
-        maybe (throwError err502) handleReply (jsonPayload msg)
+    csimRequest self topic' $ actOnStatus 200 handleReply
     where
-        handleReply :: Status -> Handler NoContent
-        handleReply Status {..} =
-            case status of
-                -- 200 is the expected positive status.
-                200 -> return NoContent
-
-                -- Catch all the rest as error codes.
-                _   -> translateErrCode status
+        handleReply :: Status -> NoContent
+        handleReply _ = NoContent
 
 -- | List a UE's attributes. The UE must exist. References the
 -- app.v1.msue.*.exist topic.
 listAttributes :: Self -> Text -> Handler [MsueAttributeDesc]
-listAttributes Self {..} imsi = do
+listAttributes self imsi = do
     let topic' = concatTopic ["app.v1.msue", cs imsi, "exist"]
-    tmoRequest tmo (request nats topic' "") $ \msg ->
-        maybe (throwError err502) handleReply (jsonPayload msg)
+    csimRequest self topic' $ actOnStatus 200 handleReply
     where
-        handleReply :: Status -> Handler [MsueAttributeDesc]
-        handleReply Status {..} =
-            case status of
-                200 -> return
-                    [ MsueAttributeDesc
-                        { url = concatURL [baseUrl, imsi, "preferred-eutran-cell"]
-                        , desc = "Read or set the UE's preferred EUTRAN cell"
-                        }
-                    ]
-
-                _ -> translateErrCode status
+        handleReply :: Status -> [MsueAttributeDesc]
+        handleReply _ =
+            [ MsueAttributeDesc
+                { url  = concatURL [baseUrl, imsi, "preferred-eutran-cell"]
+                , desc = "Read or set the UE's preferred EUTRAN cell"
+                }
+            ]
 
 -- | Get the preferred EUTRAN cell attribute for a UE. The UE must exist.
 -- References the app.v1.msue.*.getPreferredEutranCell topic.
 getPreferredEutranCell :: Self -> Text -> Handler PciRef
-getPreferredEutranCell Self {..} imsi = do
+getPreferredEutranCell self imsi = do
     let topic' = concatTopic ["app.v1.msue", cs imsi, "getPreferredEutranCell"]
-    tmoRequest tmo (request nats topic' "") $ \msg ->
-        maybe (throwError err502) handleReply (jsonPayload msg)
+    csimRequest self topic' $ actOnStatus 200 handleReply
     where
-        handleReply :: MsuePciRef -> Handler PciRef
-        handleReply MsuePciRef {..} =
-            case status of
-                200 -> return $ fromJust pciRef
-                _   -> translateErrCode status
+        handleReply :: MsuePciRef -> PciRef
+        handleReply MsuePciRef {..} = fromJust pciRef
 
 -- | Set the preferred UETRAN cell for a UE. The UE must exist.
 -- References the app.v1.msue.*.setPreferredEutranCell topic.
 setPreferredEutranCell :: Self -> Text -> PciRef -> Handler NoContent
-setPreferredEutranCell Self {..} imsi pciRef = do
+setPreferredEutranCell self imsi pciRef = do
     let topic' = concatTopic ["app.v1.msue", cs imsi, "setPreferredEutranCell"]
-    tmoRequest tmo (requestJson nats topic' pciRef) $ \msg ->
-        maybe (throwError err502) handleReply (jsonPayload msg)
+    csimRequestJSON self topic' pciRef $ actOnStatus 200 handleReply
     where
-        handleReply :: Status -> Handler NoContent
-        handleReply Status {..} =
-            case status of
-                200 -> return NoContent
-                _   -> translateErrCode status
+        handleReply :: Status -> NoContent
+        handleReply _ = NoContent
 
 baseUrl :: URL
 baseUrl = "/api/v1/msue"
