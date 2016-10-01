@@ -4,8 +4,11 @@
 
 -- | Common data structures, and common functionality for the API modules.
 module Api.Common
-    ( URL
+    ( HasStatus (..)
+    , URL
+    , StatusCode
     , Status (..)
+    , actOnStatus
     , concatTopic
     , concatURL
     , csimRequest
@@ -29,29 +32,44 @@ import qualified Data.Text as Text
 
 import Types (Self (..), TmoSec, toUsec)
 
+class HasStatus a where
+    statusCode :: a -> StatusCode
+
 -- | Type alias for URLs.
 type URL = Text
 
--- | Generic status indicator from CSIM component.
+type StatusCode = Int
+
+-- | Generic status indicator reply from a CSIM service.
 data Status = Status
-    { status :: !Int
+    { status :: !StatusCode
     } deriving (Generic, Show, FromJSON, ToJSON)
+
+instance HasStatus Status where
+    statusCode = status
 
 -- | Concat the 'Topic' fragments to a 'Topic'. The character (.) is
 -- inserted in between the fragments.
 concatTopic :: [Topic] -> Topic
 concatTopic = BS.intercalate "."
 
+actOnStatus :: HasStatus a => StatusCode -> (a -> r) -> a -> Handler r
+actOnStatus sc action msg
+    | statusCode msg == sc = return $ action msg
+    | otherwise            = translateErrCode $ statusCode msg
+
 -- | Concatenate the 'URL' fragments to an 'URL'. The character (/) is
 -- inserted in between the fragments.
 concatURL :: [URL] -> URL
 concatURL = Text.intercalate "/"
 
+-- | Make a request to a CSIM service, but without any request payload.
 csimRequest :: FromJSON a => Self -> Topic -> (a -> Handler r) -> Handler r
 csimRequest self topic handleReply =
     tmoRequest (tmo self) (request (nats self) topic "") $ \msg ->
         maybe (throwError err502) handleReply (jsonPayload msg)
 
+-- | Make a request to a CSIM service, with a JSON request payload.
 csimRequestJSON :: (FromJSON a, ToJSON b) => Self -> Topic -> b
                 -> (a -> Handler r) -> Handler r
 csimRequestJSON self topic payload handleReply =

@@ -23,14 +23,13 @@ import Data.Swagger ( ToSchema (..), genericDeclareNamedSchema
                     , description, example
                     )
 import GHC.Generics (Generic)
-import Network.Nats
 import Servant
 
-import Api.Common ( URL, Status (..), concatTopic, concatURL
-                  , csimRequest, csimRequestJSON, tmoRequest
-                  , translateErrCode
+import Api.Common ( HasStatus (..), URL, StatusCode, Status (..)
+                  , actOnStatus, concatTopic, concatURL
+                  , csimRequest, csimRequestJSON
                   )
-import Types (Self (..))
+import Types (Self)
 
 -- | The type specifying the interface's endpoints.
 type MmeV1API
@@ -95,15 +94,21 @@ instance ToSchema MmeAttributeDesc where
 
 -- | List of MME names, with status indicator.
 data MmeNameList = MmeNameList
-    { status :: !Int
+    { status :: !StatusCode
     , names  :: !(Maybe [Text])
     } deriving (Generic, Show, FromJSON, ToJSON)
 
+instance HasStatus MmeNameList where
+    statusCode = status
+
 -- | IP config payload, with status indicator.
 data IpConfig = IpConfig
-    { status :: !Int
+    { status :: !StatusCode
     , config :: !(Maybe [Text])
     } deriving (Generic, Show, FromJSON, ToJSON)
+
+instance HasStatus IpConfig where
+    statusCode = status
 
 -- | The service implementing the 'MmeV1API'.
 mmeV1Service :: Self -> Server MmeV1API
@@ -117,83 +122,55 @@ mmeV1Service self
 -- | List all MMEs. References the app.v1.mme.listPcos topic.
 listMmes :: Self -> Handler [MmeUrlRef]
 listMmes self =
-    csimRequest self "app.v1.mme.listPcos" handleReply
+    csimRequest self "app.v1.mme.listPcos" $ actOnStatus 200 handleReply
     where
-      handleReply :: MmeNameList -> Handler [MmeUrlRef]
+      handleReply :: MmeNameList -> [MmeUrlRef]
       handleReply MmeNameList {..} =
-          case status of
-              200 -> return $ map
-                  (\n -> MmeUrlRef { url = concatURL [baseUrl, n] })
-                  (fromJust names)
-
-              _   -> translateErrCode status
+          map (\n -> MmeUrlRef { url = concatURL [baseUrl, n] })
+              (fromJust names)
 
 -- | Create a new MME. References the app.v1.mme.createPco topic.
 createMme :: Self -> MmeCtor -> Handler MmeUrlRef
 createMme self mmeCtor@MmeCtor {..} =
-    csimRequestJSON self "app.v1.mme.createPco" mmeCtor handleReply
+    csimRequestJSON self "app.v1.mme.createPco" mmeCtor $
+        actOnStatus 201 handleReply
     where
-        handleReply :: Status -> Handler MmeUrlRef
-        handleReply Status {..} =
-            case status of
-                201 -> return MmeUrlRef { url = concatURL [baseUrl, name] }
-
-                _   -> translateErrCode status
+        handleReply :: Status -> MmeUrlRef
+        handleReply _ = MmeUrlRef { url = concatURL [baseUrl, name] }
 
 -- | Delete a MME. References the app.v1.mme.deletePco.* topic.
 deleteMme :: Self -> Text -> Handler NoContent
-deleteMme Self {..} name = do
+deleteMme self name = do
     let topic' = concatTopic ["app.v1.mme.deletePco", cs name]
-    tmoRequest tmo (request nats topic' "") $ \msg ->
-        maybe (throwError err502) handleReply (jsonPayload msg)
+    csimRequest self topic' $ actOnStatus 200 handleReply
     where
-        handleReply :: Status -> Handler NoContent
-        handleReply Status {..} =
-            case status of
-                -- 200 is the expected positive status.
-                200 -> return NoContent
-
-                -- Catch all the rest as error codes.
-                _   -> translateErrCode status
+        handleReply :: Status -> NoContent
+        handleReply _ = NoContent
 
 -- | List a MME's attributes. The MME must exist. References the
 -- app.v1.mme.*.exist topic.
 listAttributes :: Self -> Text -> Handler [MmeAttributeDesc]
-listAttributes Self {..} name = do
+listAttributes self name = do
     let topic' = concatTopic ["app.v1.mme", cs name, "exist"]
-    tmoRequest tmo (request nats topic' "") $ \msg ->
-        maybe (throwError err502) handleReply (jsonPayload msg)
+    csimRequest self topic' $ actOnStatus 200 handleReply
     where
-        handleReply :: Status -> Handler [MmeAttributeDesc]
-        handleReply Status {..} =
-            case status of
-                -- 200 is the expected positive status.
-                200 -> return
-                    [ MmeAttributeDesc
-                        { url = concatURL [baseUrl, name, "ip-config"]
-                        , desc = "Fetch MME IP configuration"
-                        }
-                    ]
-
-                -- Catch all the rest as error codes.
-                _   -> translateErrCode status
+        handleReply :: Status -> [MmeAttributeDesc]
+        handleReply _ =
+            [ MmeAttributeDesc
+                { url = concatURL [baseUrl, name, "ip-config"]
+                , desc = "Fetch MME IP configuration"
+                }
+            ]
 
 -- | Get the IP config attribute for a MME. The MME must exist. References the
 -- app.v1.mme.*.getIpConfig topic.
 getIpConfig :: Self -> Text -> Handler [Text]
-getIpConfig Self {..} name = do
+getIpConfig self name = do
     let topic' = concatTopic ["app.v1.mme", cs name, "getIpConfig"]
-    tmoRequest tmo (request nats topic' "") $ \msg ->
-        maybe (throwError err502) handleReply (jsonPayload msg)
+    csimRequest self topic' $ actOnStatus 200 handleReply
     where
-        handleReply :: IpConfig -> Handler [Text]
-        handleReply IpConfig {..} =
-            case status of
-                -- 200 is the expected positive status.
-                200 -> return $ fromJust config
-
-                -- Catch all the rest as error codes.
-                _   -> translateErrCode status
+        handleReply :: IpConfig -> [Text]
+        handleReply IpConfig {..} = fromJust config
 
 baseUrl :: URL
 baseUrl = "/api/v1/mme"
