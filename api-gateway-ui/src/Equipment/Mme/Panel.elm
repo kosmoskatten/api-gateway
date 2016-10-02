@@ -77,7 +77,15 @@ newMmeForm model =
 viewMmeList : MmeModel -> Html Msg
 viewMmeList model =
   table [ A.class "w3-table-all" ]
-    (map viewMmeListItem model.mmes)
+    (viewMmeListHead :: map viewMmeListItem model.mmes)
+
+viewMmeListHead : Html Msg
+viewMmeListHead =
+  tr []
+    [ th [] [ text "MME name" ]
+    , th [] [ text "IP Address" ]
+    , th [] [ text "Delete MME" ]
+    ]
 
 viewMmeListItem : Mme -> Html Msg
 viewMmeListItem mme =

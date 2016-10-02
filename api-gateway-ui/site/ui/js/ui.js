@@ -9681,6 +9681,37 @@ var _kosmoskatten$api_gateway$Equipment_Mme_Panel$viewMmeListItem = function (mm
 					]))
 			]));
 };
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$viewMmeListHead = A2(
+	_elm_lang$html$Html$tr,
+	_elm_lang$core$Native_List.fromArray(
+		[]),
+	_elm_lang$core$Native_List.fromArray(
+		[
+			A2(
+			_elm_lang$html$Html$th,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('MME name')
+				])),
+			A2(
+			_elm_lang$html$Html$th,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('IP Address')
+				])),
+			A2(
+			_elm_lang$html$Html$th,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('Delete MME')
+				]))
+		]));
 var _kosmoskatten$api_gateway$Equipment_Mme_Panel$viewMmeList = function (model) {
 	return A2(
 		_elm_lang$html$Html$table,
@@ -9688,7 +9719,10 @@ var _kosmoskatten$api_gateway$Equipment_Mme_Panel$viewMmeList = function (model)
 			[
 				_elm_lang$html$Html_Attributes$class('w3-table-all')
 			]),
-		A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Equipment_Mme_Panel$viewMmeListItem, model.mmes));
+		A2(
+			_elm_lang$core$List_ops['::'],
+			_kosmoskatten$api_gateway$Equipment_Mme_Panel$viewMmeListHead,
+			A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Equipment_Mme_Panel$viewMmeListItem, model.mmes)));
 };
 var _kosmoskatten$api_gateway$Equipment_Mme_Panel$newMmeForm = function (model) {
 	return A2(
