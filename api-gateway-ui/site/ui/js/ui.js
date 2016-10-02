@@ -9418,6 +9418,9 @@ var _kosmoskatten$api_gateway$Types$CloseErrorMsg = {ctor: 'CloseErrorMsg'};
 var _kosmoskatten$api_gateway$Types$RestOpFailed = function (a) {
 	return {ctor: 'RestOpFailed', _0: a};
 };
+var _kosmoskatten$api_gateway$Types$NewUeCreated = function (a) {
+	return {ctor: 'NewUeCreated', _0: a};
+};
 var _kosmoskatten$api_gateway$Types$StoredUesFetched = function (a) {
 	return {ctor: 'StoredUesFetched', _0: a};
 };
@@ -9952,6 +9955,18 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Panel$shallNewUeSubmitBeDisabled = fu
 		1) < 0) || _elm_lang$core$Basics$not(
 		A2(_elm_lang$core$String$all, _elm_lang$core$Char$isDigit, newUe));
 };
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeCreated = F2(
+	function (model, ue) {
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{
+				ues: A2(
+					_elm_lang$core$Basics_ops['++'],
+					model.ues,
+					_elm_lang$core$Native_List.fromArray(
+						[ue]))
+			});
+	});
 var _kosmoskatten$api_gateway$Equipment_Ue_Panel$storedUesFetched = F2(
 	function (model, ues) {
 		return _elm_lang$core$Native_Utils.update(
@@ -9979,6 +9994,12 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Panel$openNewUeForm = function (model
 		model,
 		{newUeFormOpen: true});
 };
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$pciAsString = function (pci) {
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		'-',
+		A2(_elm_lang$core$Maybe$map, _elm_lang$core$Basics$toString, pci));
+};
 var _kosmoskatten$api_gateway$Equipment_Ue_Panel$viewUeListItem = function (ue) {
 	return A2(
 		_elm_lang$html$Html$tr,
@@ -9993,6 +10014,15 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Panel$viewUeListItem = function (ue) 
 				_elm_lang$core$Native_List.fromArray(
 					[
 						_elm_lang$html$Html$text(ue.imsi)
+					])),
+				A2(
+				_elm_lang$html$Html$td,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html$text(
+						_kosmoskatten$api_gateway$Equipment_Ue_Panel$pciAsString(ue.pci))
 					]))
 			]));
 };
@@ -10107,6 +10137,36 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Rest$imsiFromUrl = function (urlRef) 
 			4,
 			A2(_elm_lang$core$String$split, '/', urlRef.url)));
 };
+var _kosmoskatten$api_gateway$Equipment_Ue_Rest$createUeTask = function (imsi) {
+	return A2(
+		_elm_lang$core$Task$andThen,
+		A3(
+			_lukewestby$elm_http_builder$HttpBuilder$send,
+			_lukewestby$elm_http_builder$HttpBuilder$jsonReader(_kosmoskatten$api_gateway$Types$urlRef),
+			_lukewestby$elm_http_builder$HttpBuilder$stringReader,
+			A2(
+				_lukewestby$elm_http_builder$HttpBuilder$withHeaders,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						{ctor: '_Tuple2', _0: 'Content-Type', _1: 'application/json'},
+						{ctor: '_Tuple2', _0: 'Accept', _1: 'application/json'}
+					]),
+				A2(
+					_lukewestby$elm_http_builder$HttpBuilder$withJsonBody,
+					_elm_lang$core$Json_Encode$object(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								{
+								ctor: '_Tuple2',
+								_0: 'imsi',
+								_1: _elm_lang$core$Json_Encode$string(imsi)
+							}
+							])),
+					_lukewestby$elm_http_builder$HttpBuilder$post('/api/v1/msue')))),
+		function (resp) {
+			return _elm_lang$core$Task$succeed(resp.data);
+		});
+};
 var _kosmoskatten$api_gateway$Equipment_Ue_Rest$fetchPreferredEutranCellTask = function (urlRef) {
 	return A2(
 		_elm_lang$core$Task$andThen,
@@ -10155,6 +10215,16 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Rest$fetchStoredUesTask = A2(
 	function (resp) {
 		return _elm_lang$core$Task$succeed(resp.data);
 	});
+var _kosmoskatten$api_gateway$Equipment_Ue_Rest$createUe = function (imsi) {
+	return A3(
+		_elm_lang$core$Task$perform,
+		_kosmoskatten$api_gateway$Types$RestOpFailed,
+		_kosmoskatten$api_gateway$Types$NewUeCreated,
+		A2(
+			_elm_lang$core$Task$andThen,
+			_kosmoskatten$api_gateway$Equipment_Ue_Rest$createUeTask(imsi),
+			_kosmoskatten$api_gateway$Equipment_Ue_Rest$resolveUeTask));
+};
 var _kosmoskatten$api_gateway$Equipment_Ue_Rest$fetchStoredUes = A3(
 	_elm_lang$core$Task$perform,
 	_kosmoskatten$api_gateway$Types$RestOpFailed,
@@ -10316,7 +10386,7 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 						{
 							ueModel: _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeFormSubmitted(model.ueModel)
 						}),
-					_1: _elm_lang$core$Platform_Cmd$none
+					_1: _kosmoskatten$api_gateway$Equipment_Ue_Rest$createUe(_p2._0)
 				};
 			case 'StoredUesFetched':
 				return {
@@ -10325,6 +10395,16 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 						model,
 						{
 							ueModel: A2(_kosmoskatten$api_gateway$Equipment_Ue_Panel$storedUesFetched, model.ueModel, _p2._0)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'NewUeCreated':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							ueModel: A2(_kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeCreated, model.ueModel, _p2._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};

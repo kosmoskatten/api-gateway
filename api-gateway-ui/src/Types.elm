@@ -39,6 +39,7 @@ type Msg
   | OnInputNewUeImsi String
   | SubmitNewUeForm String
   | StoredUesFetched (List Ue)
+  | NewUeCreated Ue
 
   -- General REST related stuff.
   | RestOpFailed (Error String)

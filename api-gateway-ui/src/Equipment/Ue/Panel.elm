@@ -6,8 +6,9 @@ module Equipment.Ue.Panel exposing
   , openNewUeForm
   , cancelNewUeForm
   , onInputNewUeImsi
-  , storedUesFetched
   , newUeFormSubmitted
+  , storedUesFetched
+  , newUeCreated
   )
 
 {-| Viewing of, and handling the model of, the Ue control panel. -}
@@ -16,6 +17,7 @@ import Char exposing (isDigit)
 import Html exposing (..)
 import Html.Attributes as A
 import List exposing (map)
+import Maybe exposing (withDefault)
 import String exposing (all, length)
 
 import Types exposing (..)
@@ -78,7 +80,11 @@ viewUeListItem : Ue -> Html Msg
 viewUeListItem ue =
   tr []
     [ td [] [ text ue.imsi ]
+    , td [] [ text <| pciAsString ue.pci ]
     ]
+
+pciAsString : Maybe Int -> String
+pciAsString pci = withDefault "-" <| Maybe.map toString pci
 
 -- Event callbacks from the main update function.
 
@@ -110,6 +116,11 @@ newUeFormSubmitted model =
 storedUesFetched : UeModel -> List Ue -> UeModel
 storedUesFetched model ues =
   {model | ues = ues }
+
+{-| Response from the API, the Ue is created. -}
+newUeCreated : UeModel -> Ue -> UeModel
+newUeCreated model ue =
+  {model | ues = model.ues ++ [ue] }
 
 {-| Input data validator, to tell if "Submit" shall be disabled. -}
 shallNewUeSubmitBeDisabled : String -> Bool

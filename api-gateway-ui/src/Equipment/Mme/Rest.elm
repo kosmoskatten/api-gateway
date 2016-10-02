@@ -25,7 +25,8 @@ fetchStoredMmes =
       )
 
 {-| Command for creating a Mme, fetch its addresses and finally
-    return a Mme record. -}
+    return a Mme record.
+-}
 createMme : String -> Cmd Msg
 createMme name =
   Task.perform RestOpFailed NewMmeCreated
@@ -62,7 +63,7 @@ createMmeTask name =
   (HttpBuilder.post "/api/v1/mme"
     |> withJsonBody (Enc.object [("name", Enc.string name)])
     |> withHeaders [ ("Content-Type", "application/json")
-                   , ("Accept", "application/json")]
+                   , ("Accept", "application/json") ]
     |> HttpBuilder.send (jsonReader urlRef) stringReader)
       `andThen` (\resp -> succeed resp.data)
 

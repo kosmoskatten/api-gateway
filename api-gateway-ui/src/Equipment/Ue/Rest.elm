@@ -1,11 +1,13 @@
 module Equipment.Ue.Rest exposing
   ( fetchStoredUes
+  , createUe
   )
 
 {-| REST API routines for the UE. -}
 
 import HttpBuilder exposing (..)
 import Json.Decode as Dec
+import Json.Encode as Enc
 import Maybe exposing (withDefault)
 import String exposing (split)
 import Task exposing (..)
@@ -19,6 +21,14 @@ fetchStoredUes =
     <| fetchStoredUesTask `andThen` (\xs ->
           Task.sequence <| List.map resolveUeTask xs
     )
+
+{-| Command for creating a Ue, fetch its preferred cell and finally
+    return an Ue record.
+-}
+createUe : String -> Cmd Msg
+createUe imsi =
+  Task.perform RestOpFailed NewUeCreated
+    <| createUeTask imsi `andThen` resolveUeTask
 
 fetchStoredUesTask : Task (HttpBuilder.Error String) (List UrlRef)
 fetchStoredUesTask =
@@ -41,6 +51,16 @@ fetchPreferredEutranCellTask urlRef =
   (HttpBuilder.get (urlRef.url ++ "/preferred-eutran-cell")
     |> withHeader "Accept" "application/json"
     |> HttpBuilder.send (jsonReader pciRef) stringReader)
+      `andThen` (\resp -> succeed resp.data)
+
+{-| Task that creates one Ue and return the Ue's url ref. -}
+createUeTask : String -> Task (HttpBuilder.Error String) UrlRef
+createUeTask imsi =
+  (HttpBuilder.post "/api/v1/msue"
+    |> withJsonBody (Enc.object [("imsi", Enc.string imsi)])
+    |> withHeaders [ ("Content-Type", "application/json")
+                   , ("Accept", "application/json") ]
+    |> HttpBuilder.send (jsonReader urlRef) stringReader)
       `andThen` (\resp -> succeed resp.data)
 
 {-| Deconstruct the URL to get the UE name. It's the 4th segment. -}
