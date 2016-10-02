@@ -1,6 +1,7 @@
 module Equipment.Ue.Rest exposing
   ( fetchStoredUes
   , createUe
+  , deleteUe
   )
 
 {-| REST API routines for the UE. -}
@@ -29,6 +30,12 @@ createUe : String -> Cmd Msg
 createUe imsi =
   Task.perform RestOpFailed NewUeCreated
     <| createUeTask imsi `andThen` resolveUeTask
+
+{-| Command for deleting one Ue. -}
+deleteUe : Ue -> Cmd Msg
+deleteUe ue =
+  Task.perform RestOpFailed UeDeleted
+    <| deleteUeTask ue `andThen` (\_ -> succeed ue)
 
 fetchStoredUesTask : Task (HttpBuilder.Error String) (List UrlRef)
 fetchStoredUesTask =
@@ -62,6 +69,13 @@ createUeTask imsi =
                    , ("Accept", "application/json") ]
     |> HttpBuilder.send (jsonReader urlRef) stringReader)
       `andThen` (\resp -> succeed resp.data)
+
+{-| Task that deletes one Ue. -}
+deleteUeTask : Ue -> Task (HttpBuilder.Error String) ()
+deleteUeTask ue =
+  (HttpBuilder.delete ue.url
+    |> HttpBuilder.send unitReader stringReader)
+      `andThen` (\_ -> succeed ())
 
 {-| Deconstruct the URL to get the UE name. It's the 4th segment. -}
 imsiFromUrl : UrlRef -> Maybe String

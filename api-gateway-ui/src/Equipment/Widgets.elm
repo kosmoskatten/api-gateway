@@ -2,6 +2,7 @@ module Equipment.Widgets exposing
   ( addNewEquipBar
   , submitBtnGroup
   , formInput
+  , deleteIcon
   )
 
 {-| Common Html widgets used by various equipment panels. -}
@@ -50,3 +51,12 @@ formInput placeholder value action =
         , A.value value
         , E.onInput action
         ] []
+
+{-| Icon, with action, to delete something. -}
+deleteIcon : String -> Msg -> Html Msg
+deleteIcon label action =
+  i [ A.class "material-icons"
+    , A.style [("cursor", "pointer")]
+    , A.title <| "Delete " ++ label
+    , E.onClick action
+    ] [ text "delete" ]

@@ -18,13 +18,14 @@ import Array exposing (get)
 import Char.Extra exposing (isAlpha, isSpace)
 import Html exposing (..)
 import Html.Attributes as A
-import Html.Events as E
 import List exposing (head, filter, map)
 import Maybe exposing (withDefault)
 import String exposing (length, toList, left, any)
 
 import Types exposing (..)
-import Equipment.Widgets exposing (addNewEquipBar, submitBtnGroup, formInput)
+import Equipment.Widgets exposing ( addNewEquipBar, submitBtnGroup
+                                  , formInput, deleteIcon
+                                  )
 
 {-| Model for the Mme panel. -}
 type alias MmeModel =
@@ -92,14 +93,7 @@ viewMmeListItem mme =
   tr []
     [ td [] [ text mme.name ]
     , td [] [ text <| withDefault "-" (get 0 mme.addresses) ]
-    , td []
-        [ i [ A.class "material-icons"
-            , A.style [("cursor", "pointer")]
-            , A.title <| "Delete " ++ mme.name
-            , E.onClick (DeleteMme mme)
-            ]
-            [ text "delete" ]
-        ]
+    , td [] [ deleteIcon mme.name (DeleteMme mme) ]
     ]
 
 -- Event callbacks from the main update function.

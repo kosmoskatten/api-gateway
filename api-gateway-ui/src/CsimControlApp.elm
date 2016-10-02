@@ -28,9 +28,9 @@ import Equipment.Ue.Panel exposing ( UeModel, initUe, numUes
                                    , viewUePanel, openNewUeForm
                                    , cancelNewUeForm, onInputNewUeImsi
                                    , newUeFormSubmitted, storedUesFetched
-                                   , newUeCreated
+                                   , newUeCreated, ueDeleted
                                    )
-import Equipment.Ue.Rest exposing (createUe, fetchStoredUes)
+import Equipment.Ue.Rest exposing (createUe, deleteUe, fetchStoredUes)
 
 -- Main model.
 type alias Model =
@@ -179,6 +179,12 @@ update msg model =
 
     NewUeCreated ue           ->
       ({model | ueModel = newUeCreated model.ueModel ue}, Cmd.none)
+
+    DeleteUe ue               ->
+      (model, deleteUe ue)
+
+    UeDeleted ue              ->
+      ({model | ueModel = ueDeleted model.ueModel ue}, Cmd.none)
 
     RestOpFailed error        ->
       ({model | errorMessage = Just <| expandError error}, Cmd.none)

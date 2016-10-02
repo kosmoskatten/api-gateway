@@ -9418,6 +9418,12 @@ var _kosmoskatten$api_gateway$Types$CloseErrorMsg = {ctor: 'CloseErrorMsg'};
 var _kosmoskatten$api_gateway$Types$RestOpFailed = function (a) {
 	return {ctor: 'RestOpFailed', _0: a};
 };
+var _kosmoskatten$api_gateway$Types$UeDeleted = function (a) {
+	return {ctor: 'UeDeleted', _0: a};
+};
+var _kosmoskatten$api_gateway$Types$DeleteUe = function (a) {
+	return {ctor: 'DeleteUe', _0: a};
+};
 var _kosmoskatten$api_gateway$Types$NewUeCreated = function (a) {
 	return {ctor: 'NewUeCreated', _0: a};
 };
@@ -9456,6 +9462,27 @@ var _kosmoskatten$api_gateway$Types$SetLivePanel = function (a) {
 	return {ctor: 'SetLivePanel', _0: a};
 };
 
+var _kosmoskatten$api_gateway$Equipment_Widgets$deleteIcon = F2(
+	function (label, action) {
+		return A2(
+			_elm_lang$html$Html$i,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$class('material-icons'),
+					_elm_lang$html$Html_Attributes$style(
+					_elm_lang$core$Native_List.fromArray(
+						[
+							{ctor: '_Tuple2', _0: 'cursor', _1: 'pointer'}
+						])),
+					_elm_lang$html$Html_Attributes$title(
+					A2(_elm_lang$core$Basics_ops['++'], 'Delete ', label)),
+					_elm_lang$html$Html_Events$onClick(action)
+				]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('delete')
+				]));
+	});
 var _kosmoskatten$api_gateway$Equipment_Widgets$formInput = F3(
 	function (placeholder, value, action) {
 		return A2(
@@ -9663,24 +9690,9 @@ var _kosmoskatten$api_gateway$Equipment_Mme_Panel$viewMmeListItem = function (mm
 				_elm_lang$core$Native_List.fromArray(
 					[
 						A2(
-						_elm_lang$html$Html$i,
-						_elm_lang$core$Native_List.fromArray(
-							[
-								_elm_lang$html$Html_Attributes$class('material-icons'),
-								_elm_lang$html$Html_Attributes$style(
-								_elm_lang$core$Native_List.fromArray(
-									[
-										{ctor: '_Tuple2', _0: 'cursor', _1: 'pointer'}
-									])),
-								_elm_lang$html$Html_Attributes$title(
-								A2(_elm_lang$core$Basics_ops['++'], 'Delete ', mme.name)),
-								_elm_lang$html$Html_Events$onClick(
-								_kosmoskatten$api_gateway$Types$DeleteMme(mme))
-							]),
-						_elm_lang$core$Native_List.fromArray(
-							[
-								_elm_lang$html$Html$text('delete')
-							]))
+						_kosmoskatten$api_gateway$Equipment_Widgets$deleteIcon,
+						mme.name,
+						_kosmoskatten$api_gateway$Types$DeleteMme(mme))
 					]))
 			]));
 };
@@ -9955,6 +9967,19 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Panel$shallNewUeSubmitBeDisabled = fu
 		1) < 0) || _elm_lang$core$Basics$not(
 		A2(_elm_lang$core$String$all, _elm_lang$core$Char$isDigit, newUe));
 };
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$ueDeleted = F2(
+	function (model, ue) {
+		return _elm_lang$core$Native_Utils.update(
+			model,
+			{
+				ues: A2(
+					_elm_lang$core$List$filter,
+					function (x) {
+						return !_elm_lang$core$Native_Utils.eq(x.imsi, ue.imsi);
+					},
+					model.ues)
+			});
+	});
 var _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeCreated = F2(
 	function (model, ue) {
 		return _elm_lang$core$Native_Utils.update(
@@ -10023,9 +10048,51 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Panel$viewUeListItem = function (ue) 
 					[
 						_elm_lang$html$Html$text(
 						_kosmoskatten$api_gateway$Equipment_Ue_Panel$pciAsString(ue.pci))
+					])),
+				A2(
+				_elm_lang$html$Html$td,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_kosmoskatten$api_gateway$Equipment_Widgets$deleteIcon,
+						ue.imsi,
+						_kosmoskatten$api_gateway$Types$DeleteUe(ue))
 					]))
 			]));
 };
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$viewUeListHead = A2(
+	_elm_lang$html$Html$tr,
+	_elm_lang$core$Native_List.fromArray(
+		[]),
+	_elm_lang$core$Native_List.fromArray(
+		[
+			A2(
+			_elm_lang$html$Html$th,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('UE IMSI')
+				])),
+			A2(
+			_elm_lang$html$Html$th,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('Cell PCI')
+				])),
+			A2(
+			_elm_lang$html$Html$th,
+			_elm_lang$core$Native_List.fromArray(
+				[]),
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html$text('Delete UE')
+				]))
+		]));
 var _kosmoskatten$api_gateway$Equipment_Ue_Panel$viewUeList = function (model) {
 	return A2(
 		_elm_lang$html$Html$table,
@@ -10033,7 +10100,10 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Panel$viewUeList = function (model) {
 			[
 				_elm_lang$html$Html_Attributes$class('w3-table-all')
 			]),
-		A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Equipment_Ue_Panel$viewUeListItem, model.ues));
+		A2(
+			_elm_lang$core$List_ops['::'],
+			_kosmoskatten$api_gateway$Equipment_Ue_Panel$viewUeListHead,
+			A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Equipment_Ue_Panel$viewUeListItem, model.ues)));
 };
 var _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeForm = function (model) {
 	return A2(
@@ -10137,6 +10207,19 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Rest$imsiFromUrl = function (urlRef) 
 			4,
 			A2(_elm_lang$core$String$split, '/', urlRef.url)));
 };
+var _kosmoskatten$api_gateway$Equipment_Ue_Rest$deleteUeTask = function (ue) {
+	return A2(
+		_elm_lang$core$Task$andThen,
+		A3(
+			_lukewestby$elm_http_builder$HttpBuilder$send,
+			_lukewestby$elm_http_builder$HttpBuilder$unitReader,
+			_lukewestby$elm_http_builder$HttpBuilder$stringReader,
+			_lukewestby$elm_http_builder$HttpBuilder$delete(ue.url)),
+		function (_p0) {
+			return _elm_lang$core$Task$succeed(
+				{ctor: '_Tuple0'});
+		});
+};
 var _kosmoskatten$api_gateway$Equipment_Ue_Rest$createUeTask = function (imsi) {
 	return A2(
 		_elm_lang$core$Task$andThen,
@@ -10215,6 +10298,18 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Rest$fetchStoredUesTask = A2(
 	function (resp) {
 		return _elm_lang$core$Task$succeed(resp.data);
 	});
+var _kosmoskatten$api_gateway$Equipment_Ue_Rest$deleteUe = function (ue) {
+	return A3(
+		_elm_lang$core$Task$perform,
+		_kosmoskatten$api_gateway$Types$RestOpFailed,
+		_kosmoskatten$api_gateway$Types$UeDeleted,
+		A2(
+			_elm_lang$core$Task$andThen,
+			_kosmoskatten$api_gateway$Equipment_Ue_Rest$deleteUeTask(ue),
+			function (_p1) {
+				return _elm_lang$core$Task$succeed(ue);
+			}));
+};
 var _kosmoskatten$api_gateway$Equipment_Ue_Rest$createUe = function (imsi) {
 	return A3(
 		_elm_lang$core$Task$perform,
@@ -10405,6 +10500,22 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 						model,
 						{
 							ueModel: A2(_kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeCreated, model.ueModel, _p2._0)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'DeleteUe':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _kosmoskatten$api_gateway$Equipment_Ue_Rest$deleteUe(_p2._0)
+				};
+			case 'UeDeleted':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							ueModel: A2(_kosmoskatten$api_gateway$Equipment_Ue_Panel$ueDeleted, model.ueModel, _p2._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};

@@ -40,6 +40,8 @@ type Msg
   | SubmitNewUeForm String
   | StoredUesFetched (List Ue)
   | NewUeCreated Ue
+  | DeleteUe Ue
+  | UeDeleted Ue
 
   -- General REST related stuff.
   | RestOpFailed (Error String)

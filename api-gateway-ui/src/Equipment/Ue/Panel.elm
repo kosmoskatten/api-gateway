@@ -9,6 +9,7 @@ module Equipment.Ue.Panel exposing
   , newUeFormSubmitted
   , storedUesFetched
   , newUeCreated
+  , ueDeleted
   )
 
 {-| Viewing of, and handling the model of, the Ue control panel. -}
@@ -16,12 +17,14 @@ module Equipment.Ue.Panel exposing
 import Char exposing (isDigit)
 import Html exposing (..)
 import Html.Attributes as A
-import List exposing (map)
+import List exposing (filter, map)
 import Maybe exposing (withDefault)
 import String exposing (all, length)
 
 import Types exposing (..)
-import Equipment.Widgets exposing (addNewEquipBar, submitBtnGroup, formInput)
+import Equipment.Widgets exposing ( addNewEquipBar, submitBtnGroup
+                                  , formInput, deleteIcon
+                                  )
 
 {-| Model for the Ue panel. -}
 type alias UeModel =
@@ -74,13 +77,22 @@ newUeForm model =
 viewUeList : UeModel -> Html Msg
 viewUeList model =
   table [ A.class "w3-table-all" ]
-    (map viewUeListItem model.ues)
+    (viewUeListHead :: map viewUeListItem model.ues)
+
+viewUeListHead : Html Msg
+viewUeListHead =
+  tr []
+    [ th [] [ text "UE IMSI" ]
+    , th [] [ text "Cell PCI" ]
+    , th [] [ text "Delete UE" ]
+    ]
 
 viewUeListItem : Ue -> Html Msg
 viewUeListItem ue =
   tr []
     [ td [] [ text ue.imsi ]
     , td [] [ text <| pciAsString ue.pci ]
+    , td [] [ deleteIcon ue.imsi (DeleteUe ue)]
     ]
 
 pciAsString : Maybe Int -> String
@@ -121,6 +133,11 @@ storedUesFetched model ues =
 newUeCreated : UeModel -> Ue -> UeModel
 newUeCreated model ue =
   {model | ues = model.ues ++ [ue] }
+
+{-| Response from the API, the Ue is deleted. -}
+ueDeleted : UeModel -> Ue -> UeModel
+ueDeleted model ue =
+  {model | ues = filter (\x -> x.imsi /= ue.imsi) model.ues}
 
 {-| Input data validator, to tell if "Submit" shall be disabled. -}
 shallNewUeSubmitBeDisabled : String -> Bool
