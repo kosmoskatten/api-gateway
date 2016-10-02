@@ -14,6 +14,7 @@ module Api.EnbV1
 
 import Control.Lens ((&), (?~), mapped)
 import Data.Aeson (FromJSON, ToJSON, toJSON)
+import Data.Maybe (fromJust)
 import Data.Swagger ( ToSchema (..), genericDeclareNamedSchema
                     , defaultSchemaOptions, schema
                     , description, example
@@ -23,8 +24,11 @@ import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import Servant
 
-import Api.Common (URL)
-import Types (Self (..))
+import Api.Common ( HasStatus (..), URL, StatusCode, Status (..)
+                  , actOnStatus, concatTopic, concatURL
+                  , csimRequest, csimRequestJSON
+                  )
+import Types (Self)
 
 -- | The type specifying the interface's endpoints.
 type EnbV1API
@@ -89,6 +93,39 @@ instance ToSchema EnbUrlRef where
             & mapped.schema.description ?~ "Object holding a resource URL"
             & mapped.schema.example ?~ toJSON (EnbUrlRef "/api/v1/enb/enb1")
 
+-- | List of eNodeB names, with status indicator.
+data EnbNameList = EnbNameList
+    { status :: !StatusCode
+    , names  :: !(Maybe [Text])
+    } deriving (Generic, Show, FromJSON, ToJSON)
+
+instance HasStatus EnbNameList where
+    statusCode = status
+
 -- | The service implementing 'EnbV1API'.
 enbV1Service :: Self -> Server EnbV1API
-enbV1Service = undefined
+enbV1Service self
+    = listEnbs self
+ :<|> createEnb self
+ :<|> deleteEnb self
+
+-- | List all eNodeBs. References the app.v1.enb.listPcos topic.
+listEnbs :: Self -> Handler [EnbUrlRef]
+listEnbs self =
+    csimRequest self "app.v1.enb.listPcos" $ actOnStatus 200 handleReply
+    where
+        handleReply :: EnbNameList -> [EnbUrlRef]
+        handleReply EnbNameList {..} =
+            map (\name -> EnbUrlRef { url = concatURL [baseUrl, name] })
+                (fromJust names)
+
+-- | Create a new eNodeB. References the app.v1.enb.createPco topic.
+createEnb :: Self -> EnbCtor -> Handler EnbUrlRef
+createEnb = undefined
+
+-- | Delete an eNodeB. References the app.v1.enb.deletePco.* topic.
+deleteEnb :: Self -> Text -> Handler NoContent
+deleteEnb = undefined
+
+baseUrl :: URL
+baseUrl = "/api/v1/enb"
