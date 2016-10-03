@@ -15,6 +15,7 @@ module Api.EnbV1
 import Control.Lens ((&), (?~), mapped)
 import Data.Aeson (FromJSON, ToJSON, toJSON)
 import Data.Maybe (fromJust)
+import Data.String.Conversions (cs)
 import Data.Swagger ( ToSchema (..), genericDeclareNamedSchema
                     , defaultSchemaOptions, schema
                     , description, example
@@ -121,11 +122,21 @@ listEnbs self =
 
 -- | Create a new eNodeB. References the app.v1.enb.createPco topic.
 createEnb :: Self -> EnbCtor -> Handler EnbUrlRef
-createEnb = undefined
+createEnb self enbCtor@EnbCtor {..} =
+    csimRequestJSON self "app.v1.enb.createPco" enbCtor $
+        actOnStatus 201 handleReply
+    where
+        handleReply :: Status -> EnbUrlRef
+        handleReply _ = EnbUrlRef { url = concatURL [baseUrl, name] }
 
 -- | Delete an eNodeB. References the app.v1.enb.deletePco.* topic.
 deleteEnb :: Self -> Text -> Handler NoContent
-deleteEnb = undefined
+deleteEnb self name = do
+    let topic' = concatTopic ["app.v1.enb.deletePco.*", cs name]
+    csimRequest self topic' $ actOnStatus 200 handleReply
+    where
+        handleReply :: Status -> NoContent
+        handleReply _ = NoContent
 
 baseUrl :: URL
 baseUrl = "/api/v1/enb"
