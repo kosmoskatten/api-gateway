@@ -61,7 +61,7 @@ main = do
         void $ subscribeAsync nats "app.v1.mme.createPco"
                               Nothing (createPco nats self)
 
-        -- Subscribe to tje deletePco topic.
+        -- Subscribe to the deletePco topic.
         void $ subscribeAsync nats "app.v1.mme.deletePco.*"
                               Nothing (deletePco nats self)
 
@@ -137,7 +137,7 @@ listPcos nats self msg =
         listPcos' :: IO MmeNameList
         listPcos' = do
             ns <- HashMap.keys <$> readTVarIO (mmeMap self)
-            return MmeNameList { status = 200, names = Just ns}
+            return MmeNameList { status = 200, names = Just ns }
 
 -- | Check existance of the MME.
 exist :: Nats -> Self -> Msg -> IO ()
