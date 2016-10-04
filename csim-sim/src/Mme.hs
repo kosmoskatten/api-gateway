@@ -9,7 +9,7 @@ module Main
 
 import Control.Concurrent.STM
 import Control.Monad (void)
-import Data.Aeson
+import Data.Aeson (FromJSON, ToJSON)
 import Data.HashMap.Strict (HashMap)
 import Data.String.Conversions (cs)
 import Data.Text (Text)
@@ -89,11 +89,11 @@ createPco nats self msg =
               (jsonPayload msg)
     where
         createPco' :: CreatePco -> IO Status
-        createPco' msg = do
-            inserted <- atomically $ maybeInsertMme (name msg)
+        createPco' ctor = do
+            inserted <- atomically $ maybeInsertMme (name ctor)
             if inserted
-                then return $ Status 201
-                else return $ Status 409
+                then return Status { status = 201 }
+                else return Status { status = 409 }
 
         maybeInsertMme :: Text -> STM Bool
         maybeInsertMme name = do
@@ -117,8 +117,8 @@ deletePco nats self msg =
         deletePco' name = do
             deleted <- atomically $ maybeDeleteMme name
             if deleted
-                then return $ Status 200
-                else return $ Status 404
+                then return Status { status = 200 }
+                else return Status { status = 404 }
 
         maybeDeleteMme :: Text -> STM Bool
         maybeDeleteMme name = do
@@ -146,8 +146,8 @@ exist nats self msg =
         let [_, _, _, name, _] = splitTopic $ topic msg
         found <- HashMap.member (cs name) <$> readTVarIO (mmeMap self)
         if found
-            then publishJson nats reply Nothing $ Status 200
-            else publishJson nats reply Nothing $ Status 404
+            then publishJson nats reply Nothing Status { status = 200 }
+            else publishJson nats reply Nothing Status { status = 404 }
 
 -- | Get the IP config for the given MME.
 getIpConfig :: Nats -> Self -> Msg -> IO ()

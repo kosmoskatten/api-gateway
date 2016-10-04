@@ -80,8 +80,8 @@ csimRequestJSON self topic payload handleReply =
 -- action not is completed within the timeout duration a 504/Gateway timeout
 -- is thrown.
 tmoRequest :: TmoSec -> IO Msg -> (Msg -> Handler a) -> Handler a
-tmoRequest tmo action handler = do
-    result <- liftIO $ timeout (toUsec tmo) action
+tmoRequest tmo' action handler = do
+    result <- liftIO $ timeout (toUsec tmo') action
     maybe (throwError err504) handler result
 
 -- | Translate error codes - coming as status replies from some service -
