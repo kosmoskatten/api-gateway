@@ -132,7 +132,7 @@ createEnb self enbCtor@EnbCtor {..} =
 -- | Delete an eNodeB. References the app.v1.enb.deletePco.* topic.
 deleteEnb :: Self -> Text -> Handler NoContent
 deleteEnb self name = do
-    let topic' = concatTopic ["app.v1.enb.deletePco.*", cs name]
+    let topic' = concatTopic ["app.v1.enb.deletePco", cs name]
     csimRequest self topic' $ actOnStatus 200 handleReply
     where
         handleReply :: Status -> NoContent

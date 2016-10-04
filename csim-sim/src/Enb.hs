@@ -62,7 +62,7 @@ main = do
                               Nothing (createPco nats self)
 
         -- Subscribe to the deletePco topic.
-        void $ subscribeAsync nats "app.v1.enb.deletePco"
+        void $ subscribeAsync nats "app.v1.enb.deletePco.*"
                               Nothing (deletePco nats self)
 
         -- Subscribe to the listPcos topic.
