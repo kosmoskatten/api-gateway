@@ -2,6 +2,7 @@
 {-# LANGUAGE DeriveGeneric         #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE RecordWildCards       #-}
 
 module Main
     ( main
@@ -90,13 +91,13 @@ createPco nats self msg =
     where
         createPco' :: CreatePco -> IO Status
         createPco' ctor = do
-            inserted <- atomically $ maybeInsertMme (name ctor)
+            inserted <- atomically $ maybeInsertMme ctor
             if inserted
                 then return Status { status = 201 }
                 else return Status { status = 409 }
 
-        maybeInsertMme :: Text -> STM Bool
-        maybeInsertMme name = do
+        maybeInsertMme :: CreatePco -> STM Bool
+        maybeInsertMme CreatePco {..} = do
             mmes <- readTVar $ mmeMap self
             case HashMap.lookup name mmes of
                 Just _  -> return False
