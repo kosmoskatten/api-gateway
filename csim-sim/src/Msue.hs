@@ -5,23 +5,21 @@
 {-# LANGUAGE RecordWildCards       #-}
 
 module Main
-( Status (..)
-, UePciRef (..)
-, main
+( main
 ) where
 
 import Control.Concurrent.STM
 import Control.Monad (void)
 import Data.Aeson (FromJSON, ToJSON)
-import Data.HashMap.Strict (HashMap)
 import Data.String.Conversions (cs)
 import Data.Text (Text)
 import GHC.Generics (Generic)
 import Network.Nats
 
-import qualified Data.HashMap.Strict as HashMap
-
-import Common (stayAlive, splitTopic, ifReply)
+import Common ( Storage, emptyStorage, maybeInsert, maybeDelete
+              , isMember, listKeys, getItem, setItem
+              , stayAlive, splitTopic, ifReply
+              )
 import Options (Options (..), getOptions)
 
 data CreatePco = CreatePco
@@ -47,16 +45,16 @@ data UePciRef = UePciRef
     } deriving (Generic, Show, FromJSON, ToJSON)
 
 -- | Map from an Ue Imsi to an optional pci number.
-type UeMap = HashMap Text (Maybe Int)
+type UeMap = Storage (Maybe Int)
 
 data Self = Self
-    { ueMap :: !(TVar UeMap)
+    { ueMap :: !UeMap
     }
 
 main :: IO ()
 main = do
     options <- getOptions
-    self    <- Self <$> newTVarIO HashMap.empty
+    self    <- Self <$> atomically emptyStorage
 
     -- Connect to NATS.
     withNats defaultSettings [natsUri options] $ \nats -> do
@@ -95,33 +93,23 @@ listPcos nats self msg =
     where
         listPcos' :: IO UeImsiList
         listPcos' = do
-            is <- HashMap.keys <$> readTVarIO (ueMap self)
+            is <- atomically $ listKeys (ueMap self)
             return UeImsiList { status = 200, imsis = Just is }
 
 -- | Create a new UE pco.
 createPco :: Nats -> Self -> Msg -> IO ()
 createPco nats self msg =
     ifReply msg $ \reply ->
-        maybe (publishJson nats reply Nothing $ Status 400)
+        maybe (publishJson nats reply Nothing Status { status = 400 })
               (\json -> publishJson nats reply Nothing =<< createPco' json)
               (jsonPayload msg)
     where
         createPco' :: CreatePco -> IO Status
-        createPco' ctor = do
-            inserted <- atomically $ maybeInsertUe (imsi ctor)
+        createPco' CreatePco {..} = do
+            inserted <- atomically $ maybeInsert (ueMap self) imsi Nothing
             if inserted
-                then return $ Status 201
-                else return $ Status 409
-
-        maybeInsertUe :: Text -> STM Bool
-        maybeInsertUe imsi = do
-            ues <- readTVar $ ueMap self
-            case HashMap.lookup imsi ues of
-                Just _  -> return False
-                Nothing -> do
-                    writeTVar (ueMap self) $
-                        HashMap.insert imsi Nothing ues
-                    return True
+                then return Status { status = 201 }
+                else return Status { status = 409 }
 
 -- Delete the named UE pco.
 deletePco :: Nats -> Self -> Msg -> IO ()
@@ -132,24 +120,16 @@ deletePco nats self msg =
     where
         deletePco' :: Text -> IO Status
         deletePco' imsi = do
-            deleted <- atomically $ maybeDeleteUe imsi
+            deleted <- atomically $ maybeDelete (ueMap self) imsi
             if deleted
                 then return $ Status 200
                 else return $ Status 404
-
-        maybeDeleteUe :: Text -> STM Bool
-        maybeDeleteUe imsi = do
-            ues <- readTVar (ueMap self)
-            if HashMap.member imsi ues
-                then do writeTVar (ueMap self) (HashMap.delete imsi ues)
-                        return True
-                else return False
 
 exist :: Nats -> Self -> Msg -> IO ()
 exist nats self msg =
     ifReply msg $ \reply -> do
         let [_, _, _, imsi, _] = splitTopic (topic msg)
-        found <- HashMap.member (cs imsi) <$> readTVarIO (ueMap self)
+        found <- atomically $ isMember (ueMap self) (cs imsi)
         if found
             then publishJson nats reply Nothing $ Status 200
             else publishJson nats reply Nothing $ Status 404
@@ -161,11 +141,11 @@ getPreferredEutranCell nats self msg =
         publishJson nats reply Nothing =<< getCell (cs imsi)
     where
         getCell :: Text -> IO UePciRef
-        getCell imsi = do
-            ues <- readTVarIO $ ueMap self
-            case HashMap.lookup imsi ues of
-                Just cell -> return $ UePciRef 200 cell
-                Nothing   -> return $ UePciRef 404 Nothing
+        getCell imsi = do            
+            maybeCell <- atomically $ getItem (ueMap self) imsi
+            case maybeCell of
+                Just cell -> return $ UePciRef { status = 200, pci = cell }
+                Nothing   -> return $ UePciRef { status = 404, pci = Nothing }
 
 setPreferredEutranCell :: Nats -> Self -> Msg -> IO ()
 setPreferredEutranCell nats self msg =
@@ -177,17 +157,8 @@ setPreferredEutranCell nats self msg =
               (jsonPayload msg)
     where
         setCell :: Text -> PciRef -> IO Status
-        setCell imsi pciRef = do
-            isSet <- atomically $ maybeSetCell imsi pciRef
+        setCell imsi PciRef {..} = do
+            isSet <- atomically $ setItem (ueMap self) imsi pci
             if isSet
                 then return $ Status 200
                 else return $ Status 404
-
-        maybeSetCell :: Text -> PciRef -> STM Bool
-        maybeSetCell imsi PciRef {..} = do
-            ues <- readTVar (ueMap self)
-            if HashMap.member imsi ues
-                then do writeTVar (ueMap self)
-                                  (HashMap.insert imsi pci ues)
-                        return True
-                else return False

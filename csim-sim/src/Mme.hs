@@ -11,16 +11,17 @@ module Main
 import Control.Concurrent.STM
 import Control.Monad (void)
 import Data.Aeson (FromJSON, ToJSON)
-import Data.HashMap.Strict (HashMap)
 import Data.String.Conversions (cs)
 import Data.Text (Text)
 import GHC.Generics (Generic)
 import Network.Nats
 
-import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
 
-import Common (stayAlive, splitTopic, ifReply)
+import Common ( Storage, emptyStorage, maybeInsert, maybeDelete
+              , isMember, listKeys, getItem
+              , stayAlive, splitTopic, ifReply
+              )
 import Options (Options (..), getOptions)
 
 data CreatePco = CreatePco
@@ -42,17 +43,17 @@ data IpConfig = IpConfig
     } deriving (Generic, Show, FromJSON, ToJSON)
 
 -- | Map from a mme name to a list of IP addresses (all represented as 'Text').
-type MmeMap = HashMap Text [Text]
+type MmeMap = Storage [Text]
 
 data Self = Self
-    { mmeMap :: !(TVar MmeMap)
+    { mmeMap :: !MmeMap
     , nextIp :: !(TVar Int)
     }
 
 main :: IO ()
 main = do
     options <- getOptions
-    self    <- Self <$> newTVarIO HashMap.empty
+    self    <- Self <$> atomically emptyStorage
                     <*> newTVarIO 1
 
     -- Connect to NATS.
@@ -98,15 +99,13 @@ createPco nats self msg =
 
         maybeInsertMme :: CreatePco -> STM Bool
         maybeInsertMme CreatePco {..} = do
-            mmes <- readTVar $ mmeMap self
-            case HashMap.lookup name mmes of
-                Just _  -> return False
-                Nothing -> do
+            isPartOf <- isMember (mmeMap self) name
+            if isPartOf
+                then return False
+                else do
                     ip <- readTVar (nextIp self)
                     modifyTVar (nextIp self) (+1)
-                    writeTVar (mmeMap self) $
-                        HashMap.insert name [ipAddress ip] mmes
-                    return True
+                    maybeInsert (mmeMap self) name [ipAddress ip]
 
 deletePco :: Nats -> Self -> Msg -> IO ()
 deletePco nats self msg =
@@ -116,19 +115,10 @@ deletePco nats self msg =
     where
         deletePco' :: Text -> IO Status
         deletePco' name = do
-            deleted <- atomically $ maybeDeleteMme name
+            deleted <- atomically $ maybeDelete (mmeMap self) name
             if deleted
                 then return Status { status = 200 }
                 else return Status { status = 404 }
-
-        maybeDeleteMme :: Text -> STM Bool
-        maybeDeleteMme name = do
-            mmes <- readTVar $ mmeMap self
-            case HashMap.lookup name mmes of
-                Just _  -> do
-                    modifyTVar (mmeMap self) $ HashMap.delete name
-                    return True
-                Nothing -> return False
 
 -- | List all MME pcos.
 listPcos :: Nats -> Self -> Msg -> IO ()
@@ -137,7 +127,7 @@ listPcos nats self msg =
     where
         listPcos' :: IO MmeNameList
         listPcos' = do
-            ns <- HashMap.keys <$> readTVarIO (mmeMap self)
+            ns <- atomically $ listKeys (mmeMap self)
             return MmeNameList { status = 200, names = Just ns }
 
 -- | Check existance of the MME.
@@ -145,7 +135,7 @@ exist :: Nats -> Self -> Msg -> IO ()
 exist nats self msg =
     ifReply msg $ \reply -> do
         let [_, _, _, name, _] = splitTopic $ topic msg
-        found <- HashMap.member (cs name) <$> readTVarIO (mmeMap self)
+        found <- atomically $ isMember (mmeMap self) (cs name)
         if found
             then publishJson nats reply Nothing Status { status = 200 }
             else publishJson nats reply Nothing Status { status = 404 }
@@ -159,7 +149,7 @@ getIpConfig nats self msg =
     where
         getIpConfig' :: Text -> IO IpConfig
         getIpConfig' name = do
-            maybeConfig <- HashMap.lookup name <$> readTVarIO (mmeMap self)
+            maybeConfig <- atomically $ getItem (mmeMap self) name
             case maybeConfig of
                 Just c  -> return $ IpConfig { status = 200, config = Just c }
                 Nothing -> return $ IpConfig { status = 404, config = Nothing }
