@@ -1,6 +1,7 @@
 module Types exposing
   ( Equipment (..)
   , Msg (..)
+  , Enb
   , Mme
   , Ue
   , PciRef
@@ -46,6 +47,10 @@ type Msg
   -- General REST related stuff.
   | RestOpFailed (Error String)
   | CloseErrorMsg
+
+type alias Enb =
+  { name : String
+  }
 
 type alias Mme =
   { name      : String

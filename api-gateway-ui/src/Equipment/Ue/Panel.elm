@@ -53,7 +53,7 @@ viewUePanel model =
     , viewUeList model
     ]
 
-{-| Tell the number of Ues attached to the model. -}
+{-| Tell the number of Ues that are attached to the model. -}
 numUes : UeModel -> Int
 numUes model = List.length model.ues
 

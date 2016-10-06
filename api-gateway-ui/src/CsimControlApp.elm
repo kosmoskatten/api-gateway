@@ -17,6 +17,9 @@ import Unicode as Uni
 
 import Types exposing (..)
 
+import Equipment.Enb.Panel exposing ( EnbModel, initEnb, numEnbs
+                                    , viewEnbPanel
+                                    )
 import Equipment.Mme.Panel exposing ( MmeModel, initMme, numMmes
                                     , viewMmePanel, openNewMmeForm
                                     , cancelNewMmeForm, onInputNewMmeName
@@ -36,6 +39,7 @@ import Equipment.Ue.Rest exposing (createUe, deleteUe, fetchStoredUes)
 type alias Model =
   { livePanel    : Equipment
   , errorMessage : Maybe String
+  , enbModel     : EnbModel
   , mmeModel     : MmeModel
   , ueModel      : UeModel
   }
@@ -43,6 +47,7 @@ type alias Model =
 init : (Model, Cmd Msg)
 init = ( { livePanel    = UE
          , errorMessage = Nothing
+         , enbModel     = initEnb
          , mmeModel     = initMme
          , ueModel      = initUe
          }
@@ -66,7 +71,7 @@ viewEquipmentSelectors : Model -> Html Msg
 viewEquipmentSelectors model =
   div [ A.class "w3-row-padding w3-margin-bottom" ]
       [ viewEquipmentSelector UE (numUes model.ueModel)
-      , viewEquipmentSelector ENB 0
+      , viewEquipmentSelector ENB (numEnbs model.enbModel)
       , viewEquipmentSelector MME (numMmes model.mmeModel)
       ]
 
@@ -120,14 +125,8 @@ viewEquipmentPanel : Model -> Html Msg
 viewEquipmentPanel model =
   case model.livePanel of
         UE  -> viewUePanel model.ueModel
-        ENB -> viewEnbPanel model
+        ENB -> viewEnbPanel model.enbModel
         MME -> viewMmePanel model.mmeModel
-
-viewEnbPanel : Model -> Html Msg
-viewEnbPanel model =
-  div [ A.class "w3-container" ]
-    [ h4 [] [ text "ENBs" ]
-    ]
 
 {-| Message pump for the app. Parts of the updating are delegated to
     other modules.
