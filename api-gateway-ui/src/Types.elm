@@ -24,7 +24,10 @@ type Equipment
 type Msg
   = SetLivePanel Equipment
 
-  -- MME stuff
+  -- ENB stuff.
+  | OpenNewEnbForm
+
+  -- MME stuff.
   | OpenNewMmeForm
   | CancelNewMmeForm
   | OnInputNewMmeName String

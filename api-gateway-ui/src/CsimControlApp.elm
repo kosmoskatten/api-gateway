@@ -18,7 +18,7 @@ import Unicode as Uni
 import Types exposing (..)
 
 import Equipment.Enb.Panel exposing ( EnbModel, initEnb, numEnbs
-                                    , viewEnbPanel
+                                    , viewEnbPanel, openNewEnbForm
                                     )
 import Equipment.Mme.Panel exposing ( MmeModel, initMme, numMmes
                                     , viewMmePanel, openNewMmeForm
@@ -137,16 +137,21 @@ update msg model =
     SetLivePanel newEquipment ->
       ({model | livePanel = newEquipment}, Cmd.none)
 
+    -- ENB stuff.
+    OpenNewEnbForm            ->
+      ({model | enbModel = openNewEnbForm model.enbModel}, Cmd.none)
+
+    -- MME stuff.
     OpenNewMmeForm            ->
       ({model | mmeModel = openNewMmeForm model.mmeModel}, Cmd.none)
 
     CancelNewMmeForm          ->
       ({model | mmeModel = cancelNewMmeForm model.mmeModel}, Cmd.none)
 
-    OnInputNewMmeName name ->
+    OnInputNewMmeName name    ->
       ({model | mmeModel = onInputNewMmeName model.mmeModel name}, Cmd.none)
 
-    SubmitNewMmeForm name  ->
+    SubmitNewMmeForm name     ->
       ({model | mmeModel = newMmeFormSubmitted model.mmeModel}, createMme name)
 
     StoredMmesFetched mmes    ->
@@ -161,6 +166,7 @@ update msg model =
     MmeDeleted mme            ->
       ({model | mmeModel = mmeDeleted model.mmeModel mme}, Cmd.none)
 
+    -- UE stuff.
     OpenNewUeForm             ->
       ({model | ueModel = openNewUeForm model.ueModel}, Cmd.none)
 
