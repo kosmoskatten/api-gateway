@@ -28,6 +28,7 @@ type Msg
   -- ENB stuff.
   | OpenNewEnbForm
   | CancelNewEnbForm
+  | OnInputNewEnbName String
   | SubmitNewEnbForm NewEnbFormFields
 
   -- MME stuff.

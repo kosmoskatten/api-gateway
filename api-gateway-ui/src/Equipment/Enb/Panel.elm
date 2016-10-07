@@ -5,6 +5,7 @@ module Equipment.Enb.Panel exposing
   , numEnbs
   , openNewEnbForm
   , cancelNewEnbForm
+  , onInputNewEnbName
   , newEnbFormSubmitted
   )
 
@@ -14,7 +15,9 @@ import Html exposing (..)
 import Html.Attributes as A
 
 import Types exposing (..)
-import Equipment.Widgets exposing ( addNewEquipBar, submitBtnGroup )
+import Equipment.Widgets exposing ( addNewEquipBar, submitBtnGroup
+                                  , formInput
+                                  )
 
 {-| Model for the Enb panel. -}
 type alias EnbModel =
@@ -53,7 +56,13 @@ newEnbForm fields =
   div []
     [ div [ A.class "w3-container w3-teal" ]
         [ h4 [] [ text "Add new ENB "] ]
-    , submitBtnGroup False (SubmitNewEnbForm fields) CancelNewEnbForm
+    , div [ A.class "w3-container", A.style [("padding-bottom", "20px")] ]
+      [ p [] []
+      , label [] [ text "New ENB name" ]
+      , formInput "Name for the new ENB (e.g. enb1)"
+                  fields.newEnbName OnInputNewEnbName
+      ]
+    , submitBtnGroup True (SubmitNewEnbForm fields) CancelNewEnbForm
     ]
 
 -- Event callbacks from the main update function.
@@ -67,6 +76,14 @@ openNewEnbForm model =
 cancelNewEnbForm : EnbModel -> EnbModel
 cancelNewEnbForm model =
   {model | panelType = AddEquip}
+
+{-| New ENB name input. -}
+onInputNewEnbName : EnbModel -> String -> EnbModel
+onInputNewEnbName model name =
+  case model.panelType of
+    NewEnbForm fields ->
+      { model | panelType = NewEnbForm {fields | newEnbName = name} }
+    _                 -> model
 
 {-| The form is submitted. -}
 newEnbFormSubmitted : EnbModel -> EnbModel

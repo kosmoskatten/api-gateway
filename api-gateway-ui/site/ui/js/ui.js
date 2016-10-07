@@ -9467,6 +9467,9 @@ var _kosmoskatten$api_gateway$Types$OpenNewMmeForm = {ctor: 'OpenNewMmeForm'};
 var _kosmoskatten$api_gateway$Types$SubmitNewEnbForm = function (a) {
 	return {ctor: 'SubmitNewEnbForm', _0: a};
 };
+var _kosmoskatten$api_gateway$Types$OnInputNewEnbName = function (a) {
+	return {ctor: 'OnInputNewEnbName', _0: a};
+};
 var _kosmoskatten$api_gateway$Types$CancelNewEnbForm = {ctor: 'CancelNewEnbForm'};
 var _kosmoskatten$api_gateway$Types$OpenNewEnbForm = {ctor: 'OpenNewEnbForm'};
 var _kosmoskatten$api_gateway$Types$SetLivePanel = function (a) {
@@ -9621,9 +9624,38 @@ var _kosmoskatten$api_gateway$Equipment_Enb_Panel$newEnbForm = function (fields)
 								_elm_lang$html$Html$text('Add new ENB ')
 							]))
 					])),
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_elm_lang$html$Html_Attributes$class('w3-container'),
+						_elm_lang$html$Html_Attributes$style(
+						_elm_lang$core$Native_List.fromArray(
+							[
+								{ctor: '_Tuple2', _0: 'padding-bottom', _1: '20px'}
+							]))
+					]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						A2(
+						_elm_lang$html$Html$p,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[])),
+						A2(
+						_elm_lang$html$Html$label,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text('New ENB name')
+							])),
+						A3(_kosmoskatten$api_gateway$Equipment_Widgets$formInput, 'Name for the new ENB (e.g. enb1)', fields.newEnbName, _kosmoskatten$api_gateway$Types$OnInputNewEnbName)
+					])),
 				A3(
 				_kosmoskatten$api_gateway$Equipment_Widgets$submitBtnGroup,
-				false,
+				true,
 				_kosmoskatten$api_gateway$Types$SubmitNewEnbForm(fields),
 				_kosmoskatten$api_gateway$Types$CancelNewEnbForm)
 			]));
@@ -9672,6 +9704,22 @@ var _kosmoskatten$api_gateway$Equipment_Enb_Panel$openNewEnbForm = function (mod
 			panelType: _kosmoskatten$api_gateway$Equipment_Enb_Panel$NewEnbForm(_kosmoskatten$api_gateway$Equipment_Enb_Panel$emptyFormFields)
 		});
 };
+var _kosmoskatten$api_gateway$Equipment_Enb_Panel$onInputNewEnbName = F2(
+	function (model, name) {
+		var _p1 = model.panelType;
+		if (_p1.ctor === 'NewEnbForm') {
+			return _elm_lang$core$Native_Utils.update(
+				model,
+				{
+					panelType: _kosmoskatten$api_gateway$Equipment_Enb_Panel$NewEnbForm(
+						_elm_lang$core$Native_Utils.update(
+							_p1._0,
+							{newEnbName: name}))
+				});
+		} else {
+			return model;
+		}
+	});
 var _kosmoskatten$api_gateway$Equipment_Enb_Panel$AddEquip = {ctor: 'AddEquip'};
 var _kosmoskatten$api_gateway$Equipment_Enb_Panel$initEnb = {
 	panelType: _kosmoskatten$api_gateway$Equipment_Enb_Panel$AddEquip,
@@ -10488,6 +10536,16 @@ var _kosmoskatten$api_gateway$CsimControlApp$update = F2(
 						model,
 						{
 							enbModel: _kosmoskatten$api_gateway$Equipment_Enb_Panel$cancelNewEnbForm(model.enbModel)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'OnInputNewEnbName':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							enbModel: A2(_kosmoskatten$api_gateway$Equipment_Enb_Panel$onInputNewEnbName, model.enbModel, _p2._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
