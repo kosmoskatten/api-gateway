@@ -19,6 +19,7 @@ import Types exposing (..)
 
 import Equipment.Enb.Panel exposing ( EnbModel, initEnb, numEnbs
                                     , viewEnbPanel, openNewEnbForm
+                                    , cancelNewEnbForm, newEnbFormSubmitted
                                     )
 import Equipment.Mme.Panel exposing ( MmeModel, initMme, numMmes
                                     , viewMmePanel, openNewMmeForm
@@ -140,6 +141,12 @@ update msg model =
     -- ENB stuff.
     OpenNewEnbForm            ->
       ({model | enbModel = openNewEnbForm model.enbModel}, Cmd.none)
+
+    CancelNewEnbForm          ->
+      ({model | enbModel = cancelNewEnbForm model.enbModel}, Cmd.none)
+
+    SubmitNewEnbForm _        ->
+      ({model | enbModel = newEnbFormSubmitted model.enbModel}, Cmd.none)
 
     -- MME stuff.
     OpenNewMmeForm            ->

@@ -6,6 +6,7 @@ module Types exposing
   , Ue
   , PciRef
   , UrlRef
+  , NewEnbFormFields
   , pciRef
   , urlRef
   )
@@ -26,6 +27,8 @@ type Msg
 
   -- ENB stuff.
   | OpenNewEnbForm
+  | CancelNewEnbForm
+  | SubmitNewEnbForm NewEnbFormFields
 
   -- MME stuff.
   | OpenNewMmeForm
@@ -73,6 +76,10 @@ type alias PciRef =
 
 type alias UrlRef =
   { url : String
+  }
+
+type alias NewEnbFormFields =
+  { newEnbName : String
   }
 
 {-| Json decoder for PciRef. -}
