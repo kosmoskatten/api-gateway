@@ -62,6 +62,22 @@ newEnbForm fields =
       , formInput "Name for the new ENB (e.g. enb1)"
                   fields.newEnbName
                   (OnInputNewEnb (\f v -> {f | newEnbName = v}))
+      , label [] [ text "New ENB ID" ]
+      , formInput "Id for the new ENB (e.g. 1234)"
+                  fields.newEnbId
+                  (OnInputNewEnb (\f v -> {f | newEnbId = v}))
+      , label [] [ text "New ENB MCC" ]
+      , formInput "MCC for the new ENB (e.g. 234)"
+                  fields.newEnbMcc
+                  (OnInputNewEnb (\f v -> {f | newEnbMcc = v}))
+      , label [] [ text "New ENB MNC" ]
+      , formInput "MNC for the new ENB (e.g. 89)"
+                  fields.newEnbMnc
+                  (OnInputNewEnb (\f v -> {f | newEnbMnc = v}))
+      , label [] [ text "New ENB MNC length" ]
+      , formInput "MNC length for the new ENB (2 or 3, e.g. 2)"
+                  fields.newEnbMncLength
+                  (OnInputNewEnb (\f v -> {f | newEnbMncLength = v}))
       ]
     , submitBtnGroup True (SubmitNewEnbForm fields) CancelNewEnbForm
     ]
@@ -88,13 +104,6 @@ onInputNewEnb model g value =
 
     _                 -> model
 
-onInputNewEnbName : EnbModel -> String -> EnbModel
-onInputNewEnbName model name =
-  case model.panelType of
-    NewEnbForm fields ->
-      { model | panelType = NewEnbForm {fields | newEnbName = name} }
-    _                 -> model
-
 {-| The form is submitted. -}
 newEnbFormSubmitted : EnbModel -> EnbModel
 newEnbFormSubmitted model =
@@ -102,5 +111,9 @@ newEnbFormSubmitted model =
 
 emptyFormFields : NewEnbFormFields
 emptyFormFields =
-  { newEnbName = ""
+  { newEnbName      = ""
+  , newEnbId        = ""
+  , newEnbMcc       = ""
+  , newEnbMnc       = ""
+  , newEnbMncLength = ""
   }

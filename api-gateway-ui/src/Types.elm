@@ -80,7 +80,11 @@ type alias UrlRef =
   }
 
 type alias NewEnbFormFields =
-  { newEnbName : String
+  { newEnbName      : String
+  , newEnbId        : String
+  , newEnbMcc       : String
+  , newEnbMnc       : String
+  , newEnbMncLength : String
   }
 
 {-| Json decoder for PciRef. -}

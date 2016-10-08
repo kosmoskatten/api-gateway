@@ -9414,9 +9414,10 @@ var _kosmoskatten$api_gateway$Types$urlRef = A2(
 	_elm_lang$core$Json_Decode$object1,
 	_kosmoskatten$api_gateway$Types$UrlRef,
 	A2(_elm_lang$core$Json_Decode_ops[':='], 'url', _elm_lang$core$Json_Decode$string));
-var _kosmoskatten$api_gateway$Types$NewEnbFormFields = function (a) {
-	return {newEnbName: a};
-};
+var _kosmoskatten$api_gateway$Types$NewEnbFormFields = F5(
+	function (a, b, c, d, e) {
+		return {newEnbName: a, newEnbId: b, newEnbMcc: c, newEnbMnc: d, newEnbMncLength: e};
+	});
 var _kosmoskatten$api_gateway$Types$MME = {ctor: 'MME'};
 var _kosmoskatten$api_gateway$Types$ENB = {ctor: 'ENB'};
 var _kosmoskatten$api_gateway$Types$UE = {ctor: 'UE'};
@@ -9600,7 +9601,7 @@ var _kosmoskatten$api_gateway$Equipment_Widgets$addNewEquipBar = F4(
 				]));
 	});
 
-var _kosmoskatten$api_gateway$Equipment_Enb_Panel$emptyFormFields = {newEnbName: ''};
+var _kosmoskatten$api_gateway$Equipment_Enb_Panel$emptyFormFields = {newEnbName: '', newEnbId: '', newEnbMcc: '', newEnbMnc: '', newEnbMncLength: ''};
 var _kosmoskatten$api_gateway$Equipment_Enb_Panel$newEnbForm = function (fields) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -9662,6 +9663,82 @@ var _kosmoskatten$api_gateway$Equipment_Enb_Panel$newEnbForm = function (fields)
 									return _elm_lang$core$Native_Utils.update(
 										f,
 										{newEnbName: v});
+								}))),
+						A2(
+						_elm_lang$html$Html$label,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text('New ENB ID')
+							])),
+						A3(
+						_kosmoskatten$api_gateway$Equipment_Widgets$formInput,
+						'Id for the new ENB (e.g. 1234)',
+						fields.newEnbId,
+						_kosmoskatten$api_gateway$Types$OnInputNewEnb(
+							F2(
+								function (f, v) {
+									return _elm_lang$core$Native_Utils.update(
+										f,
+										{newEnbId: v});
+								}))),
+						A2(
+						_elm_lang$html$Html$label,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text('New ENB MCC')
+							])),
+						A3(
+						_kosmoskatten$api_gateway$Equipment_Widgets$formInput,
+						'MCC for the new ENB (e.g. 234)',
+						fields.newEnbMcc,
+						_kosmoskatten$api_gateway$Types$OnInputNewEnb(
+							F2(
+								function (f, v) {
+									return _elm_lang$core$Native_Utils.update(
+										f,
+										{newEnbMcc: v});
+								}))),
+						A2(
+						_elm_lang$html$Html$label,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text('New ENB MNC')
+							])),
+						A3(
+						_kosmoskatten$api_gateway$Equipment_Widgets$formInput,
+						'MNC for the new ENB (e.g. 89)',
+						fields.newEnbMnc,
+						_kosmoskatten$api_gateway$Types$OnInputNewEnb(
+							F2(
+								function (f, v) {
+									return _elm_lang$core$Native_Utils.update(
+										f,
+										{newEnbMnc: v});
+								}))),
+						A2(
+						_elm_lang$html$Html$label,
+						_elm_lang$core$Native_List.fromArray(
+							[]),
+						_elm_lang$core$Native_List.fromArray(
+							[
+								_elm_lang$html$Html$text('New ENB MNC length')
+							])),
+						A3(
+						_kosmoskatten$api_gateway$Equipment_Widgets$formInput,
+						'MNC length for the new ENB (2 or 3, e.g. 2)',
+						fields.newEnbMncLength,
+						_kosmoskatten$api_gateway$Types$OnInputNewEnb(
+							F2(
+								function (f, v) {
+									return _elm_lang$core$Native_Utils.update(
+										f,
+										{newEnbMncLength: v});
 								})))
 					])),
 				A3(
@@ -9724,22 +9801,6 @@ var _kosmoskatten$api_gateway$Equipment_Enb_Panel$onInputNewEnb = F3(
 				{
 					panelType: _kosmoskatten$api_gateway$Equipment_Enb_Panel$NewEnbForm(
 						A2(g, _p1._0, value))
-				});
-		} else {
-			return model;
-		}
-	});
-var _kosmoskatten$api_gateway$Equipment_Enb_Panel$onInputNewEnbName = F2(
-	function (model, name) {
-		var _p2 = model.panelType;
-		if (_p2.ctor === 'NewEnbForm') {
-			return _elm_lang$core$Native_Utils.update(
-				model,
-				{
-					panelType: _kosmoskatten$api_gateway$Equipment_Enb_Panel$NewEnbForm(
-						_elm_lang$core$Native_Utils.update(
-							_p2._0,
-							{newEnbName: name}))
 				});
 		} else {
 			return model;
