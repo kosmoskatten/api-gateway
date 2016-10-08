@@ -9616,6 +9616,25 @@ var _kosmoskatten$api_gateway$Equipment_Widgets$addNewEquipBar = F4(
 	});
 
 var _kosmoskatten$api_gateway$Equipment_Enb_Panel$emptyFormFields = {newEnbName: '', newEnbId: '', newEnbMcc: '', newEnbMnc: '', newEnbMncLength: ''};
+var _kosmoskatten$api_gateway$Equipment_Enb_Panel$submitEnabled = function (fields) {
+	var mncLenOk = (_elm_lang$core$Native_Utils.cmp(
+		_elm_lang$core$String$length(fields.newEnbMncLength),
+		0) > 0) && A2(_elm_lang$core$String$all, _elm_lang$core$Char$isDigit, fields.newEnbMncLength);
+	var mncOk = (_elm_lang$core$Native_Utils.cmp(
+		_elm_lang$core$String$length(fields.newEnbMnc),
+		0) > 0) && A2(_elm_lang$core$String$all, _elm_lang$core$Char$isDigit, fields.newEnbMnc);
+	var mccOk = (_elm_lang$core$Native_Utils.cmp(
+		_elm_lang$core$String$length(fields.newEnbMcc),
+		0) > 0) && A2(_elm_lang$core$String$all, _elm_lang$core$Char$isDigit, fields.newEnbMcc);
+	var idOk = (_elm_lang$core$Native_Utils.cmp(
+		_elm_lang$core$String$length(fields.newEnbId),
+		0) > 0) && A2(_elm_lang$core$String$all, _elm_lang$core$Char$isDigit, fields.newEnbId);
+	var nameOk = (_elm_lang$core$Native_Utils.cmp(
+		_elm_lang$core$String$length(fields.newEnbName),
+		0) > 0) && (_kosmoskatten$api_gateway$Char_Extra$isFirstCharAlpha(fields.newEnbName) && _elm_lang$core$Basics$not(
+		A2(_elm_lang$core$String$any, _kosmoskatten$api_gateway$Char_Extra$isSpace, fields.newEnbName)));
+	return nameOk && (idOk && (mccOk && (mncOk && mncLenOk)));
+};
 var _kosmoskatten$api_gateway$Equipment_Enb_Panel$newEnbForm = function (fields) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -9757,7 +9776,7 @@ var _kosmoskatten$api_gateway$Equipment_Enb_Panel$newEnbForm = function (fields)
 					])),
 				A3(
 				_kosmoskatten$api_gateway$Equipment_Widgets$submitBtnGroup,
-				true,
+				_kosmoskatten$api_gateway$Equipment_Enb_Panel$submitEnabled(fields),
 				_kosmoskatten$api_gateway$Types$SubmitNewEnbForm(fields),
 				_kosmoskatten$api_gateway$Types$CancelNewEnbForm)
 			]));

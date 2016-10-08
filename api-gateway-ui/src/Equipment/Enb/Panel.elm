@@ -11,9 +11,12 @@ module Equipment.Enb.Panel exposing
 
 {-| Viewing of, and handling the model of, the Enb control panel. -}
 
+import Char exposing (isDigit)
 import Html exposing (..)
 import Html.Attributes as A
+import String exposing (any, all, length)
 
+import Char.Extra exposing (isSpace, isFirstCharAlpha)
 import Types exposing (..)
 import Equipment.Widgets exposing ( addNewEquipBar, submitBtnGroup
                                   , formInput
@@ -79,7 +82,8 @@ newEnbForm fields =
                   fields.newEnbMncLength
                   (OnInputNewEnb (\f v -> {f | newEnbMncLength = v}))
       ]
-    , submitBtnGroup True (SubmitNewEnbForm fields) CancelNewEnbForm
+    , submitBtnGroup (submitEnabled fields) (SubmitNewEnbForm fields)
+                     CancelNewEnbForm
     ]
 
 -- Event callbacks from the main update function.
@@ -108,6 +112,23 @@ onInputNewEnb model g value =
 newEnbFormSubmitted : EnbModel -> EnbModel
 newEnbFormSubmitted model =
   {model | panelType = AddEquip}
+
+submitEnabled : NewEnbFormFields -> Bool
+submitEnabled fields =
+  let nameOk   = length fields.newEnbName > 0
+              && isFirstCharAlpha fields.newEnbName
+              && not (any isSpace fields.newEnbName)
+
+      idOk     = length fields.newEnbId > 0 && all isDigit fields.newEnbId
+
+      mccOk    = length fields.newEnbMcc > 0 && all isDigit fields.newEnbMcc
+
+      mncOk    = length fields.newEnbMnc > 0 && all isDigit fields.newEnbMnc
+
+      mncLenOk = length fields.newEnbMncLength > 0
+              && all isDigit fields.newEnbMncLength
+
+  in nameOk && idOk && mccOk && mncOk && mncLenOk
 
 emptyFormFields : NewEnbFormFields
 emptyFormFields =
