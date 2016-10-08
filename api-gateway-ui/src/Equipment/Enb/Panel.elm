@@ -61,7 +61,7 @@ newEnbForm fields =
       , label [] [ text "New ENB name" ]
       , formInput "Name for the new ENB (e.g. enb1)"
                   fields.newEnbName
-                  (OnInputNewEnb (\fields name -> {fields | newEnbName = name}))
+                  (OnInputNewEnb (\f v -> {f | newEnbName = v}))
       ]
     , submitBtnGroup True (SubmitNewEnbForm fields) CancelNewEnbForm
     ]

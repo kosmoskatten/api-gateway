@@ -9658,10 +9658,10 @@ var _kosmoskatten$api_gateway$Equipment_Enb_Panel$newEnbForm = function (fields)
 						fields.newEnbName,
 						_kosmoskatten$api_gateway$Types$OnInputNewEnb(
 							F2(
-								function (fields, name) {
+								function (f, v) {
 									return _elm_lang$core$Native_Utils.update(
-										fields,
-										{newEnbName: name});
+										f,
+										{newEnbName: v});
 								})))
 					])),
 				A3(
