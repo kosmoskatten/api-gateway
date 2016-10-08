@@ -5,7 +5,7 @@ module Equipment.Enb.Panel exposing
   , numEnbs
   , openNewEnbForm
   , cancelNewEnbForm
-  , onInputNewEnbName
+  , onInputNewEnb
   , newEnbFormSubmitted
   )
 
@@ -60,7 +60,8 @@ newEnbForm fields =
       [ p [] []
       , label [] [ text "New ENB name" ]
       , formInput "Name for the new ENB (e.g. enb1)"
-                  fields.newEnbName OnInputNewEnbName
+                  fields.newEnbName
+                  (OnInputNewEnb (\fields name -> {fields | newEnbName = name}))
       ]
     , submitBtnGroup True (SubmitNewEnbForm fields) CancelNewEnbForm
     ]
@@ -78,6 +79,15 @@ cancelNewEnbForm model =
   {model | panelType = AddEquip}
 
 {-| New ENB name input. -}
+onInputNewEnb : EnbModel -> (NewEnbFormFields -> String -> NewEnbFormFields)
+             -> String -> EnbModel
+onInputNewEnb model g value =
+  case model.panelType of
+    NewEnbForm fields ->
+      { model | panelType = NewEnbForm <| g fields value }
+
+    _                 -> model
+
 onInputNewEnbName : EnbModel -> String -> EnbModel
 onInputNewEnbName model name =
   case model.panelType of
