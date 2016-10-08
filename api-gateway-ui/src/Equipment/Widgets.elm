@@ -30,10 +30,10 @@ addNewEquipBar color tooltip caption msg =
 
 {-| Button group with two buttons - Submit and Cancel. -}
 submitBtnGroup : Bool -> Msg -> Msg -> Html Msg
-submitBtnGroup disable submit cancel =
+submitBtnGroup enabled submit cancel =
   div [ A.class "w3-container", A.style [("padding-bottom", "10px")]]
       [ button [ A.class "w3-btn w3-green"
-               , A.disabled disable
+               , A.disabled <| not enabled
                , E.onClick submit
                ]
                [ text "Submit" ]

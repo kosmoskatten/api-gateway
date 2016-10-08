@@ -9044,6 +9044,11 @@ var _jasonmahr$html_escape_sequences$Unicode$text$ = function (_p0) {
 };
 var _jasonmahr$html_escape_sequences$Unicode$txt = _jasonmahr$html_escape_sequences$Unicode$text$;
 
+var _kosmoskatten$api_gateway$Char_Extra$firstChar = function (_p0) {
+	return _elm_lang$core$List$head(
+		_elm_lang$core$String$toList(
+			A2(_elm_lang$core$String$left, 1, _p0)));
+};
 var _kosmoskatten$api_gateway$Char_Extra$isSpace = function (c) {
 	return _elm_lang$core$Native_Utils.eq(
 		c,
@@ -9062,6 +9067,14 @@ var _kosmoskatten$api_gateway$Char_Extra$isAlpha = function (c) {
 		_elm_lang$core$Native_Utils.chr('a')) > -1) && (_elm_lang$core$Native_Utils.cmp(
 		c$,
 		_elm_lang$core$Native_Utils.chr('z')) < 1);
+};
+var _kosmoskatten$api_gateway$Char_Extra$isFirstCharAlpha = function (str) {
+	var _p1 = _kosmoskatten$api_gateway$Char_Extra$firstChar(str);
+	if (_p1.ctor === 'Just') {
+		return _kosmoskatten$api_gateway$Char_Extra$isAlpha(_p1._0);
+	} else {
+		return false;
+	}
 };
 
 var _lukewestby$elm_http_builder$HttpBuilder$appendQuery = F3(
@@ -9515,7 +9528,7 @@ var _kosmoskatten$api_gateway$Equipment_Widgets$formInput = F3(
 				[]));
 	});
 var _kosmoskatten$api_gateway$Equipment_Widgets$submitBtnGroup = F3(
-	function (disable, submit, cancel) {
+	function (enabled, submit, cancel) {
 		return A2(
 			_elm_lang$html$Html$div,
 			_elm_lang$core$Native_List.fromArray(
@@ -9534,7 +9547,8 @@ var _kosmoskatten$api_gateway$Equipment_Widgets$submitBtnGroup = F3(
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_elm_lang$html$Html_Attributes$class('w3-btn w3-green'),
-							_elm_lang$html$Html_Attributes$disabled(disable),
+							_elm_lang$html$Html_Attributes$disabled(
+							_elm_lang$core$Basics$not(enabled)),
 							_elm_lang$html$Html_Events$onClick(submit)
 						]),
 					_elm_lang$core$Native_List.fromArray(
@@ -9823,24 +9837,11 @@ var _kosmoskatten$api_gateway$Equipment_Enb_Panel$newEnbFormSubmitted = function
 		{panelType: _kosmoskatten$api_gateway$Equipment_Enb_Panel$AddEquip});
 };
 
-var _kosmoskatten$api_gateway$Equipment_Mme_Panel$firstChar = function (_p0) {
-	return _elm_lang$core$List$head(
-		_elm_lang$core$String$toList(
-			A2(_elm_lang$core$String$left, 1, _p0)));
-};
-var _kosmoskatten$api_gateway$Equipment_Mme_Panel$isFirstCharAlpha = function (str) {
-	var _p1 = _kosmoskatten$api_gateway$Equipment_Mme_Panel$firstChar(str);
-	if (_p1.ctor === 'Just') {
-		return _kosmoskatten$api_gateway$Char_Extra$isAlpha(_p1._0);
-	} else {
-		return false;
-	}
-};
-var _kosmoskatten$api_gateway$Equipment_Mme_Panel$shallNewMmeSubmitBeDisabled = function (newMme) {
+var _kosmoskatten$api_gateway$Equipment_Mme_Panel$submitEnabled = function (newMme) {
 	return (_elm_lang$core$Native_Utils.cmp(
 		_elm_lang$core$String$length(newMme),
-		1) < 0) || (_elm_lang$core$Basics$not(
-		_kosmoskatten$api_gateway$Equipment_Mme_Panel$isFirstCharAlpha(newMme)) || A2(_elm_lang$core$String$any, _kosmoskatten$api_gateway$Char_Extra$isSpace, newMme));
+		0) > 0) && (_kosmoskatten$api_gateway$Char_Extra$isFirstCharAlpha(newMme) && _elm_lang$core$Basics$not(
+		A2(_elm_lang$core$String$any, _kosmoskatten$api_gateway$Char_Extra$isSpace, newMme)));
 };
 var _kosmoskatten$api_gateway$Equipment_Mme_Panel$mmeDeleted = F2(
 	function (model, mme) {
@@ -10032,7 +10033,7 @@ var _kosmoskatten$api_gateway$Equipment_Mme_Panel$newMmeForm = function (model) 
 					])),
 				A3(
 				_kosmoskatten$api_gateway$Equipment_Widgets$submitBtnGroup,
-				_kosmoskatten$api_gateway$Equipment_Mme_Panel$shallNewMmeSubmitBeDisabled(model.newMmeName),
+				_kosmoskatten$api_gateway$Equipment_Mme_Panel$submitEnabled(model.newMmeName),
 				_kosmoskatten$api_gateway$Types$SubmitNewMmeForm(model.newMmeName),
 				_kosmoskatten$api_gateway$Types$CancelNewMmeForm)
 			]));
@@ -10199,11 +10200,10 @@ var _kosmoskatten$api_gateway$Equipment_Mme_Rest$fetchStoredMmes = A3(
 				A2(_elm_lang$core$List$map, _kosmoskatten$api_gateway$Equipment_Mme_Rest$resolveMmeTask, xs));
 		}));
 
-var _kosmoskatten$api_gateway$Equipment_Ue_Panel$shallNewUeSubmitBeDisabled = function (newUe) {
+var _kosmoskatten$api_gateway$Equipment_Ue_Panel$submitEnabled = function (newUe) {
 	return (_elm_lang$core$Native_Utils.cmp(
 		_elm_lang$core$String$length(newUe),
-		1) < 0) || _elm_lang$core$Basics$not(
-		A2(_elm_lang$core$String$all, _elm_lang$core$Char$isDigit, newUe));
+		0) > 0) && A2(_elm_lang$core$String$all, _elm_lang$core$Char$isDigit, newUe);
 };
 var _kosmoskatten$api_gateway$Equipment_Ue_Panel$ueDeleted = F2(
 	function (model, ue) {
@@ -10398,7 +10398,7 @@ var _kosmoskatten$api_gateway$Equipment_Ue_Panel$newUeForm = function (model) {
 					])),
 				A3(
 				_kosmoskatten$api_gateway$Equipment_Widgets$submitBtnGroup,
-				_kosmoskatten$api_gateway$Equipment_Ue_Panel$shallNewUeSubmitBeDisabled(model.newUeImsi),
+				_kosmoskatten$api_gateway$Equipment_Ue_Panel$submitEnabled(model.newUeImsi),
 				_kosmoskatten$api_gateway$Types$SubmitNewUeForm(model.newUeImsi),
 				_kosmoskatten$api_gateway$Types$CancelNewUeForm)
 			]));

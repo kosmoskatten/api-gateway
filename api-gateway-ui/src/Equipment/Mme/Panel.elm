@@ -15,7 +15,7 @@ module Equipment.Mme.Panel exposing
 {-| Viewing of, and handling the model of, the Mme control panel. -}
 
 import Array exposing (get)
-import Char.Extra exposing (isAlpha, isSpace)
+import Char.Extra exposing (isAlpha, isSpace, isFirstCharAlpha)
 import Html exposing (..)
 import Html.Attributes as A
 import List exposing (head, filter, map)
@@ -70,7 +70,7 @@ newMmeForm model =
         , formInput "Name for the new MME (e.g. mme1)"
                     model.newMmeName OnInputNewMmeName
         ]
-    , submitBtnGroup (shallNewMmeSubmitBeDisabled model.newMmeName)
+    , submitBtnGroup (submitEnabled model.newMmeName)
                      (SubmitNewMmeForm model.newMmeName) CancelNewMmeForm
     ]
 
@@ -137,16 +137,7 @@ mmeDeleted : MmeModel -> Mme -> MmeModel
 mmeDeleted model mme =
   {model | mmes = filter (\x -> x.name /= mme.name) model.mmes}
 
-{-| Input data validator, to tell if "Submit" shall be disabled. -}
-shallNewMmeSubmitBeDisabled : String -> Bool
-shallNewMmeSubmitBeDisabled newMme =
-    length newMme < 1 || not (isFirstCharAlpha newMme) || any isSpace newMme
-
-isFirstCharAlpha : String -> Bool
-isFirstCharAlpha str =
-  case firstChar str of
-    Just c  -> isAlpha c
-    Nothing -> False
-
-firstChar : String -> Maybe Char
-firstChar = head << toList << left 1
+{-| Input data validator, to tell if "Submit" shall be enabled. -}
+submitEnabled : String -> Bool
+submitEnabled newMme =
+    length newMme > 0 && isFirstCharAlpha newMme && not (any isSpace newMme)

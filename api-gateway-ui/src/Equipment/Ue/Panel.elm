@@ -69,7 +69,7 @@ newUeForm model =
         , formInput "Imsi number for the new UE (e.g. 123456)"
                     model.newUeImsi OnInputNewUeImsi
         ]
-    , submitBtnGroup (shallNewUeSubmitBeDisabled model.newUeImsi)
+    , submitBtnGroup (submitEnabled model.newUeImsi)
                      (SubmitNewUeForm model.newUeImsi) CancelNewUeForm
     ]
 
@@ -139,7 +139,7 @@ ueDeleted : UeModel -> Ue -> UeModel
 ueDeleted model ue =
   {model | ues = filter (\x -> x.imsi /= ue.imsi) model.ues}
 
-{-| Input data validator, to tell if "Submit" shall be disabled. -}
-shallNewUeSubmitBeDisabled : String -> Bool
-shallNewUeSubmitBeDisabled newUe =
-  length newUe < 1 || not (all isDigit newUe)
+{-| Input data validator, to tell if "Submit" shall be enabled. -}
+submitEnabled : String -> Bool
+submitEnabled newUe =
+  length newUe > 0 && all isDigit newUe
