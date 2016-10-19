@@ -7,6 +7,7 @@ module Equipment.Enb.Panel exposing
   , cancelNewEnbForm
   , onInputNewEnb
   , newEnbFormSubmitted
+  , newEnbCreated
   )
 
 {-| Viewing of, and handling the model of, the Enb control panel. -}
@@ -14,6 +15,7 @@ module Equipment.Enb.Panel exposing
 import Char exposing (isDigit)
 import Html exposing (..)
 import Html.Attributes as A
+import List exposing (map)
 import String exposing (any, all, length)
 
 import Char.Extra exposing (isSpace, isFirstCharAlpha)
@@ -47,6 +49,7 @@ viewEnbPanel model =
         AddEquip -> addNewEquipBar "w3-teal" "Open the form to create a new ENB"
                                    "Add new ENB" OpenNewEnbForm
         NewEnbForm fields -> newEnbForm fields
+    , viewEnbList model
     ]
 
 {-| Tell the number of Enbs that are attached to the model. -}
@@ -86,6 +89,25 @@ newEnbForm fields =
                      CancelNewEnbForm
     ]
 
+{-| View the list of ENBs. -}
+viewEnbList : EnbModel -> Html Msg
+viewEnbList model =
+  table [ A.class "w3-table-all" ]
+    (viewEnbListHead :: map viewEnbListItem model.enbs)
+
+viewEnbListHead : Html Msg
+viewEnbListHead =
+  tr []
+    [ th [] [ text "ENB name" ]
+    , th [] [ text "Associated MME" ]
+    , th [] [ text "Delete ENB" ]
+    ]
+
+viewEnbListItem : Enb -> Html Msg
+viewEnbListItem enb =
+  tr []
+    [ td [] [text enb.name] ]
+
 -- Event callbacks from the main update function.
 
 {-| Request to open the input form for creating a new ENB. -}
@@ -112,6 +134,11 @@ onInputNewEnb model g value =
 newEnbFormSubmitted : EnbModel -> EnbModel
 newEnbFormSubmitted model =
   {model | panelType = AddEquip}
+
+{-| Response for the API, the ENB is created. -}
+newEnbCreated : EnbModel -> Enb -> EnbModel
+newEnbCreated model enb =
+  {model | enbs = model.enbs ++ [enb]}
 
 submitEnabled : NewEnbFormFields -> Bool
 submitEnabled fields =

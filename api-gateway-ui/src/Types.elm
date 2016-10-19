@@ -30,6 +30,7 @@ type Msg
   | CancelNewEnbForm
   | OnInputNewEnb (NewEnbFormFields -> String -> NewEnbFormFields) String
   | SubmitNewEnbForm NewEnbFormFields
+  | NewEnbCreated Enb
 
   -- MME stuff.
   | OpenNewMmeForm
@@ -57,6 +58,7 @@ type Msg
 
 type alias Enb =
   { name : String
+  , url  : String
   }
 
 type alias Mme =
