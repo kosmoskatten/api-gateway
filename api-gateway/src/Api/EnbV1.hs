@@ -48,6 +48,10 @@ type EnbV1API
  :<|> "api" :> "v1" :> "enb" :> Capture "name" Text
                              :> Get '[JSON] [EnbAttributesDesc]
 
+      -- Fetch the MME bindings.
+ :<|> "api" :> "v1" :> "enb" :> Capture "name" Text :> "mme"
+                             :> Get '[JSON] [Text]
+
 -- | JSON object to construct a new eNodeB.
 data EnbCtor = EnbCtor
     { name   :: !Text
@@ -123,6 +127,15 @@ data EnbNameList = EnbNameList
 instance HasStatus EnbNameList where
     statusCode = status
 
+-- | List the eNodeB's MME bindings, with status indicator.
+data MmeBindings = MmeBindings
+    { status   :: !StatusCode
+    , bindings :: ![Text]
+    } deriving (Generic, Show, FromJSON, ToJSON)
+
+instance HasStatus MmeBindings where
+    statusCode = status
+
 -- | The service implementing 'EnbV1API'.
 enbV1Service :: Self -> Server EnbV1API
 enbV1Service self
@@ -130,6 +143,7 @@ enbV1Service self
  :<|> createEnb self
  :<|> deleteEnb self
  :<|> listAttributes self
+ :<|> fetchMmes self
 
 -- | List all eNodeBs. References the app.v1.enb.listPcos topic.
 listEnbs :: Self -> Handler [EnbUrlRef]
@@ -159,7 +173,7 @@ deleteEnb self name = do
     handleReply :: Status -> NoContent
     handleReply _ = NoContent
 
--- | List an eNodeB's attributes. The eNodeB must exist. References then
+-- | List an eNodeB's attributes. The eNodeB must exist. References the
 -- app.v1.enb.*.exist topic.
 listAttributes :: Self -> Text -> Handler [EnbAttributesDesc]
 listAttributes self name = do
@@ -173,6 +187,16 @@ listAttributes self name = do
             , desc = "Fetch MME bindings"
             }
         ]
+
+-- | Fetch the MME bindings for a eNodeB. References then
+-- app.v1.enb.*.mme topic.
+fetchMmes :: Self -> Text -> Handler [Text]
+fetchMmes self name = do
+    let topic' = concatTopic ["app.v1.enb", cs name, "mme"]
+    csimRequest self topic' $ actOnStatus 200 handleReply
+  where
+    handleReply :: MmeBindings -> [Text]
+    handleReply = bindings
 
 baseUrl :: URL
 baseUrl = "/api/v1/enb"
