@@ -18,7 +18,7 @@ import GHC.Generics (Generic)
 import Network.Nats
 
 import Common ( Storage, emptyStorage, maybeInsert, maybeDelete
-              , listKeys, stayAlive, splitTopic, ifReply
+              , listKeys, stayAlive, splitTopic, ifReply, isMember
               )
 import Options (Options (..), getOptions)
 
@@ -68,6 +68,10 @@ main = do
         void $ subscribeAsync nats "app.v1.enb.listPcos"
                               Nothing (listPcos nats self)
 
+        -- | Subscribe to the exist topic.
+        void $ subscribeAsync nats "app.v1.enb.*.exist"
+                              Nothing (exist nats self)
+
         -- Make the main thread staying alive.
         stayAlive
 
@@ -107,3 +111,13 @@ listPcos nats self msg =
         listPcos' = do
             ns <- atomically $ listKeys (enbMap self)
             return EnbNameList { status = 200, names = Just ns }
+
+-- | Check existance of the MME.
+exist :: Nats -> Self -> Msg -> IO ()
+exist nats self msg =
+    ifReply msg $ \reply -> do
+        let [_, _, _, name, _] = splitTopic $ topic msg
+        found <- atomically $ isMember (enbMap self) (cs name)
+        if found
+            then publishJson nats reply Nothing Status { status = 200 }
+            else publishJson nats reply Nothing Status { status = 404 }

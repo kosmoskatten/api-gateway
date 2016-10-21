@@ -44,6 +44,10 @@ type EnbV1API
  :<|> "api" :> "v1" :> "enb" :> Capture "name" Text
                              :> DeleteNoContent '[JSON] NoContent
 
+      -- List all attributes for an eNodeB.
+ :<|> "api" :> "v1" :> "enb" :> Capture "name" Text
+                             :> Get '[JSON] [EnbAttributesDesc]
+
 -- | JSON object to construct a new eNodeB.
 data EnbCtor = EnbCtor
     { name   :: !Text
@@ -82,6 +86,22 @@ instance ToSchema PlmnId where
                               , mncLength = 2
                               }
 
+-- | Describe the attributes provided by eNodeB.
+data EnbAttributesDesc = EnbAttributesDesc
+    { url  :: !URL
+    , desc :: !Text
+    } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
+
+-- | Swagger schema for 'EnbAttributesDesc'.
+instance ToSchema EnbAttributesDesc where
+    declareNamedSchema proxy =
+        genericDeclareNamedSchema defaultSchemaOptions proxy
+            & mapped.schema.description ?~ "ENB attribute"
+            & mapped.schema.example ?~
+                toJSON EnbAttributesDesc { url  = "api/v1/enb/enb1/mme"
+                                         , desc = "Fetch MME bindings"
+                                         }
+
 -- | JSON object with one member, the url to an eNodeB resource.
 data EnbUrlRef = EnbUrlRef
     { url :: !URL
@@ -109,34 +129,50 @@ enbV1Service self
     = listEnbs self
  :<|> createEnb self
  :<|> deleteEnb self
+ :<|> listAttributes self
 
 -- | List all eNodeBs. References the app.v1.enb.listPcos topic.
 listEnbs :: Self -> Handler [EnbUrlRef]
 listEnbs self =
     csimRequest self "app.v1.enb.listPcos" $ actOnStatus 200 handleReply
-    where
-        handleReply :: EnbNameList -> [EnbUrlRef]
-        handleReply EnbNameList {..} =
-            map (\name -> EnbUrlRef { url = concatURL [baseUrl, name] })
-                (fromJust names)
+  where
+    handleReply :: EnbNameList -> [EnbUrlRef]
+    handleReply EnbNameList {..} =
+        map (\name -> EnbUrlRef { url = concatURL [baseUrl, name] })
+            (fromJust names)
 
 -- | Create a new eNodeB. References the app.v1.enb.createPco topic.
 createEnb :: Self -> EnbCtor -> Handler EnbUrlRef
 createEnb self enbCtor@EnbCtor {..} =
     csimRequestJSON self "app.v1.enb.createPco" enbCtor $
         actOnStatus 201 handleReply
-    where
-        handleReply :: Status -> EnbUrlRef
-        handleReply _ = EnbUrlRef { url = concatURL [baseUrl, name] }
+  where
+    handleReply :: Status -> EnbUrlRef
+    handleReply _ = EnbUrlRef { url = concatURL [baseUrl, name] }
 
 -- | Delete an eNodeB. References the app.v1.enb.deletePco.* topic.
 deleteEnb :: Self -> Text -> Handler NoContent
 deleteEnb self name = do
     let topic' = concatTopic ["app.v1.enb.deletePco", cs name]
     csimRequest self topic' $ actOnStatus 200 handleReply
-    where
-        handleReply :: Status -> NoContent
-        handleReply _ = NoContent
+  where
+    handleReply :: Status -> NoContent
+    handleReply _ = NoContent
+
+-- | List an eNodeB's attributes. The eNodeB must exist. References then
+-- app.v1.enb.*.exist topic.
+listAttributes :: Self -> Text -> Handler [EnbAttributesDesc]
+listAttributes self name = do
+    let topic' = concatTopic ["app.v1.enb", cs name, "exist"]
+    csimRequest self topic' $ actOnStatus 200 handleReply
+  where
+    handleReply :: Status -> [EnbAttributesDesc]
+    handleReply _ =
+        [ EnbAttributesDesc
+            { url  = concatURL [baseUrl, name, "mme"]
+            , desc = "Fetch MME bindings"
+            }
+        ]
 
 baseUrl :: URL
 baseUrl = "/api/v1/enb"

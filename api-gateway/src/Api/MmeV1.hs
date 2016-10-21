@@ -48,7 +48,7 @@ type MmeV1API
  :<|> "api" :> "v1" :> "mme" :> Capture "name" Text
                              :> Get '[JSON] [MmeAttributeDesc]
 
-      -- Get the IP config attribute for the references MME.
+      -- Get the IP config attribute for the referenced MME.
  :<|> "api" :> "v1" :> "mme" :> Capture "name" Text :> "ip-config"
                              :> Get '[JSON] [Text]
 
