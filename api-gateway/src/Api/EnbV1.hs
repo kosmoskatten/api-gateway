@@ -50,7 +50,7 @@ type EnbV1API
 
       -- Fetch the MME bindings.
  :<|> "api" :> "v1" :> "enb" :> Capture "name" Text :> "mme"
-                             :> Get '[JSON] [Text]
+                             :> Get '[JSON] [MmeBinding]
 
 -- | JSON object to construct a new eNodeB.
 data EnbCtor = EnbCtor
@@ -103,8 +103,21 @@ instance ToSchema EnbAttributesDesc where
             & mapped.schema.description ?~ "ENB attribute"
             & mapped.schema.example ?~
                 toJSON EnbAttributesDesc { url  = "api/v1/enb/enb1/mme"
-                                         , desc = "Fetch MME bindings"
+                                         , desc = "Fetch or set MME  bindings"
                                          }
+
+-- | MME binding for an eNodeB.
+data MmeBinding = MmeBinding
+    { s1IpAddress :: !Text
+    } deriving (Generic, Show, Typeable, FromJSON, ToJSON)
+
+-- | Swagger schema for 'MmeBinding'.
+instance ToSchema MmeBinding where
+    declareNamedSchema proxy =
+        genericDeclareNamedSchema defaultSchemaOptions proxy
+            & mapped.schema.description ?~ "Object with MME binding"
+            & mapped.schema.example ?~
+                toJSON MmeBinding { s1IpAddress = "10.10.10.1" }
 
 -- | JSON object with one member, the url to an eNodeB resource.
 data EnbUrlRef = EnbUrlRef
@@ -130,7 +143,7 @@ instance HasStatus EnbNameList where
 -- | List the eNodeB's MME bindings, with status indicator.
 data MmeBindings = MmeBindings
     { status   :: !StatusCode
-    , bindings :: ![Text]
+    , bindings :: ![MmeBinding]
     } deriving (Generic, Show, FromJSON, ToJSON)
 
 instance HasStatus MmeBindings where
@@ -184,18 +197,18 @@ listAttributes self name = do
     handleReply _ =
         [ EnbAttributesDesc
             { url  = concatURL [baseUrl, name, "mme"]
-            , desc = "Fetch MME bindings"
+            , desc = "Fetch or set MME bindings"
             }
         ]
 
 -- | Fetch the MME bindings for a eNodeB. References then
 -- app.v1.enb.*.mme topic.
-fetchMmes :: Self -> Text -> Handler [Text]
+fetchMmes :: Self -> Text -> Handler [MmeBinding]
 fetchMmes self name = do
     let topic' = concatTopic ["app.v1.enb", cs name, "mme"]
     csimRequest self topic' $ actOnStatus 200 handleReply
   where
-    handleReply :: MmeBindings -> [Text]
+    handleReply :: MmeBindings -> [MmeBinding]
     handleReply = bindings
 
 baseUrl :: URL
